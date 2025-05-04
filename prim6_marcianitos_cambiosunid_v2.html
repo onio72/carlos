@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego de Conversión de Unidades - Marcianitos</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; color: #fff; font-family: Arial, sans-serif; overflow: hidden; }
+    #menu { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+    #menu button { margin: 10px; padding: 10px 20px; font-size: 18px; cursor: pointer; }
+    #hud { display: none; position: absolute; top: 10px; left: 50%; transform: translateX(-50%); text-align: center; font-size: 20px; z-index: 10; }
+    #hud span { margin: 0 15px; }
+    #controls { display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); }
+    #controls button { margin: 0 10px; padding: 5px 15px; font-size: 16px; cursor: pointer; }
+    canvas { display: none; margin: auto; background: #111; outline: none; }
+  </style>
+</head>
+<body>
+  <div id="menu">
+    <h1>Seleccione nivel</h1>
+    <button data-level="1">Nivel 1</button>
+    <button data-level="2">Nivel 2</button>
+    <button data-level="3">Nivel 3</button>
+  </div>
+  <div id="hud">
+    <span id="question">Cargando...</span>
+    <span id="score">Puntuación: 0</span>
+    <span id="lives">Vidas: 3</span>
+  </div>
+  <div id="controls">
+    <button id="restartBtn">Reiniciar nivel</button>
+    <button id="menuBtn">Volver a inicio</button>
+  </div>
+  <canvas id="gameCanvas" width="800" height="800" tabindex="0"></canvas>
+
+  <script>
+    const menu = document.getElementById('menu');
+    const hud = document.getElementById('hud');
+    const controls = document.getElementById('controls');
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const hudQ = document.getElementById('question');
+    const hudS = document.getElementById('score');
+    const hudL = document.getElementById('lives');
+    const restartBtn = document.getElementById('restartBtn');
+    const menuBtn = document.getElementById('menuBtn');
+
+    // Prefijos y tipos
+    const prefixes = [
+      { sym: 'k', exp: 3 }, { sym: 'h', exp: 2 }, { sym: 'da', exp: 1 },
+      { sym: '', exp: 0 }, { sym: 'd', exp: -1 }, { sym: 'c', exp: -2 }, { sym: 'm', exp: -3 }
+    ];
+    const allTypes = [
+      { base: 'g', power: 1 }, { base: 'm', power: 1 }, { base: 'm', power: 2 },
+      { base: 'L', power: 1 }, { base: 'm', power: 3 }
+    ];
+
+    let maxOrder = 2;
+    let allowedPowers = [1];
+
+    // Formateo con grupos de 3 en parte entera y decimal
+    function formatValue(val, decimals) {
+      let str = (decimals != null) ? val.toFixed(decimals) : val.toString();
+      if (str.includes('e')) {
+        const m = /e([+-]\d+)$/.exec(str);
+        const e = m ? parseInt(m[1]) : 0;
+        str = val.toFixed(Math.max(decimals || 0, Math.abs(e)));
+      }
+      let [intPart, decPart] = str.split('.');
+      intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      if (!decPart) return intPart;
+      // agrupar decimales
+      const groups = decPart.match(/.{1,3}/g);
+      return intPart + '.' + groups.join(' ');
+    }
+
+    // Estado
+    let score = 0, lives = 3, gameOver = false;
+    const player = { w: 40, h: 40, speed: 5, dx: 0, cooldown: 0 };
+    let playerX, playerY;
+    const playerBullets = [];
+    const invaderBullets = [];
+    let invaders = [], invDir = 1;
+    const baseInvSpeed = 1, invDrop = 20;    // velocidad base y descenso
+
+    // Seleccion nivel
+    menu.addEventListener('click', e => {
+      if (e.target.tagName === 'BUTTON') {
+        const lvl = +e.target.dataset.level;
+        if (lvl === 1) { maxOrder = 2; allowedPowers = [1]; }
+        if (lvl === 2) { maxOrder = 4; allowedPowers = [1, 2]; }
+        if (lvl === 3) { maxOrder = 6; allowedPowers = [1, 2, 3]; }
+        menu.style.display = 'none';
+        hud.style.display = 'block';
+        controls.style.display = 'block';
+        canvas.style.display = 'block';
+        init();
+      }
+    });
+
+    restartBtn.addEventListener('click', () => init());
+    menuBtn.addEventListener('click', () => {
+      menu.style.display = 'block';
+      hud.style.display = 'none';
+      controls.style.display = 'none';
+      canvas.style.display = 'none';
+    });
+
+    function genQ() {
+      const types = allTypes.filter(t => allowedPowers.includes(t.power));
+      const tp = types[Math.floor(Math.random() * types.length)];
+      let pf = prefixes[Math.floor(Math.random() * prefixes.length)];
+      let pt = prefixes[Math.floor(Math.random() * prefixes.length)];
+      while (pt.sym === pf.sym) pt = prefixes[Math.floor(Math.random() * prefixes.length)];
+      const diffExp = (pf.exp - pt.exp) * tp.power;
+      if (Math.abs(diffExp) > maxOrder) return genQ();
+      const nDec = diffExp < 0 ? Math.abs(diffExp) : 0;
+      const maxBase = Math.abs(diffExp) >= 6 ? 9 : Math.abs(diffExp) >= 4 ? 99 : 999;
+      let base, val;
+      do { base = Math.floor(Math.random() * maxBase) + 1; val = base * 10**diffExp; }
+      while (!val.toString().includes(base.toString()));
+      const correctStr = formatValue(val, nDec);
+      const wrongs = [
+        base * 10**(diffExp - 1),
+        base * 10**(diffExp + 1),
+        (base < maxBase ? base + 1 : base - 1) * 10**diffExp
+      ];
+      const opts = wrongs.map(v => ({ txt: formatValue(v, v % 1 ? Math.abs(diffExp - 1) : 0), ok: false }));
+      opts.push({ txt: correctStr, ok: true });
+      opts.sort(() => Math.random() - 0.5);
+      invaders = [];
+      const pad = 100;
+      opts.forEach((o, i) => {
+        const w = 100, h = 50;
+        const x = pad + i * ((canvas.width - 2 * pad) / (opts.length - 1)) - w / 2;
+        invaders.push({ x, y: 80, w, h, num: o.txt, unit: pt.sym + tp.base + (tp.power > 1 ? (tp.power === 2 ? '²' : '³') : ''), ok: o.ok });
+      });
+      const fromUnit = pf.sym + tp.base + (tp.power > 1 ? (tp.power === 2 ? '²' : '³') : '');
+      hudQ.textContent = `¿Cuántos ${pt.sym + tp.base + (tp.power > 1 ? (tp.power === 2 ? '²' : '³') : '')} son ${formatValue(base, 0)} ${fromUnit}?`;
+      updateHUD();
+    }
+
+    function updateHUD() { hudS.textContent = `Puntuación: ${formatValue(score, 0)}`; hudL.textContent = `Vidas: ${lives}`; }
+
+    function init() {
+      score = 0; lives = 3; gameOver = false;
+      playerX = canvas.width / 2 - player.w / 2;
+      playerY = canvas.height - 60;
+      player.dx = 0; player.cooldown = 0;
+      playerBullets.length = 0; invaderBullets.length = 0; invDir = 1;
+      genQ(); canvas.focus(); loop();
+    }
+
+    window.addEventListener('keydown', e => {
+      if (e.code === 'ArrowLeft') { player.dx = -player.speed; e.preventDefault(); }
+      if (e.code === 'ArrowRight') { player.dx = player.speed; e.preventDefault(); }
+      if (e.code === 'Space' && player.cooldown <= 0 && !gameOver) {
+        playerBullets.push({ x: playerX + player.w/2 - 2, y: playerY, w:4, h:10, dy:-7 }); player.cooldown = 15;
+      }
+    });
+    window.addEventListener('keyup', e => { if ((e.code==='ArrowLeft'&&player.dx<0)||(e.code==='ArrowRight'&&player.dx>0)) player.dx=0; });
+
+    function update() {
+      if (gameOver) return;
+      playerX = Math.max(0, Math.min(canvas.width-player.w, playerX+player.dx));
+      if (player.cooldown>0) player.cooldown--;
+      playerBullets.forEach((b,i)=>{ b.y+=b.dy; if(b.y<0) playerBullets.splice(i,1); });
+      let edge = false;
+      // incrementar velocidad según puntos: +1 tras 100 pts, +2 tras 200 pts
+      const invSpeedCurr = baseInvSpeed + Math.min(2, Math.floor(score / 100));
+      invaders.forEach(inv => { inv.x += invDir * invSpeedCurr; if(inv.x<=0||inv.x+inv.w>=canvas.width) edge=true; });
+      if(edge){ invDir*=-1; invaders.forEach(inv=>inv.y+=invDrop); }
+      // choque invasor con jugador
+      for(let i=0;i<invaders.length;i++){ const inv=invaders[i]; if(inv.y+inv.h>=playerY && inv.x<playerX+player.w && inv.x+inv.w>playerX){ lives--; score=Math.floor(score/2); updateHUD(); if(lives<=0) gameOver=true; invaders=[]; playerBullets.length=0; invaderBullets.length=0; setTimeout(genQ,500); return; }}
+      if(Math.random()<0.02 && invaders.length){ const inv=invaders[Math.floor(Math.random()*invaders.length)]; invaderBullets.push({x:inv.x+inv.w/2-2,y:inv.y+inv.h,w:4,h:10,dy:3}); }
+      invaderBullets.forEach((b,i)=>{ b.y+=b.dy; if(b.y+b.h>=playerY && b.x+b.w>=playerX && b.x<=playerX+player.w){ invaderBullets.splice(i,1); lives--; score=Math.floor(score/2); updateHUD(); if(lives<=0) gameOver=true;} else if(b.y>canvas.height) invaderBullets.splice(i,1); });
+      playerBullets.forEach((b,bi)=>{ invaders.forEach((inv,ii)=>{ if(b.x<inv.x+inv.w&&b.x+b.w>inv.x&&b.y<inv.y+inv.h&&b.y+b.h>inv.y){ playerBullets.splice(bi,1); if(inv.ok){ score+=10; updateHUD(); invaders=[]; invaderBullets.length=0; playerBullets.length=0; setTimeout(genQ,500);} else { score-=5; updateHUD(); } invaders.splice(ii,1);} }); });
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      // jugador
+      ctx.fillStyle='#0f0'; ctx.fillRect(playerX,playerY,player.w,player.h);
+      // balas jugador
+      ctx.fillStyle='#ff0'; playerBullets.forEach(b=>ctx.fillRect(b.x,b.y,b.w,b.h));
+      // invasores
+      ctx.font='16px Arial'; ctx.textAlign='center'; invaders.forEach(inv=>{
+        ctx.fillStyle='#f00'; ctx.fillRect(inv.x,inv.y,inv.w,inv.h);
+        ctx.fillStyle='#fff';
+        // número arriba
+        ctx.fillText(inv.num, inv.x+inv.w/2, inv.y+inv.h/2 - 5);
+        // unidad abajo
+        ctx.fillText(inv.unit, inv.x+inv.w/2, inv.y+inv.h/2 + 15);
+      });
+      // balas invasoras
+      ctx.fillStyle='#0ff'; invaderBullets.forEach(b=>ctx.fillRect(b.x,b.y,b.w,b.h));
+      if(gameOver){ ctx.fillStyle='rgba(0,0,0,0.7)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle='#fff'; ctx.font='48px Arial'; ctx.textAlign='center'; ctx.fillText('¡Game Over!',canvas.width/2,canvas.height/2-20);
+        ctx.font='24px Arial'; ctx.fillText(`Puntuación: ${formatValue(score,0)}`,canvas.width/2,canvas.height/2+20);
+      }
+    }
+
+    function loop(){ update(); draw(); if(!gameOver) requestAnimationFrame(loop); }
+  </script>
+</body>
+</html>
