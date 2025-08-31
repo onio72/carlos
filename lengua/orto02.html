@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Acentuación de interrogativos y exclamativos</title>
+<style>
+  :root{
+    --bg:#ffffff; --text:#0f172a; --muted:#475569; --card:#f8fafc;
+    --ok:#16a34a; --ko:#dc2626; --line:#e2e8f0; --accent:#2563eb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+       background:var(--bg); color:var(--text); line-height:1.5}
+  header{padding:1rem 1rem 0}
+  h1{font-size:clamp(1.2rem,2.5vw,1.6rem); margin:0 0 .25rem}
+  p.lead{margin:.25rem 0 1rem; color:var(--muted)}
+  .wrap{max-width:920px; margin:0 auto; padding:0 1rem 2rem}
+  .toolbar{display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; margin:.5rem 0 1rem}
+  .score{font-weight:600}
+  button{
+    border:1px solid var(--line); background:var(--card); padding:.55rem .8rem; border-radius:.6rem;
+    cursor:pointer; font-weight:600;
+  }
+  button:hover{border-color:var(--accent)}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:.8rem; padding:1rem; margin:.75rem 0}
+  .qtext{margin:0 0 .6rem}
+  select{
+    font:inherit; padding:.35rem .55rem; border-radius:.5rem; border:1px solid var(--line);
+    background:white; min-width:10ch;
+  }
+  .feedback{margin-left:.5rem; font-weight:600}
+  .ok{color:var(--ok)}
+  .ko{color:var(--ko)}
+  .disabled{opacity:.7}
+  .foot{margin-top:1.2rem; font-size:.95rem; color:var(--muted)}
+  .pill{display:inline-block; padding:.15rem .5rem; border-radius:999px; background:#eef2ff; color:#3730a3; font-weight:600; font-size:.85rem}
+</style>
+</head>
+<body>
+  <header class="wrap">
+    <h1>Acentuación de interrogativos y exclamativos</h1>
+    <p class="lead">Elige la forma correcta (con o sin tilde) según sea interrogativa/exclamativa o relativa/conjunción.</p>
+  </header>
+
+  <main class="wrap" id="app">
+    <div class="toolbar">
+      <span class="score" id="score">Aciertos: 0/0</span>
+      <button id="new">Otro ejercicio</button>
+    </div>
+    <div id="list"></div>
+
+    <div class="foot">
+      Regla básica: <strong>Con tilde</strong> en preguntas/exclamaciones, directas o indirectas
+      (qué, quién, cuál, cómo, cuándo, dónde, cuánto). <strong>Sin tilde</strong> cuando actúan como
+      relativos o conjunciones: que, quien, cual, como, cuando, donde, cuanto.
+    </div>
+  </main>
+
+<script>
+const BANK = [
+  // QUÉ
+  {s:"No sé ____ hora es.", opt:["que","qué"], a:"qué", e:"Interrogativa indirecta → tilde."},
+  {s:"¡____ bonito es tu perro!", opt:["que","qué"], a:"qué", e:"Exclamativa → tilde."},
+  {s:"El libro ____ me prestaste era azul.", opt:["que","qué"], a:"que", e:"Pronombre relativo → sin tilde."},
+
+  // QUIÉN
+  {s:"¿____ ha llamado?", opt:["quien","quién"], a:"quién", e:"Interrogativa directa → tilde."},
+  {s:"No recuerdo ____ dijo eso.", opt:["quien","quién"], a:"quién", e:"Interrogativa indirecta → tilde."},
+  {s:"El alumno ____ llegó tarde se disculpó.", opt:["quien","quién"], a:"quien", e:"Relativo sin antecedente expreso → sin tilde."},
+
+  // CUÁL
+  {s:"¿____ es tu estación favorita?", opt:["cual","cuál"], a:"cuál", e:"Interrogativa directa → tilde."},
+  {s:"Esa es la razón por la ____ falté.", opt:["cual","cuál"], a:"cual", e:"«la cual» relativo → sin tilde."},
+
+  // CÓMO
+  {s:"¿____ te llamas?", opt:["como","cómo"], a:"cómo", e:"Interrogativa directa → tilde."},
+  {s:"No sé ____ se escribe esta palabra.", opt:["como","cómo"], a:"cómo", e:"Interrogativa indirecta → tilde."},
+  {s:"Hazlo ____ puedas.", opt:["como","cómo"], a:"como", e:"Modo/manera (conjunción) → sin tilde."},
+
+  // CUÁNDO
+  {s:"¿____ llegas?", opt:["cuando","cuándo"], a:"cuándo", e:"Interrogativa directa → tilde."},
+  {s:"Avísame ____ tengas un minuto.", opt:["cuando","cuándo"], a:"cuando", e:"Conjunción temporal → sin tilde."},
+  {s:"No recuerda ____ será el examen.", opt:["cuando","cuándo"], a:"cuándo", e:"Interrogativa indirecta → tilde."},
+
+  // DÓNDE
+  {s:"¿____ vives?", opt:["donde","dónde"], a:"dónde", e:"Interrogativa directa → tilde."},
+  {s:"Ve al lugar ____ quedamos ayer.", opt:["donde","dónde"], a:"donde", e:"Relativo con antecedente «lugar» → sin tilde."},
+  {s:"No sé ____ dejé las llaves.", opt:["donde","dónde"], a:"dónde", e:"Interrogativa indirecta → tilde."},
+
+  // CUÁNTO
+  {s:"¿____ cuesta?", opt:["cuanto","cuánto"], a:"cuánto", e:"Interrogativa directa → tilde."},
+  {s:"No sabes ____ te echo de menos.", opt:["cuanto","cuánto"], a:"cuánto", e:"Exclamativa indirecta → tilde."},
+  {s:"Te ayudaré en ____ pueda.", opt:["cuanto","cuánto"], a:"cuanto", e:"Conjunción («en cuanto») / relativo → sin tilde."},
+  {s:"Comió ____ quiso.", opt:["cuanto","cuánto"], a:"cuanto", e:"Relativo de cantidad → sin tilde."}
+];
+
+const list = document.getElementById('list');
+const scoreEl = document.getElementById('score');
+const btnNew = document.getElementById('new');
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+let state = { total:0, correct:0 };
+
+function makeExercise(n=12){
+  list.innerHTML = '';
+  state.correct = 0;
+  const sample = shuffle([...BANK]).slice(0, n);
+  state.total = sample.length;
+
+  sample.forEach((q, idx)=>{
+    const card = document.createElement('div'); card.className='card';
+    const qtext = document.createElement('p'); qtext.className='qtext';
+    qtext.innerHTML = `<strong>${idx+1}.</strong> ${q.s.replace('____', '<select><option value="" selected disabled>Selecciona…</option></select>')}`;
+    card.appendChild(qtext);
+
+    const sel = qtext.querySelector('select');
+    const opts = shuffle([...q.opt]);
+    opts.forEach(o=>{
+      const opt = document.createElement('option');
+      opt.value = o; opt.textContent = o;
+      sel.appendChild(opt);
+    });
+
+    const fb = document.createElement('span'); fb.className='feedback'; card.appendChild(fb);
+
+    sel.addEventListener('change', ()=>{
+      const val = sel.value;
+      sel.disabled = true; sel.classList.add('disabled');
+      if(val === q.a){
+        fb.textContent = '✓ Correcta';
+        fb.className = 'feedback ok';
+        state.correct++;
+      }else{
+        fb.innerHTML = `✗ Incorrecta · Correcta: <u>${q.a}</u>`;
+        fb.className = 'feedback ko';
+      }
+      const exp = document.createElement('div');
+      exp.style.marginTop='.35rem'; exp.style.color='var(--muted)';
+      exp.innerHTML = q.e;
+      card.appendChild(exp);
+      updateScore();
+    }, { once:true });
+
+    list.appendChild(card);
+  });
+
+  updateScore();
+}
+
+function updateScore(){
+  scoreEl.textContent = `Aciertos: ${state.correct}/${state.total}`;
+}
+
+btnNew.addEventListener('click', ()=> makeExercise(12));
+
+// inicio
+makeExercise(12);
+</script>
+</body>
+</html>
