@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uso de b y v — Desplegable de palabras</title>
+<style>
+  :root{
+    --bg:#ffffff; --text:#0f172a; --muted:#475569; --card:#f8fafc;
+    --ok:#16a34a; --ko:#dc2626; --line:#e2e8f0; --accent:#2563eb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+       background:var(--bg); color:var(--text); line-height:1.5}
+  header{padding:1rem 1rem 0}
+  h1{font-size:clamp(1.2rem,2.4vw,1.6rem); margin:0 0 .25rem}
+  p.lead{margin:.25rem 0 1rem; color:var(--muted)}
+  .wrap{max-width:960px; margin:0 auto; padding:0 1rem 2rem}
+  .toolbar{display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; margin:.5rem 0 1rem}
+  .score{font-weight:600}
+  button{
+    border:1px solid var(--line); background:var(--card); padding:.55rem .8rem; border-radius:.6rem;
+    cursor:pointer; font-weight:600;
+  }
+  button:hover{border-color:var(--accent)}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:.8rem; padding:1rem; margin:.75rem 0}
+  .qtext{margin:0 0 .6rem}
+  select{
+    font:inherit; padding:.35rem .55rem; border-radius:.5rem; border:1px solid var(--line);
+    background:white; min-width:16ch;
+  }
+  .feedback{margin-left:.5rem; font-weight:600}
+  .ok{color:var(--ok)}
+  .ko{color:var(--ko)}
+  .disabled{opacity:.8}
+  .rules{margin-top:1rem; padding:.8rem; border:1px dashed var(--line); border-radius:.6rem; background:#fbfdff}
+  .rules b{white-space:nowrap}
+  .brackets{letter-spacing:.02em}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>Uso de <span style="color:#2563eb">b</span> y <span style="color:#2563eb">v</span></h1>
+  <p class="lead">Elige la palabra correcta en el desplegable (empieza en “Sin contestar”).</p>
+</header>
+
+<main class="wrap">
+  <div class="toolbar">
+    <span class="score" id="score">Aciertos: 0/0</span>
+    <button id="new">Otro ejercicio</button>
+  </div>
+  <div id="list"></div>
+
+  <div class="rules">
+    <p><b>B</b>: verbos en <b>-bir</b> (escribir, recibir, prohibir…), <i>excepto</i> hervir, servir y vivir; palabras que empiezan por <b>bu-, bur-, bus-</b> (buzón, burro, búsqueda); terminaciones <b>-bilidad</b> (amabilidad), <i>excepto</i> movilidad; <b>pretérito imperfecto</b> de la 1.ª conjugación (<i>cantaba</i>) y del verbo <i>ir</i> (<i>iba</i>).</p>
+    <p><b>V</b>: adjetivos llanos en <b>-ava, -ave, -avo, -eva, -eve, -evo, -iva, -ivo</b> (nuevo, suave, activo…); formas verbales con /b/ cuyo infinitivo no lleva b ni v: <i>andar → anduve</i>, <i>estar → estuve</i>, <i>tener → tuve</i>.</p>
+  </div>
+</main>
+
+<script>
+const BANK = [
+  // bu-, bur-, bus-
+  {before:"[", after:"] aparcar en la puerta.", opts:["Sin contestar","Prohibieron","Prohivieron"], ans:"Prohibieron",
+   rule:"Empieza por <b>prohi-</b> (de <i>prohibir</i>), familia de verbos en -bir → <b>B</b>: <i>Prohibieron</i>."},
+  {before:"Echa la carta en el [", after:"] de la esquina.", opts:["Sin contestar","buzón","vuzón"], ans:"buzón",
+   rule:"Empieza por <b>bu-</b> → <b>B</b>: <i>buzón</i>."},
+  {before:"El [", after:"] rebuzna muy fuerte.", opts:["Sin contestar","burro","vurro"], ans:"burro",
+   rule:"Empieza por <b>bur-</b> → <b>B</b>: <i>burro</i>."},
+  {before:"Comenzó la [", after:"] del tesoro.", opts:["Sin contestar","búsqueda","vúsqueda"], ans:"búsqueda",
+   rule:"Empieza por <b>bus-</b> → <b>B</b>: <i>búsqueda</i>."},
+
+  // -bir (B) y excepciones
+  {before:"Ayer [", after:"] un cuento en mi cuaderno.", opts:["Sin contestar","escribía","escrivía"], ans:"escribía",
+   rule:"Verbo en <b>-bir</b> → <b>B</b>: escribir → escribía."},
+  {before:"No [", after:"] el paquete a tiempo.", opts:["Sin contestar","recibí","reciví"], ans:"recibí",
+   rule:"Verbo en <b>-bir</b> → <b>B</b>: recibir → recibí."},
+  {before:"El agua [", after:"] a 100 °C.", opts:["Sin contestar","hierve","hierbe"], ans:"hierve",
+   rule:"Excepción: <i>hervir</i> se escribe con <b>V</b> → hierve."},
+  {before:"Mi hermano [", after:"] la cena en el bar.", opts:["Sin contestar","servía","serbía"], ans:"servía",
+   rule:"Excepción: <i>servir</i> con <b>V</b> → servía."},
+  {before:"Mi abuelo [", after:"] en el campo muchos años.", opts:["Sin contestar","vivió","bivió"], ans:"vivió",
+   rule:"Excepción: <i>vivir</i> con <b>V</b> → vivió."},
+
+  // -bilidad / movilidad
+  {before:"Hay [", after:"] de lluvia.", opts:["Sin contestar","posibilidad","posivilidad"], ans:"posibilidad",
+   rule:"Terminación <b>-bilidad</b> → <b>B</b>: posibilidad."},
+  {before:"Agradeció su [", after:"].", opts:["Sin contestar","amabilidad","amavilidad"], ans:"amabilidad",
+   rule:"Terminación <b>-bilidad</b> → <b>B</b>: amabilidad."},
+  {before:"La [", after:"] del tobillo es limitada.", opts:["Sin contestar","movilidad","mobilidad"], ans:"movilidad",
+   rule:"Excepción: <i>movilidad</i> va con <b>V</b>."},
+
+  // Imperfecto 1.ª conjugación y 'ir'
+  {before:"Yo [", after:"] con mi vecina cada tarde.", opts:["Sin contestar","hablaba","hablava"], ans:"hablaba",
+   rule:"Imperfecto 1.ª conjugación (-aba) → <b>B</b>: hablaba."},
+  {before:"Ellos [", after:"] en el coro del cole.", opts:["Sin contestar","cantaban","cantavan"], ans:"cantaban",
+   rule:"Imperfecto -aban → <b>B</b>: cantaban."},
+  {before:"De pequeño yo [", after:"] al parque todos los días.", opts:["Sin contestar","iba","iva"], ans:"iba",
+   rule:"Imperfecto del verbo «ir» → <b>B</b>: iba."},
+
+  // Adjetivos -ava/-ave/-avo/-eva/-eve/-evo/-iva/-ivo → V
+  {before:"Se compró un traje n[", after:"] para la fiesta.", opts:["Sin contestar","uevo","uebo"], ans:"uevo",
+   renderWord:"n", showAs:["nuevo","nuebo"],
+   rule:"Adjetivo en <b>-evo</b> → <b>V</b>: nuevo."},
+  {before:"La manta es muy s[", after:"].", opts:["Sin contestar","uave","uabe"], ans:"uave",
+   renderWord:"s", showAs:["suave","suabe"],
+   rule:"Adjetivo en <b>-ave</b> → <b>V</b>: suave."},
+  {before:"Es un alumno acti[", after:"] y participativo.", opts:["Sin contestar","vo","bo"], ans:"vo",
+   renderWord:"acti", showAs:["activo","actibo"],
+   rule:"Adjetivo en <b>-ivo</b> → <b>V</b>: activo."},
+  {before:"Llevaba una mirada pensati[", after:"].", opts:["Sin contestar","va","ba"], ans:"va",
+   renderWord:"pensati", showAs:["pensativa","pensatiba"],
+   rule:"Adjetivo en <b>-iva</b> → <b>V</b>: pensativa."},
+
+  // Anduve/estuve/tuve (V)
+  {before:"Ayer andu[", after:"] cinco kilómetros.", opts:["Sin contestar","ve","be"], ans:"ve",
+   renderWord:"andu", showAs:["anduve","andube"],
+   rule:"De «andar»: forma con <b>V</b> → anduve."},
+  {before:"Nos estu[", after:"] preparando todo el día.", opts:["Sin contestar","vimos","bimos"], ans:"vimos",
+   renderWord:"estu", showAs:["estuvimos","estubimos"],
+   rule:"De «estar»: con <b>V</b> → estuvimos."},
+  {before:"Ellos tu[", after:"] que esperar.", opts:["Sin contestar","vieron","bieron"], ans:"vieron",
+   renderWord:"tu", showAs:["tuvieron","tubieron"],
+   rule:"De «tener»: con <b>V</b> → tuvieron."},
+
+  // Control sencillo b/v léxica
+  {before:"Puso la maleta en el [", after:"].", opts:["Sin contestar","balcón","valcón"], ans:"balcón",
+   rule:"«balcón» se escribe con <b>B</b>."}
+];
+
+// Utilidades
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+const list = document.getElementById('list');
+const scoreEl = document.getElementById('score');
+const btnNew = document.getElementById('new');
+let state = {total:0, correct:0};
+
+function makeExercise(n=14){
+  list.innerHTML = '';
+  state.correct = 0;
+  const sample = shuffle([...BANK]).slice(0, n);
+  state.total = sample.length;
+
+  sample.forEach((q, idx)=>{
+    const card = document.createElement('div'); card.className='card';
+    const p = document.createElement('p'); p.className='qtext';
+
+    // Construcción del enunciado con corchetes visibles y <select> dentro
+    const select = document.createElement('select');
+    q.opts.forEach(op=>{
+      const o = document.createElement('option');
+      o.value = op; o.textContent = op;
+      if(op==="Sin contestar") o.selected = true;
+      select.appendChild(o);
+    });
+
+    const pre = document.createElement('span'); pre.className='brackets'; pre.innerHTML = q.before;
+    const post = document.createElement('span'); post.className='brackets'; post.innerHTML = q.after;
+
+    p.innerHTML = `<strong>${idx+1}.</strong> `;
+    p.appendChild(pre);
+    p.appendChild(select);
+    p.appendChild(post);
+
+    const fb = document.createElement('span'); fb.className='feedback';
+    card.appendChild(p); card.appendChild(fb);
+
+    select.addEventListener('change', ()=>{
+      if(select.value === "Sin contestar") return; // no corregir si no responde
+      select.disabled = true; select.classList.add('disabled');
+      const correct = q.ans;
+
+      // Si el ítem es de tipo "segmento" (renderWord) mostramos solución completa bonita
+      let solved = null;
+      if(q.renderWord){
+        const shown = (select.value === correct ? q.showAs[0] : q.showAs[1]);
+        // La solución correcta siempre:
+        solved = q.showAs[0];
+        // sustituimos el bloque [select] por la palabra elegida (para que el alumno la vea)
+        pre.textContent = q.renderWord;
+        post.textContent = q.after;
+        select.replaceWith(document.createTextNode(select.value));
+      }
+
+      if(select.value === correct){
+        fb.textContent = '✓ Correcta';
+        fb.className = 'feedback ok';
+        state.correct++;
+      }else{
+        const corr = solved ? solved : correct;
+        fb.innerHTML = `✗ Incorrecta · Correcta: <u>${corr}</u>`;
+        fb.className = 'feedback ko';
+      }
+      const exp = document.createElement('div');
+      exp.style.marginTop='.35rem'; exp.style.color='var(--muted)';
+      exp.innerHTML = q.rule;
+      card.appendChild(exp);
+      updateScore();
+    });
+
+    list.appendChild(card);
+  });
+
+  updateScore();
+}
+
+function updateScore(){
+  scoreEl.textContent = `Aciertos: ${state.correct}/${state.total}`;
+}
+
+btnNew.addEventListener('click', ()=> makeExercise(14));
+makeExercise(14);
+</script>
+</body>
+</html>
