@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uso de G y J — Práctica (corregida)</title>
+<style>
+  :root{--bg:#fff;--text:#0f172a;--muted:#475569;--card:#f8fafc;--ok:#16a34a;--ko:#dc2626;--line:#e2e8f0;--accent:#2563eb}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;background:var(--bg);color:var(--text);line-height:1.5}
+  header{padding:1rem 1rem 0}
+  h1{font-size:clamp(1.2rem,2.4vw,1.6rem);margin:0 0 .25rem}
+  p.lead{margin:.25rem 0 1rem;color:var(--muted)}
+  .wrap{max-width:960px;margin:0 auto;padding:0 1rem 2rem}
+  .toolbar{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;margin:.5rem 0 1rem}
+  .score{font-weight:600}
+  button{border:1px solid var(--line);background:var(--card);padding:.55rem .8rem;border-radius:.6rem;cursor:pointer;font-weight:600}
+  button:hover{border-color:var(--accent)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:.8rem;padding:1rem;margin:.75rem 0}
+  .qtext{margin:0 0 .6rem}
+  select{font:inherit;padding:.35rem .55rem;border-radius:.5rem;border:1px solid var(--line);background:#fff;min-width:18ch}
+  .feedback{margin-left:.5rem;font-weight:600}
+  .ok{color:var(--ok)} .ko{color:var(--ko)} .disabled{opacity:.8}
+  .rules{margin-top:1rem;padding:.8rem;border:1px dashed var(--line);border-radius:.6rem;background:#fbfdff}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>Uso de <span style="color:#2563eb">g</span> y <span style="color:#2563eb">j</span></h1>
+  <p class="lead">Elige la palabra correcta. Desplegable en “Sin contestar”.</p>
+</header>
+
+<main class="wrap">
+  <div class="toolbar">
+    <span class="score" id="score">Aciertos: 0/0</span>
+    <button id="new">Otro ejercicio</button>
+  </div>
+  <div id="list"></div>
+
+  <div class="rules">
+    <p><b>Con g</b>: geo- (geografía), gen- (general), terminaciones -gia/-gio/-gión/-gésimo (magia, religión, vigésimo), y formas de verbos en -ger/-gir (proteger→protege, dirigir→diriges), excepto <i>tejer</i> y <i>crujir</i>.</p>
+    <p><b>Con j</b>: sufijos -aje/-eje (garaje, eje), familia ejer- (ejército), pretérito con -j- (dije, trajo, condujo, produjeron), y <i>tejer/crujir</i> (teje, cruje).</p>
+  </div>
+</main>
+
+<script>
+const BANK = [
+  // g: geo-, gen-, -gia/-gio/-gión/-gésimo
+  {pre:"Estudiamos [", post:"] en clase.", opts:["Sin contestar","geografía","jeografía"], ans:"geografía",
+   rule:"Empieza por <b>geo-</b> → con g."},
+  {pre:"Es una persona muy [", post:"].", opts:["Sin contestar","generosa","jenerosa"], ans:"generosa",
+   rule:"Contiene <b>gen</b> → con g."},
+  {pre:"La [", post:"] es un arte antiguo.", opts:["Sin contestar","magia","majia"], ans:"magia",
+   rule:"Terminación <b>-gia</b> → g."},
+  {pre:"Celebramos su [", post:"] cumpleaños.", opts:["Sin contestar","vigésimo","vijésimo"], ans:"vigésimo",
+   rule:"Terminación <b>-gésimo</b> → g."},
+
+  // g: -ger/-gir (excepto tejer/crujir)
+  {pre:"El guardabosques [", post:"] a los animales.", opts:["Sin contestar","protege","proteje"], ans:"protege",
+   rule:"Infinitivo en -ger (<i>proteger</i>) → formas con g."},
+  {pre:"¿Por qué me [", post:"] así?", opts:["Sin contestar","sigues","sijues"], ans:"sigues",
+   rule:"De <i>seguir</i> → g."},
+  {pre:"Tú [", post:"] la orquesta del centro.", opts:["Sin contestar","diriges","dirijes"], ans:"diriges",
+   rule:"De <i>dirigir</i> → g."},
+
+  // j: -aje/-eje ; ejer-
+  {pre:"Guardó la bici en el [", post:"].", opts:["Sin contestar","garaje","garage"], ans:"garaje",
+   rule:"Terminación <b>-aje</b> → j (grafía española)."},
+  {pre:"Ese es el [", post:"] del mecanismo.", opts:["Sin contestar","eje","ege"], ans:"eje",
+   rule:"Palabras de la familia de <b>eje</b> → j."},
+  {pre:"El [", post:"] se alistó en el cuartel.", opts:["Sin contestar","ejército","egército"], ans:"ejército",
+   rule:"Empieza por <b>ejer-</b> → j."},
+ 
+
+  // j: pretéritos con j
+  {pre:"Ayer [", post:"] la verdad.", opts:["Sin contestar","dije","dige"], ans:"dije",
+   rule:"Pretérito de <i>decir</i> → j."},
+  {pre:"Mi madre [", post:"] el paquete.", opts:["Sin contestar","trajo","trago"], ans:"trajo",
+   rule:"Pretérito de <i>traer</i> → j."},
+  {pre:"El taxista [", post:"] al aeropuerto.", opts:["Sin contestar","condujo","condugió"], ans:"condujo",
+   rule:"Pretérito de <i>conducir</i> → j."},
+  {pre:"En la fábrica lo [", post:"] en serie.", opts:["Sin contestar","produjeron","produgeron"], ans:"produjeron",
+   rule:"Pretérito de <i>producir</i> → j."},
+
+  // j: tejer / crujir (excepción a -ger/-gir)
+  {pre:"La abuela [", post:"] un jersey de lana.", opts:["Sin contestar","teje","tege"], ans:"teje",
+   rule:"Excepción a -ger/-gir: <i>tejer</i> → j."},
+  {pre:"La madera [", post:"] al pisarla.", opts:["Sin contestar","cruje","cruge"], ans:"cruje",
+   rule:"Excepción: <i>crujir</i> → j."}
+];
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+
+const list=document.getElementById('list'); const scoreEl=document.getElementById('score'); const btnNew=document.getElementById('new');
+let state={total:0,correct:0};
+
+function makeExercise(n=14){
+  list.innerHTML=''; state.correct=0;
+  const sample=shuffle([...BANK]).slice(0,n); state.total=sample.length;
+
+  sample.forEach((q,i)=>{
+    const card=document.createElement('div'); card.className='card';
+    const p=document.createElement('p'); p.className='qtext';
+    const sel=document.createElement('select');
+    q.opts.forEach(op=>{ const o=document.createElement('option'); o.value=op; o.textContent=op; if(op==="Sin contestar") o.selected=true; sel.appendChild(o); });
+    p.innerHTML=`<strong>${i+1}.</strong> ${q.pre}`; p.appendChild(sel); p.insertAdjacentText('beforeend', q.post);
+    const fb=document.createElement('span'); fb.className='feedback';
+    card.appendChild(p); card.appendChild(fb);
+
+    sel.addEventListener('change', ()=>{
+      if(sel.value==="Sin contestar") return;
+      sel.disabled=true; sel.classList.add('disabled');
+      if(sel.value===q.ans){ fb.textContent='✓ Correcta'; fb.className='feedback ok'; state.correct++; }
+      else{ fb.innerHTML=`✗ Incorrecta · Correcta: <u>${q.ans}</u>`; fb.className='feedback ko'; }
+      const exp=document.createElement('div'); exp.style.marginTop='.35rem'; exp.style.color='var(--muted)'; exp.innerHTML=q.rule; card.appendChild(exp);
+      updateScore();
+    });
+
+    list.appendChild(card);
+  });
+  updateScore();
+}
+function updateScore(){ scoreEl.textContent=`Aciertos: ${state.correct}/${state.total}`; }
+btnNew.addEventListener('click', ()=>makeExercise(14));
+makeExercise(14);
+</script>
+</body>
+</html>

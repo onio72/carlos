@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uso de la h — Práctica</title>
+<style>
+  :root{
+    --bg:#ffffff; --text:#0f172a; --muted:#475569; --card:#f8fafc;
+    --ok:#16a34a; --ko:#dc2626; --line:#e2e8f0; --accent:#2563eb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+       background:var(--bg); color:var(--text); line-height:1.5}
+  header{padding:1rem 1rem 0}
+  h1{font-size:clamp(1.2rem,2.4vw,1.6rem); margin:0 0 .25rem}
+  p.lead{margin:.25rem 0 1rem; color:var(--muted)}
+  .wrap{max-width:960px; margin:0 auto; padding:0 1rem 2rem}
+  .toolbar{display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; margin:.5rem 0 1rem}
+  .score{font-weight:600}
+  button{
+    border:1px solid var(--line); background:var(--card); padding:.55rem .8rem; border-radius:.6rem;
+    cursor:pointer; font-weight:600;
+  }
+  button:hover{border-color:var(--accent)}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:.8rem; padding:1rem; margin:.75rem 0}
+  .qtext{margin:0 0 .6rem}
+  select{
+    font:inherit; padding:.35rem .55rem; border-radius:.5rem; border:1px solid var(--line);
+    background:white; min-width:18ch;
+  }
+  .feedback{margin-left:.5rem; font-weight:600}
+  .ok{color:var(--ok)}
+  .ko{color:var(--ko)}
+  .disabled{opacity:.8}
+  .rules{margin-top:1rem; padding:.8rem; border:1px dashed var(--line); border-radius:.6rem; background:#fbfdff}
+  .rules b{white-space:nowrap}
+  .brackets{letter-spacing:.02em}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>Uso de la <span style="color:#2563eb">h</span></h1>
+  <p class="lead">Elige la palabra correcta en cada oración. El desplegable empieza en <em>“Sin contestar”</em>.</p>
+</header>
+
+<main class="wrap">
+  <div class="toolbar">
+    <span class="score" id="score">Aciertos: 0/0</span>
+    <button id="new">Otro ejercicio</button>
+  </div>
+  <div id="list"></div>
+
+  <div class="rules">
+    <p><b>Se escriben con h</b>: <i>todas</i> las formas de los verbos <b>haber, hacer, hablar, hallar, habitar</b> (p. ej., <i>hay, ha, había; hago, hice; habla; hallé; habitan</i>); 
+      las palabras que empiezan por <b>hie-</b> (<i>hielo</i>) y <b>hue-</b> (<i>huevo, hueso, huerto, hueco</i>); y las que empiezan por <b>hum-</b> + vocal (<i>humano, humor, humedad</i>).</p>
+    <p>Elige entre la forma correcta con <b>h</b> y la incorrecta sin ella (o con h donde no corresponde).</p>
+  </div>
+</main>
+
+<script>
+const BANK = [
+  // HABER
+  {before:"Mañana [", after:"] examen de matemáticas.", opts:["Sin contestar","hay","ay"], ans:"hay",
+   rule:"Forma impersonal de <b>haber</b>: <i>hay</i> se escribe con h."},
+  {before:"El profesor [", after:"] corregido ya la mitad.", opts:["Sin contestar","ha","a"], ans:"ha",
+   rule:"3.ª persona de <b>haber</b> auxiliar: <i>ha</i> con h."},
+  {before:"No [", after:"] venido todavía.", opts:["Sin contestar","han","an"], ans:"han",
+   rule:"Plural del auxiliar <b>haber</b>: <i>han</i> con h."},
+  {before:"Creo que [", after:"] entendido la explicación.", opts:["Sin contestar","he","e"], ans:"he",
+   rule:"1.ª persona del auxiliar <b>haber</b>: <i>he</i> con h."},
+
+  // HACER
+  {before:"Marta [", after:"] los deberes por la tarde.", opts:["Sin contestar","hace","ace"], ans:"hace",
+   rule:"Formas de <b>hacer</b> llevan h: <i>hace</i>."},
+  {before:"Ayer [", after:"] una tarta de chocolate.", opts:["Sin contestar","hice","ice"], ans:"hice",
+   rule:"Pretérito perfecto simple de <b>hacer</b>: <i>hice</i> con h."},
+  {before:"Ya lo [", after:"] todo.", opts:["Sin contestar","he hecho","he echo"], ans:"he hecho",
+   rule:"Perífrasis con <b>haber + hecho</b>: participio de <i>hacer</i> → <i>he hecho</i>."},
+
+  // HABLAR
+  {before:"El director [", after:"] con las familias mañana.", opts:["Sin contestar","hablará","ablará"], ans:"hablará",
+   rule:"Formas de <b>hablar</b> llevan h: <i>hablará</i>."},
+  {before:"No [", after:"] tan alto, por favor.", opts:["Sin contestar","hables","ables"], ans:"hables",
+   rule:"Imperativo/Presente de <b>hablar</b> con h: <i>hables</i>."},
+
+  // HALLAR / HABITAR
+  {before:"Por fin [", after:"] las llaves.", opts:["Sin contestar","hallé","allé"], ans:"hallé",
+   rule:"Verbo <b>hallar</b> (encontrar) se escribe con h."},
+  {before:"Mis abuelos [", after:"] en el campo.", opts:["Sin contestar","habitan","abitan"], ans:"habitan",
+   rule:"Verbo <b>habitar</b> lleva h: <i>habitan</i>."},
+
+  // HIE- / HUE-
+  {before:"El [", after:"] se derrite al sol.", opts:["Sin contestar","hielo","ielo"], ans:"hielo",
+   rule:"Palabras con <b>hie-</b> → con h: <i>hielo</i>."},
+  {before:"Quiero un [", after:"] cocido para desayunar.", opts:["Sin contestar","huevo","uevo"], ans:"huevo",
+   rule:"Palabras con <b>hue-</b> → con h: <i>huevo</i>."},
+  {before:"Me duele el [", after:"] después del golpe.", opts:["Sin contestar","hueso","ueso"], ans:"hueso",
+   rule:"Palabras con <b>hue-</b> → con h: <i>hueso</i>."},
+  {before:"Plantaron tomates en el [", after:"].", opts:["Sin contestar","huerto","huerto (sin h)"], ans:"huerto",
+   rule:"Palabras con <b>hue-</b> → con h: <i>huerto</i>."},
+  {before:"Hay un [", after:"] en la pared.", opts:["Sin contestar","hueco","ueco"], ans:"hueco",
+   rule:"Palabras con <b>hue-</b> → con h: <i>hueco</i>."},
+
+  // HUM- + vocal
+  {before:"Su carácter tiene mucho [", after:"].", opts:["Sin contestar","humor","umor"], ans:"humor",
+   rule:"Inicio <b>hum-</b> + vocal → con h: <i>humor</i>."},
+  {before:"El aire tenía mucha [", after:"].", opts:["Sin contestar","humedad","umedad"], ans:"humedad",
+   rule:"Inicio <b>hum-</b> + vocal → con h: <i>humedad</i>."},
+  {before:"Es un ser [", after:"].", opts:["Sin contestar","humano","umano"], ans:"humano",
+   rule:"Inicio <b>hum-</b> + vocal → con h: <i>humano</i>."},
+
+  // Contrastes y trampas frecuentes
+  {before:"Voy a [", after:"] la respuesta con calma.", opts:["Sin contestar","hacer","aser"], ans:"hacer",
+   rule:"Verbo <b>hacer</b> siempre con h."},
+  {before:"No sé [", after:"] vendrá a clase.", opts:["Sin contestar","si ha","si a"], ans:"si ha",
+   rule:"Secuencia del auxiliar <b>haber</b>: «si <i>ha</i>»."},
+  {before:"Debes [", after:"] silencio durante la charla.", opts:["Sin contestar","hacer","acer"], ans:"hacer",
+   rule:"Verbo <b>hacer</b> con h."},
+  {before:"Aún no [", after:"] hablado con ella.", opts:["Sin contestar","he","e"], ans:"he",
+   rule:"Auxiliar <b>haber</b> con h: <i>he</i> hablado."}
+];
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+const list  = document.getElementById('list');
+const scoreEl = document.getElementById('score');
+const btnNew  = document.getElementById('new');
+let state = { total:0, correct:0 };
+
+function makeExercise(n=14){
+  list.innerHTML = '';
+  state.correct = 0;
+
+  const take = Math.min(n, BANK.length);
+  const sample = shuffle([...BANK]).slice(0, take);
+  state.total = sample.length;
+
+  sample.forEach((q, idx)=>{
+    const card = document.createElement('div'); card.className='card';
+    const p = document.createElement('p'); p.className='qtext';
+
+    const select = document.createElement('select');
+    select.setAttribute('aria-label', `Respuesta de la pregunta ${idx+1}`);
+    const options = shuffle([...q.opts]);  // barajamos las opciones
+    options.forEach(op=>{
+      const o = document.createElement('option');
+      o.value = op; o.textContent = op;
+      if(op==="Sin contestar") o.selected = true;
+      select.appendChild(o);
+    });
+
+    const pre = document.createElement('span'); pre.className='brackets'; pre.textContent = q.before;
+    const post = document.createElement('span'); post.className='brackets'; post.textContent = q.after;
+
+    p.innerHTML = `<strong>${idx+1}.</strong> `;
+    p.appendChild(pre);
+    p.appendChild(select);
+    p.appendChild(post);
+
+    const fb = document.createElement('span'); fb.className='feedback';
+    card.appendChild(p); card.appendChild(fb);
+
+    select.addEventListener('change', ()=>{
+      if(select.value === "Sin contestar") return;
+      select.disabled = true; select.classList.add('disabled');
+
+      if(select.value === q.ans){
+        fb.textContent = '✓ Correcta';
+        fb.className = 'feedback ok';
+        state.correct++;
+      }else{
+        fb.innerHTML = `✗ Incorrecta · Correcta: <u>${q.ans}</u>`;
+        fb.className = 'feedback ko';
+      }
+      const exp = document.createElement('div');
+      exp.style.marginTop='.35rem'; exp.style.color='var(--muted)';
+      exp.innerHTML = q.rule;
+      card.appendChild(exp);
+
+      updateScore();
+    });
+
+    list.appendChild(card);
+  });
+
+  updateScore();
+}
+
+function updateScore(){
+  scoreEl.textContent = `Aciertos: ${state.correct}/${state.total}`;
+}
+
+btnNew.addEventListener('click', ()=>{
+  makeExercise(14);
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+makeExercise(14);
+</script>
+</body>
+</html>

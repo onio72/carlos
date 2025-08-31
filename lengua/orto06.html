@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uso de la y — Práctica</title>
+<style>
+  :root{
+    --bg:#ffffff; --text:#0f172a; --muted:#475569; --card:#f8fafc;
+    --ok:#16a34a; --ko:#dc2626; --line:#e2e8f0; --accent:#2563eb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+       background:var(--bg); color:var(--text); line-height:1.55}
+  header{padding:1rem 1rem 0}
+  h1{font-size:clamp(1.2rem,2.4vw,1.6rem); margin:0 0 .25rem}
+  p.lead{margin:.25rem 0 1rem; color:var(--muted)}
+  .wrap{max-width:960px; margin:0 auto; padding:0 1rem 2rem}
+  .toolbar{display:flex; gap:.75rem; align-items:center; flex-wrap:wrap; margin:.5rem 0 1rem}
+  .score{font-weight:600}
+  button{
+    border:1px solid var(--line); background:var(--card); padding:.55rem .8rem; border-radius:.6rem;
+    cursor:pointer; font-weight:600;
+  }
+  button:hover{border-color:var(--accent)}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:.8rem; padding:1rem; margin:.75rem 0}
+  .qtext{margin:0 0 .6rem}
+  select{
+    font:inherit; padding:.35rem .55rem; border-radius:.5rem; border:1px solid var(--line);
+    background:white; min-width:18ch;
+  }
+  .feedback{margin-left:.5rem; font-weight:600}
+  .ok{color:var(--ok)}
+  .ko{color:var(--ko)}
+  .disabled{opacity:.8}
+  .rules{margin-top:1rem; padding:.8rem; border:1px dashed var(--line); border-radius:.6rem; background:#fbfdff}
+  .rules b{white-space:nowrap}
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>Uso de la <span style="color:#2563eb">y</span></h1>
+  <p class="lead">Elige la palabra correcta. El desplegable empieza en <em>“Sin contestar”</em>.</p>
+</header>
+
+<main class="wrap">
+  <div class="toolbar">
+    <span class="score" id="score">Aciertos: 0/0</span>
+    <button id="new">Otro ejercicio</button>
+  </div>
+  <div id="list"></div>
+
+  <div class="rules">
+    <p><b>Se escriben con y</b>:
+      <br>• Palabras que terminan en los diptongos <b>-ay, -ey, -oy, -uy</b> (guay, rey, voy, muy).
+      <br>• <b>Formas verbales</b> que llevan el sonido consonántico <i>y</i> y cuyo infinitivo no tiene ni <i>y</i> ni <i>ll</i>: <i>caer → cayó</i>, <i>leer → leyó</i>, <i>creer → creyó</i>, <i>oír → oyó</i>, <i>construir → construyó/construyeron</i>, <i>incluir → incluyó</i>, <i>huir → huyó</i>, etc.
+    </p>
+  </div>
+</main>
+
+<script>
+const BANK = [
+  // Diptongos -ay, -ey, -oy, -uy
+  {pre:"¡Qué ", post:" es tu disfraz!", opts:["Sin contestar","guay","guai"], ans:"guay",
+   rule:"Termina en diptongo <b>-ay</b> → con y: guay."},
+  {pre:"El ", post:" cumplió años ayer.", opts:["Sin contestar","rey","rei"], ans:"rey",
+   rule:"Termina en <b>-ey</b> → y: rey."},
+  {pre:"", post:" es el día del examen.", opts:["Sin contestar","Hoy","Hoi"], ans:"Hoy",
+   rule:"Termina en <b>-oy</b> → y: hoy."},
+  {pre:"Estoy ", post:" contento con la nota.", opts:["Sin contestar","muy","mui"], ans:"muy",
+   rule:"Termina en <b>-uy</b> → y: muy."},
+  {pre:"Yo te lo ", post:" ahora mismo.", opts:["Sin contestar","doy","doi"], ans:"doy",
+   rule:"Forma verbal que termina en <b>-oy</b> → y: doy."},
+  {pre:"Llegaron dos ", post:" con ayuda.", opts:["Sin contestar","convoyes","convoies"], ans:"convoyes",
+   rule:"Plural de <i>convoy</i> → mantiene <b>y</b>: convoyes."},
+
+  // Cambios a y en formas verbales (sin y/ll en el infinitivo)
+  {pre:"La pelota ", post:" en un hoyo.", opts:["Sin contestar","cayó","calló"], ans:"cayó",
+   rule:"De <i>caer</i> → <b>cayó</b> (no «calló», que viene de <i>callar</i>)."},
+  {pre:"El público ", post:" de emoción.", opts:["Sin contestar","oyó","oió"], ans:"oyó",
+   rule:"De <i>oír</i> → <b>oyó</b>."},
+  {pre:"Marina ", post:" la noticia en el periódico.", opts:["Sin contestar","leyó","leió"], ans:"leyó",
+   rule:"De <i>leer</i> → <b>leyó</b>."},
+  {pre:"No lo ", post:" hasta más tarde.", opts:["Sin contestar","creyó","creió"], ans:"creyó",
+   rule:"De <i>creer</i> → <b>creyó</b>."},
+  {pre:"El albañil ", post:" una pared nueva.", opts:["Sin contestar","construyó","construió"], ans:"construyó",
+   rule:"De <i>construir</i> → <b>construyó</b>."},
+  {pre:"Los ingenieros ", post:" el puente el año pasado.", opts:["Sin contestar","construyeron","construieron"], ans:"construyeron",
+   rule:"3.ª plural de <i>construir</i> → <b>construyeron</b>."},
+  {pre:"El resumen se ", post:" con ejemplos.", opts:["Sin contestar","incluye","incluie"], ans:"incluye",
+   rule:"De <i>incluir</i> → forma en <b>-uye</b>: incluye."},
+  {pre:"El técnico ", post:" a los jugadores.", opts:["Sin contestar","instruyó","instruió"], ans:"instruyó",
+   rule:"De <i>instruir</i> → <b>instruyó</b>."},
+  {pre:"El gato ", post:" cuando oyó el ruido.", opts:["Sin contestar","huyó","huió"], ans:"huyó",
+   rule:"De <i>huir</i> → <b>huyó</b>."},
+  {pre:"Ellos ", post:" en casa ese día.", opts:["Sin contestar","leyeron","leieron"], ans:"leyeron",
+   rule:"Plural de <i>leer</i> → <b>leyeron</b>."},
+  {pre:"Pedro no me ", post:" al principio.", opts:["Sin contestar","creyó","creió"], ans:"creyó",
+   rule:"De <i>creer</i> → <b>creyó</b>."},
+  {pre:"La presentadora ", post:" el guion en directo.", opts:["Sin contestar","leyó","leió"], ans:"leyó",
+   rule:"De <i>leer</i> → <b>leyó</b>."},
+
+  // Mezcla con homófonos frecuentes (y/ll)
+  {pre:"Marcos ", post:" al director por teléfono.", opts:["Sin contestar","llamó","yamó"], ans:"llamó",
+   rule:"Ojo: esto es <i>ll</i> (no regla de y). Correcta por ortografía general."},
+  {pre:"Se ", post:" para no hacer ruido.", opts:["Sin contestar","calló","cayó"], ans:"calló",
+   rule:"Verbo <i>callar</i> con <i>ll</i>; no confundir con <i>cayó</i>."}
+];
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+const list = document.getElementById('list');
+const scoreEl = document.getElementById('score');
+const btnNew = document.getElementById('new');
+let state = { total:0, correct:0 };
+
+function makeExercise(n=14){
+  list.innerHTML = '';
+  state.correct = 0;
+
+  const take = Math.min(n, BANK.length);
+  const sample = shuffle([...BANK]).slice(0, take);
+  state.total = sample.length;
+
+  sample.forEach((q, idx)=>{
+    const card = document.createElement('div'); card.className='card';
+    const p = document.createElement('p'); p.className='qtext';
+
+    const select = document.createElement('select');
+    select.setAttribute('aria-label', `Respuesta de la pregunta ${idx+1}`);
+    const options = shuffle([...q.opts]);
+    options.forEach(op=>{
+      const o = document.createElement('option');
+      o.value = op; o.textContent = op;
+      if(op==="Sin contestar") o.selected = true;
+      select.appendChild(o);
+    });
+
+    p.innerHTML = `<strong>${idx+1}.</strong> ${q.pre}`;
+    p.appendChild(select);
+    p.insertAdjacentText('beforeend', q.post);
+
+    const fb = document.createElement('span'); fb.className='feedback';
+    card.appendChild(p); card.appendChild(fb);
+
+    select.addEventListener('change', ()=>{
+      if(select.value === "Sin contestar") return;
+      select.disabled = true; select.classList.add('disabled');
+
+      if(select.value === q.ans){
+        fb.textContent = '✓ Correcta';
+        fb.className = 'feedback ok';
+        state.correct++;
+      }else{
+        fb.innerHTML = `✗ Incorrecta · Correcta: <u>${q.ans}</u>`;
+        fb.className = 'feedback ko';
+      }
+      const exp = document.createElement('div');
+      exp.style.marginTop='.35rem'; exp.style.color='var(--muted)';
+      exp.innerHTML = q.rule;
+      card.appendChild(exp);
+
+      updateScore();
+    });
+
+    list.appendChild(card);
+  });
+
+  updateScore();
+}
+
+function updateScore(){
+  scoreEl.textContent = `Aciertos: ${state.correct}/${state.total}`;
+}
+
+btnNew.addEventListener('click', ()=>{
+  makeExercise(14);
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+// inicio
+makeExercise(14);
+</script>
+</body>
+</html>
