@@ -2,175 +2,518 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Recursos para Carlos (1ºESO)</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recursos para Carlos - 1º ESO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {
+      margin: 0;
+      padding: 0;
       box-sizing: border-box;
-      scroll-behavior: smooth;
+    }
+
+    :root {
+      --primary: #667eea;
+      --primary-dark: #5a67d8;
+      --secondary: #764ba2;
+      --accent: #f093fb;
+      --bg-light: #f7fafc;
+      --bg-white: #ffffff;
+      --text-dark: #2d3748;
+      --text-light: #718096;
+      --shadow: 0 10px 25px rgba(0,0,0,0.1);
+      --shadow-hover: 0 20px 40px rgba(0,0,0,0.15);
+      --border-radius: 16px;
     }
 
     body {
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding-top: 70px;
-      background: #f5f7fa;
-      color: #2c3e50;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: var(--text-dark);
       line-height: 1.6;
     }
 
-    /* Barra de navegación */
-    nav {
-      position: fixed;
-      top: 0;
-      width: 100%;
-      background: #ffffffee;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      z-index: 1000;
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: white;
+      position: relative;
+      overflow: hidden;
     }
 
-    nav ul {
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" fill-opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" fill-opacity="0.08"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" fill-opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+      opacity: 0.3;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      font-weight: 300;
+      opacity: 0.9;
+      animation: fadeInUp 1s ease-out 0.2s both;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .subjects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 2rem;
+      margin: -50px 1rem 3rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .subject-card {
+      background: var(--bg-white);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+
+    .subject-card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .subject-header {
+      padding: 2rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .subject-header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      transition: transform 0.6s ease;
+    }
+
+    .subject-card:hover .subject-header::before {
+      transform: scale(1.2) rotate(45deg);
+    }
+
+    .subject-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .subject-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .subject-subtitle {
+      font-size: 0.9rem;
+      opacity: 0.8;
+      font-weight: 300;
+    }
+
+    .subject-content {
+      padding: 2rem;
+    }
+
+    .topic-section {
+      margin-bottom: 2rem;
+    }
+
+    .topic-title {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .topic-title::before {
+      content: '📚';
+      font-size: 1.2rem;
+    }
+
+    .resources-list {
       list-style: none;
       display: flex;
-      justify-content: center;
-      padding: 0.8em;
-      margin: 0;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 0.75rem;
     }
 
-    nav li {
-      margin: 0 1em;
-    }
-
-    nav a {
+    .resource-link {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      background: var(--bg-light);
+      border-radius: 12px;
       text-decoration: none;
-      color: #1a73e8;
-      font-weight: 600;
+      color: var(--text-dark);
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+      position: relative;
+      overflow: hidden;
     }
 
-    nav a:hover {
-      text-decoration: underline;
+    .resource-link::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+      transition: left 0.6s ease;
     }
 
-    h1 {
-      font-size: 1.8em;
-      margin-top: 1.5em;
-      border-bottom: 2px solid #ccc;
-      padding-bottom: 0.2em;
+    .resource-link:hover::before {
+      left: 100%;
     }
 
-    h2 {
-      font-size: 1.4em;
-      margin-top: 1.2em;
-      color: #34495e;
+    .resource-link:hover {
+      transform: translateX(8px);
+      background: white;
+      border-color: var(--primary);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
     }
 
-    h3 {
-      font-size: 1.2em;
-      margin-top: 0.8em;
+    .resource-icon {
+      font-size: 1.5rem;
+      margin-right: 1rem;
+      transition: transform 0.3s ease;
     }
 
-    h4 {
-      font-size: 1em;
-      margin-top: 0.5em;
+    .resource-link:hover .resource-icon {
+      transform: scale(1.2) rotate(5deg);
     }
 
-    ul {
-      list-style: none;
-      padding-left: 0;
+    .resource-text {
+      flex: 1;
     }
 
-    li {
-      margin-bottom: 0.5em;
-    }
-
-    a.resource {
-      display: inline-block;
-      padding: 0.4em 0.6em;
-      background: #e8f0fe;
-      border-radius: 6px;
-      text-decoration: none;
-      color: #1a73e8;
+    .resource-title {
       font-weight: 500;
-      transition: background 0.3s;
+      color: var(--text-dark);
+      margin-bottom: 0.25rem;
     }
 
-    a.resource::before {
-      content: "🔗 ";
+    .resource-description {
+      font-size: 0.85rem;
+      color: var(--text-light);
     }
 
-    a.resource:hover {
-      background: #d2e3fc;
+    .floating-nav {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border-radius: 50px;
+      box-shadow: var(--shadow);
+      padding: 0.5rem;
+      display: flex;
+      gap: 0.5rem;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
     }
 
-    section {
-      margin: 2em auto;
-      max-width: 800px;
-      padding: 0 1em;
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--bg-light);
+      color: var(--primary);
+      text-decoration: none;
+      font-size: 1.2rem;
+      transition: all 0.3s ease;
+      position: relative;
     }
 
-    @media (max-width: 600px) {
-      nav ul {
-        flex-direction: column;
-        align-items: center;
+    .nav-item:hover {
+      background: var(--primary);
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
       }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
-      nav li {
-        margin: 0.5em 0;
+    .subject-card {
+      animation: fadeInUp 0.6s ease-out;
+    }
+
+    .subject-card:nth-child(1) { animation-delay: 0.1s; }
+    .subject-card:nth-child(2) { animation-delay: 0.2s; }
+    .subject-card:nth-child(3) { animation-delay: 0.3s; }
+    .subject-card:nth-child(4) { animation-delay: 0.4s; }
+    .subject-card:nth-child(5) { animation-delay: 0.5s; }
+
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 2rem;
+      }
+      
+      .subjects-grid {
+        grid-template-columns: 1fr;
+        margin: -30px 1rem 2rem;
+      }
+      
+      .floating-nav {
+        bottom: 1rem;
+        padding: 0.25rem;
+      }
+      
+      .nav-item {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
       }
     }
   </style>
 </head>
 <body>
+  <section class="hero">
+    <div class="hero-content">
+      <h1>Recursos para Carlos</h1>
+      <p>1º ESO - Portal de aprendizaje interactivo</p>
+    </div>
+  </section>
 
-  <nav>
-    <ul>
-      <li><a href="#gh">Geografía</a></li>
-      <li><a href="#mat">Matemáticas</a></li>
-      <li><a href="#lcl">Lengua</a></li>
-      <li><a href="#byg">Biología</a></li>
-      <li><a href="#ing">Inglés</a></li>
-    </ul>
+  <div class="container">
+    <div class="subjects-grid">
+      <!-- Geografía e Historia -->
+      <div class="subject-card" id="geografia">
+        <div class="subject-header">
+          <span class="subject-icon">🌍</span>
+          <h2 class="subject-title">Geografía e Historia</h2>
+          <p class="subject-subtitle">Explora el mundo y su historia</p>
+        </div>
+        <div class="subject-content">
+          <div class="topic-section">
+            <h3 class="topic-title">Tema 1</h3>
+            <ul class="resources-list">
+              <li>
+                <a href="https://onio72.github.io/carlos/gh1/continentes/" target="_blank" class="resource-link">
+                  <span class="resource-icon">🗺️</span>
+                  <div class="resource-text">
+                    <div class="resource-title">Continentes y océanos</div>
+                    <div class="resource-description">Aprende la geografía mundial</div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Matemáticas -->
+      <div class="subject-card" id="matematicas">
+        <div class="subject-header">
+          <span class="subject-icon">🔢</span>
+          <h2 class="subject-title">Matemáticas</h2>
+          <p class="subject-subtitle">Descubre la lógica de los números</p>
+        </div>
+        <div class="subject-content">
+          <div class="topic-section">
+            <h3 class="topic-title">Tema 1</h3>
+            <ul class="resources-list">
+              <li>
+                <a href="https://onio72.github.io/iesmajuelo/bach/fq1/formulaempirica/" target="_blank" class="resource-link">
+                  <span class="resource-icon">🧮</span>
+                  <div class="resource-text">
+                    <div class="resource-title">Fórmula empírica</div>
+                    <div class="resource-description">Conceptos matemáticos básicos</div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lengua Castellana -->
+      <div class="subject-card" id="lengua">
+        <div class="subject-header">
+          <span class="subject-icon">📚</span>
+          <h2 class="subject-title">Lengua Castellana</h2>
+          <p class="subject-subtitle">Domina el arte de la comunicación</p>
+        </div>
+        <div class="subject-content">
+          <div class="topic-section">
+            <h3 class="topic-title">Tema 1</h3>
+            <ul class="resources-list">
+              <li>
+                <a href="https://onio72.github.io/cdd/" target="_blank" class="resource-link">
+                  <span class="resource-icon">💊</span>
+                  <div class="resource-text">
+                    <div class="resource-title">Repositorio de píldoras</div>
+                    <div class="resource-description">Recursos educativos variados</div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Biología y Geología -->
+      <div class="subject-card" id="biologia">
+        <div class="subject-header">
+          <span class="subject-icon">🧬</span>
+          <h2 class="subject-title">Biología y Geología</h2>
+          <p class="subject-subtitle">Explora la vida y la Tierra</p>
+        </div>
+        <div class="subject-content">
+          <div class="topic-section">
+            <h3 class="topic-title">Tema 1</h3>
+            <ul class="resources-list">
+              <li>
+                <a href="https://onio72.github.io/ed/calendario.html" target="_blank" class="resource-link">
+                  <span class="resource-icon">📅</span>
+                  <div class="resource-text">
+                    <div class="resource-title">Calendario</div>
+                    <div class="resource-description">Organiza tu tiempo de estudio</div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Inglés -->
+      <div class="subject-card" id="ingles">
+        <div class="subject-header">
+          <span class="subject-icon">🇬🇧</span>
+          <h2 class="subject-title">Inglés</h2>
+          <p class="subject-subtitle">Conecta con el mundo</p>
+        </div>
+        <div class="subject-content">
+          <div class="topic-section">
+            <h3 class="topic-title">Tema 1</h3>
+            <ul class="resources-list">
+              <li>
+                <a href="https://onio72.github.io/iesmajuelo/departamentoFQ/index2.html" target="_blank" class="resource-link">
+                  <span class="resource-icon">📋</span>
+                  <div class="resource-text">
+                    <div class="resource-title">Reparto materias</div>
+                    <div class="resource-description">Organización académica</div>
+                  </div>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="floating-nav">
+    <a href="#geografia" class="nav-item" title="Geografía">🌍</a>
+    <a href="#matematicas" class="nav-item" title="Matemáticas">🔢</a>
+    <a href="#lengua" class="nav-item" title="Lengua">📚</a>
+    <a href="#biologia" class="nav-item" title="Biología">🧬</a>
+    <a href="#ingles" class="nav-item" title="Inglés">🇬🇧</a>
   </nav>
 
-  
-  <section id="gh">
-    <h1>Geografía e Historia</h1>
-    <h2>Tema 1</h2>
-    <ul>
-      <li><a class="resource" href="https://onio72.github.io/carlos/gh1/continentes/" target="_blank">Continentes y océanos</a></li>
-    </ul>
-  </section>
+  <script>
+    // Smooth scrolling and active navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(item.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center'
+          });
+        }
+      });
+    });
 
+    // Update active navigation item based on scroll position
+    const observerOptions = {
+      threshold: 0.3,
+      rootMargin: '-50px 0px'
+    };
 
-  <section id="mat">
-    <h1>Matemáticas</h1>
-    <h2>Tema 1</h2>
-    <ul>
-      <li><a class="resource" href="https://onio72.github.io/iesmajuelo/bach/fq1/formulaempirica/" target="_blank">Fórmula empírica</a></li>
-    </ul>
-  </section>
- <section id="lcl">
-    <h1>Lengua castellana</h1>
-   <h2>Tema 1</h2>
-    <ul>
-      <li><a class="resource" href="https://onio72.github.io/cdd/" target="_blank">Repositorio de píldoras</a></li>
-    </ul>
-  </section>
-  <section id="byg">
-    <h1>Biología y Geología</h1>
-    <h2>Tema 1</h2>
-    <ul>
-      <li><a class="resource" href="https://onio72.github.io/ed/calendario.html" target="_blank">Calendario</a></li>
-    </ul>
-  </section>
-  <section id="ing">
-    <h1>Inglés</h1>
-    <h2>Tema 1</h2>
-    <ul>
-      <li><a class="resource" href="https://onio72.github.io/iesmajuelo/departamentoFQ/index2.html" target="_blank">Reparto materias</a></li>
-    </ul>
-  </section>
- 
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const navItem = document.querySelector(`[href="#${entry.target.id}"]`);
+          if (navItem) {
+            document.querySelectorAll('.nav-item').forEach(item => {
+              item.classList.remove('active');
+            });
+            navItem.classList.add('active');
+          }
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.subject-card').forEach(card => {
+      observer.observe(card);
+    });
+
+    // Add hover effects to cards
+    document.querySelectorAll('.subject-card').forEach(card => {
+      card.addEventListener('mouseenter', () => {
+        card.style.transform = 'translateY(-10px) scale(1.02)';
+      });
+      
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = 'translateY(0) scale(1)';
+      });
+    });
+  </script>
 </body>
 </html>
