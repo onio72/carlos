@@ -1,1 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Recursos para Carlos (1ºESO)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      scroll-behavior: smooth;
+    }
 
+    body {
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding-top: 70px;
+      background: #f5f7fa;
+      color: #2c3e50;
+      line-height: 1.6;
+    }
+
+    /* Barra de navegación */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #ffffffee;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      padding: 0.8em;
+      margin: 0;
+      flex-wrap: wrap;
+    }
+
+    nav li {
+      margin: 0 1em;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #1a73e8;
+      font-weight: 600;
+    }
+
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    h1 {
+      font-size: 1.8em;
+      margin-top: 1.5em;
+      border-bottom: 2px solid #ccc;
+      padding-bottom: 0.2em;
+    }
+
+    h2 {
+      font-size: 1.4em;
+      margin-top: 1.2em;
+      color: #34495e;
+    }
+
+    h3 {
+      font-size: 1.2em;
+      margin-top: 0.8em;
+    }
+
+    h4 {
+      font-size: 1em;
+      margin-top: 0.5em;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin-bottom: 0.5em;
+    }
+
+    a.resource {
+      display: inline-block;
+      padding: 0.4em 0.6em;
+      background: #e8f0fe;
+      border-radius: 6px;
+      text-decoration: none;
+      color: #1a73e8;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    a.resource::before {
+      content: "🔗 ";
+    }
+
+    a.resource:hover {
+      background: #d2e3fc;
+    }
+
+    section {
+      margin: 2em auto;
+      max-width: 800px;
+      padding: 0 1em;
+    }
+
+    @media (max-width: 600px) {
+      nav ul {
+        flex-direction: column;
+        align-items: center;
+      }
+
+      nav li {
+        margin: 0.5em 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <ul>
+      <li><a href="#gh">Geografía</a></li>
+      <li><a href="#mat">Matemáticas</a></li>
+      <li><a href="#lcl">Lengua</a></li>
+      <li><a href="#byg">Biología</a></li>
+      <li><a href="#ing">Inglés</a></li>
+    </ul>
+  </nav>
+
+  
+  <section id="gh">
+    <h1>Geografía e Historia</h1>
+    <h2>Tema 1</h2>
+    <ul>
+      <li><a class="resource" href="https://onio72.github.io/carlos/gh1/continentes/" target="_blank">Continentes y océanos</a></li>
+    </ul>
+  </section>
+
+
+  <section id="mat">
+    <h2>Tema 1</h2>
+    <ul>
+      <li><a class="resource" href="https://onio72.github.io/iesmajuelo/bach/fq1/formulaempirica/" target="_blank">Fórmula empírica</a></li>
+    </ul>
+  </section>
+ <section id="lcl">
+    <h1>Tema 1</h1>
+    <ul>
+      <li><a class="resource" href="https://onio72.github.io/cdd/" target="_blank">Repositorio de píldoras</a></li>
+    </ul>
+  </section>
+  <section id="byg">
+    <h1>Equipo directivo</h1>
+    <ul>
+      <li><a class="resource" href="https://onio72.github.io/ed/calendario.html" target="_blank">Calendario</a></li>
+    </ul>
+  </section>
+  <section id="ing">
+    <h1>Departamento</h1>
+    <ul>
+      <li><a class="resource" href="https://onio72.github.io/iesmajuelo/departamentoFQ/index2.html" target="_blank">Reparto materias</a></li>
+    </ul>
+  </section>
+ 
+</body>
+</html>
