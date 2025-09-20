@@ -11,49 +11,71 @@
       --primary:#667eea;--primary-dark:#5a67d8;--secondary:#764ba2;--accent:#f093fb;
       --bg-light:#f7fafc;--bg-white:#ffffff;--text-dark:#2d3748;--text-light:#718096;
       --shadow:0 10px 25px rgba(0,0,0,0.1);--shadow-hover:0 20px 40px rgba(0,0,0,0.15);
-      --border-radius:16px
+      --border-radius:16px;--success:#48bb78;--warning:#ed8936;--error:#f56565;
     }
     body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:var(--text-dark);line-height:1.6}
-    .hero{text-align:center;padding:3rem 1rem;color:#fff;position:relative;overflow:hidden}
+    .hero{text-align:center;padding:3rem 1rem 2rem;color:#fff;position:relative;overflow:hidden}
     .hero::before{content:'';position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" fill-opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" fill-opacity="0.08"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" fill-opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');opacity:.3}
     .hero-content{position:relative;z-index:1}
-    .hero h1{font-size:3rem;font-weight:700;margin-bottom:1rem;text-shadow:0 4px 20px rgba(0,0,0,0.3);animation:fadeInUp 1s ease-out}
-    .hero p{font-size:1.2rem;font-weight:300;opacity:.9;animation:fadeInUp 1s ease-out .2s both}
+    .hero h1{font-size:2.5rem;font-weight:700;margin-bottom:1rem;text-shadow:0 4px 20px rgba(0,0,0,0.3);animation:fadeInUp 1s ease-out}
+    .hero p{font-size:1.1rem;font-weight:300;opacity:.9;animation:fadeInUp 1s ease-out .2s both}
     .container{max-width:1200px;margin:0 auto;padding:0 1rem}
-    .subjects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:2rem;margin:-50px 1rem 3rem;position:relative;z-index:2}
-    .subject-card{background:var(--bg-white);border-radius:var(--border-radius);box-shadow:var(--shadow);overflow:hidden;transition:all .4s cubic-bezier(.175,.885,.32,1.275);position:relative;animation:fadeInUp .6s ease-out}
-    .subject-card:hover{transform:translateY(-10px);box-shadow:var(--shadow-hover)}
-    .subject-header{padding:2rem;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;position:relative;overflow:hidden}
-    .subject-header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%);transition:transform .6s ease}
-    .subject-card:hover .subject-header::before{transform:scale(1.2) rotate(45deg)}
-    .subject-icon{font-size:3rem;margin-bottom:1rem;display:block}
-    .subject-title{font-size:1.5rem;font-weight:600;margin-bottom:.5rem}
-    .subject-subtitle{font-size:.9rem;opacity:.8;font-weight:300}
-    .subject-content{padding:2rem}
-    .topic-section{margin-bottom:2rem}
-    .topic-title{font-size:1.1rem;font-weight:500;color:var(--primary);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
-    .topic-title::before{content:'📚';font-size:1.2rem}
-    .resources-list{list-style:none;display:flex;flex-direction:column;gap:.75rem}
-    .resource-link{display:flex;align-items:center;padding:1rem;background:var(--bg-light);border-radius:12px;text-decoration:none;color:var(--text-dark);transition:all .3s ease;border:2px solid transparent;position:relative;overflow:hidden}
-    .resource-link::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(102,126,234,.1),transparent);transition:left .6s ease}
+    .app-container{background:var(--bg-white);border-radius:var(--border-radius);box-shadow:var(--shadow);margin:-30px 1rem 3rem;position:relative;z-index:2;overflow:hidden}
+    .subjects-overview{padding:2rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
+    .subject-card{background:var(--bg-light);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .3s ease;border:3px solid transparent;position:relative;overflow:hidden}
+    .subject-card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(102,126,234,.1),transparent);transition:left .6s ease}
+    .subject-card:hover::before{left:100%}
+    .subject-card:hover{transform:translateY(-5px);background:#fff;border-color:var(--primary);box-shadow:0 8px 25px rgba(102,126,234,.2)}
+    .subject-icon{font-size:3rem;margin-bottom:1rem;display:block;transition:transform .3s ease}
+    .subject-card:hover .subject-icon{transform:scale(1.1) rotate(5deg)}
+    .subject-title{font-size:1.3rem;font-weight:600;color:var(--text-dark);margin-bottom:.5rem}
+    .subject-subtitle{font-size:.9rem;color:var(--text-light);font-weight:300}
+    .subject-count{display:inline-block;margin-top:.5rem;background:var(--primary);color:#fff;padding:.2rem .8rem;border-radius:20px;font-size:.8rem;font-weight:500}
+    .subject-detail{display:none;animation:slideInRight .4s ease-out}
+    .detail-header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem;position:relative;overflow:hidden}
+    .detail-header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%)}
+    .back-button{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.2);color:#fff;border:none;padding:.75rem 1.5rem;border-radius:25px;cursor:pointer;font-size:.9rem;transition:all .3s ease;margin-bottom:1rem}
+    .back-button:hover{background:rgba(255,255,255,.3);transform:translateX(-3px)}
+    .detail-title{font-size:2rem;font-weight:600;margin-bottom:.5rem;display:flex;align-items:center;gap:1rem}
+    .detail-subtitle{font-size:1rem;opacity:.8;font-weight:300}
+    .topics-container{padding:2rem}
+    .topic-section{margin-bottom:2.5rem;background:var(--bg-light);border-radius:12px;padding:1.5rem;transition:all .3s ease}
+    .topic-section:hover{background:#fff;box-shadow:0 5px 15px rgba(0,0,0,.1)}
+    .topic-title{font-size:1.2rem;font-weight:600;color:var(--primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;padding-bottom:.75rem;border-bottom:2px solid var(--primary)}
+    .topic-title::before{content:'📚';font-size:1.3rem}
+    .resources-grid{display:grid;gap:1rem}
+    .resource-link{display:flex;align-items:center;padding:1rem;background:#fff;border-radius:10px;text-decoration:none;color:var(--text-dark);transition:all .3s ease;border:2px solid transparent;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+    .resource-link::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(102,126,234,.08),transparent);transition:left .5s ease}
     .resource-link:hover::before{left:100%}
-    .resource-link:hover{transform:translateX(8px);background:#fff;border-color:var(--primary);box-shadow:0 5px 15px rgba(102,126,234,.2)}
-    .resource-icon{font-size:1.5rem;margin-right:1rem;transition:transform .3s ease}
-    .resource-link:hover .resource-icon{transform:scale(1.2) rotate(5deg)}
+    .resource-link:hover{transform:translateX(5px);border-color:var(--primary);box-shadow:0 8px 20px rgba(102,126,234,.15)}
+    .resource-icon{font-size:1.8rem;margin-right:1rem;transition:transform .3s ease;min-width:2.5rem;text-align:center}
+    .resource-link:hover .resource-icon{transform:scale(1.15)}
     .resource-text{flex:1}
-    .resource-title{font-weight:500;color:var(--text-dark);margin-bottom:.25rem}
-    .resource-description{font-size:.85rem;color:var(--text-light)}
-    .floating-nav{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#fff;border-radius:50px;box-shadow:var(--shadow);padding:.5rem;display:flex;gap:.5rem;z-index:1000;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
-    .nav-item{display:flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:50%;background:var(--bg-light);color:var(--primary);text-decoration:none;font-size:1.2rem;transition:all .3s ease;position:relative}
-    .nav-item:hover{background:var(--primary);color:#fff;transform:scale(1.1)}
-    .nav-item.active{background:var(--primary);color:#fff}
+    .resource-title{font-weight:500;color:var(--text-dark);margin-bottom:.25rem;font-size:1rem}
+    .resource-description{font-size:.85rem;color:var(--text-light);line-height:1.4}
+    .quick-stats{display:flex;justify-content:center;gap:2rem;padding:2rem;background:rgba(255,255,255,.05);backdrop-filter:blur(10px);margin:1rem 0}
+    .stat-item{text-align:center;color:#fff}
+    .stat-number{font-size:2rem;font-weight:700;display:block}
+    .stat-label{font-size:.85rem;opacity:.8;font-weight:300}
+    .search-container{padding:1.5rem 2rem;background:var(--bg-light);border-bottom:1px solid #e2e8f0}
+    .search-input{width:100%;padding:1rem;border:2px solid transparent;border-radius:25px;background:#fff;font-size:1rem;transition:all .3s ease;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+    .search-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(102,126,234,.1)}
     @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-    .subject-card:nth-child(1){animation-delay:.1s}.subject-card:nth-child(2){animation-delay:.2s}.subject-card:nth-child(3){animation-delay:.3s}.subject-card:nth-child(4){animation-delay:.4s}.subject-card:nth-child(5){animation-delay:.5s}
+    @keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+    .loading{opacity:.6;pointer-events:none}
+    .fade-transition{transition:opacity .3s ease, transform .3s ease}
     @media (max-width:768px){
       .hero h1{font-size:2rem}
-      .subjects-grid{grid-template-columns:1fr;margin:-30px 1rem 2rem}
-      .floating-nav{bottom:1rem;padding:.25rem}
-      .nav-item{width:40px;height:40px;font-size:1rem}
+      .app-container{margin:-20px 1rem 2rem}
+      .subjects-overview{grid-template-columns:1fr;padding:1.5rem}
+      .detail-title{font-size:1.5rem;flex-direction:column;align-items:flex-start;gap:.5rem}
+      .quick-stats{flex-wrap:wrap;gap:1rem}
+      .topics-container{padding:1.5rem}
+      .search-container{padding:1rem 1.5rem}
+    }
+    .subject-card:focus,.resource-link:focus,.back-button:focus{outline:3px solid var(--primary);outline-offset:2px}
+    @media (prefers-color-scheme: dark){
+      :root{--bg-white:#1a202c;--bg-light:#2d3748;--text-dark:#f7fafc;--text-light:#a0aec0;}
     }
   </style>
 </head>
@@ -66,181 +88,198 @@
   </section>
 
   <div class="container">
-    <div id="subjects" class="subjects-grid"><!-- Render dinámico --></div>
+    <div class="app-container">
+      <div class="quick-stats">
+        <div class="stat-item"><span class="stat-number" id="total-subjects">0</span><span class="stat-label">Materias</span></div>
+        <div class="stat-item"><span class="stat-number" id="total-resources">0</span><span class="stat-label">Recursos</span></div>
+        <div class="stat-item"><span class="stat-number" id="total-topics">0</span><span class="stat-label">Temas</span></div>
+      </div>
+
+      <div id="subjects-overview" class="subjects-overview" aria-live="polite"></div>
+
+      <div id="subject-detail" class="subject-detail" aria-live="polite">
+        <div class="detail-header">
+          <button id="back-button" class="back-button" type="button" aria-label="Volver a materias">← Volver a materias</button>
+          <h2 class="detail-title">
+            <span id="detail-icon">📚</span>
+            <div>
+              <div id="detail-title-text">Materia</div>
+              <div class="detail-subtitle" id="detail-subtitle-text">Subtítulo</div>
+            </div>
+          </h2>
+        </div>
+        <div class="search-container">
+          <input type="text" id="search-input" class="search-input" placeholder="Buscar recursos..." aria-label="Buscar recursos">
+        </div>
+        <div id="topics-container" class="topics-container"></div>
+      </div>
+    </div>
   </div>
 
-  <nav id="nav" class="floating-nav"><!-- Render dinámico --></nav>
+  <!-- Pega aquí el contenido de tu recursos.txt (RTF o texto) -->
+  <script id="recursos-rtf" type="text/plain">
+{\rtf1\ansi ... TU CONTENIDO COMPLETO DE recursos.txt ... }
+  </script>
 
   <script>
+    /* ========= PARSER DE recursos.txt (RTF o texto con etiquetas) ========= */
+    function stripRTF(rtfs) {
+      if (!rtfs) return '';
+      // elimina cabecera RTF y escapes simples; conserva texto entre [] y separadores |
+      return rtfs
+        .replace(/\\par[d]?/g, '\n')
+        .replace(/\\'([0-9a-fA-F]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex,16)))
+        .replace(/\\u-?\d+\??/g, '')               // quita secuencias \uNNNN
+        .replace(/\\[a-zA-Z]+\d* ?/g, '')          // quita comandos \rtf, \ansi, etc.
+        .replace(/[{}]/g, '')                      // quita llaves de grupos
+        .replace(/\s+\n/g, '\n')
+        .trim();
+    }
+
+    function parseRecursos(text) {
+      // Espera bloques: [MATERIA]id|icon|title|subtitle
+      //                 [TEMA]title
+      //                 [ENLACE]title|desc|url|icon (icon opcional)
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const categories = [];
+      let currentCat = null;
+      let currentTopic = null;
+
+      function ensureCurrentTopic() {
+        if (!currentTopic) {
+          currentTopic = { title: 'General', resources: [] };
+          currentCat.topics.push(currentTopic);
+        }
+      }
+
+      for (const line of lines) {
+        if (line.startsWith('[MATERIA]')) {
+          const payload = line.slice(9);
+          const parts = payload.split('|');
+          const id = (parts[0] || '').trim().toLowerCase();
+          const icon = (parts[1] || '📚').trim() || '📚';
+          const title = (parts[2] || id).trim();
+          const subtitle = (parts[3] || '').trim();
+          currentCat = { id, icon, title, subtitle, topics: [] };
+          categories.push(currentCat);
+          currentTopic = null;
+        } else if (line.startsWith('[TEMA]')) {
+          const title = line.slice(6).trim();
+          currentTopic = { title, resources: [] };
+          if (currentCat) currentCat.topics.push(currentTopic);
+        } else if (line.startsWith('[ENLACE]')) {
+          const payload = line.slice(8);
+          const parts = payload.split('|');
+          const title = (parts[0] || '').trim();
+          const description = (parts[1] || '').trim();
+          const url = (parts[2] || '#').trim();
+          const icon = (parts[3] || '🔗').trim() || '🔗';
+          if (currentCat) {
+            ensureCurrentTopic();
+            currentTopic.resources.push({ title, description, url, icon });
+          }
+        }
+      }
+      return { categories };
+    }
+
     /* ============================
-       1) CONTENIDO EDITABLE (DATA)
+       FALLBACK (por si no se pega nada / parser vacío)
        ============================ */
-    const DATA = {
+    const FALLBACK_DATA = {
       categories: [
         {
-          id: "geografia",
-          icon: "🌍",
-          title: "Geografía e Historia",
-          subtitle: "Explora el mundo y su historia",
-          topics: [
-            {
-              title: "Tema 1",
-              resources: [
-                {
-                  title: "Continentes y océanos",
-                  description: "Aprende la geografía mundial",
-                  url: "https://onio72.github.io/carlos/gh1/continentes/",
-                  icon: "🗺️"
-                }
-              ]
-            }
+          id:"geografia",icon:"🌍",title:"Geografía e Historia",subtitle:"Explora el mundo y su historia",
+          topics:[
+            {title:"Continentes y Océanos",resources:[
+              {title:"Continentes y océanos",description:"Aprende la geografía mundial básica",url:"https://onio72.github.io/carlos/gh1/continentes/",icon:"🗺️"},
+              {title:"Mapa interactivo mundial",description:"Explora países y capitales",url:"#",icon:"🌐"}
+            ]},
+            {title:"Historia Antigua",resources:[
+              {title:"Civilizaciones antiguas",description:"Mesopotamia, Egipto y más",url:"#",icon:"🏛️"}
+            ]}
           ]
         },
         {
-          id: "matematicas",
-          icon: "🔢",
-          title: "Matemáticas",
-          subtitle: "Descubre la lógica de los números",
-          topics: [
-            {
-              title: "Tema 1",
-              resources: [
-                {
-                  title: "Fórmula empírica",
-                  description: "Conceptos matemáticos básicos",
-                  url: "https://onio72.github.io/iesmajuelo/bach/fq1/formulaempirica/",
-                  icon: "🧮"
-                }
-              ]
-            }
+          id:"matematicas",icon:"🔢",title:"Matemáticas",subtitle:"Descubre la lógica de los números",
+          topics:[
+            {title:"Números y Operaciones",resources:[
+              {title:"Fórmula empírica",description:"Conceptos matemáticos fundamentales",url:"https://onio72.github.io/iesmajuelo/bach/fq1/formulaempirica/",icon:"🧮"},
+              {title:"Calculadora avanzada",description:"Herramienta de cálculo interactiva",url:"#",icon:"📱"}
+            ]},
+            {title:"Geometría",resources:[
+              {title:"Figuras geométricas",description:"Aprende formas y medidas",url:"#",icon:"📐"}
+            ]}
           ]
         },
         {
-          id: "lengua",
-          icon: "📚",
-          title: "Lengua Castellana",
-          subtitle: "Domina el arte de la comunicación",
-          topics: [
-            {
-              title: "Ortografía",
-              resources: [
-                {
-                  title: "Repositorio de píldoras",
-                  description: "Recursos educativos variados",
-                  url: "https://onio72.github.io/cdd/",
-                  icon: "💊"
-                }
-              ]
-            },
-            {
-              title: "Tema 1",
-              resources: [
-                {
-                  title: "Repositorio de píldoras",
-                  description: "Recursos educativos variados",
-                  url: "https://onio72.github.io/cdd/",
-                  icon: "💊"
-                }
-              ]
-            },
-            {
-              title: "Tema 2",
-              resources: [
-                {
-                  title: "Repositorio de píldoras",
-                  description: "Recursos educativos variados",
-                  url: "https://onio72.github.io/cdd/",
-                  icon: "💊"
-                }
-              ]
-            },
-            {
-              title: "Tema 3",
-              resources: [
-                {
-                  title: "Repositorio de píldoras",
-                  description: "Recursos educativos variados",
-                  url: "https://onio72.github.io/cdd/",
-                  icon: "💊"
-                }
-              ]
-            },
-            {
-              title: "Tema 4",
-              resources: [
-                {
-                  title: "Repositorio de píldoras",
-                  description: "Recursos educativos variados",
-                  url: "https://onio72.github.io/cdd/",
-                  icon: "💊"
-                }
-              ]
-            },
-            {
-              title: "Tema 5",
-              resources: [
-                {
-                  title: "Repositorio de píldoras",
-                  description: "Recursos educativos variados",
-                  url: "https://onio72.github.io/cdd/",
-                  icon: "💊"
-                }
-              ]
-            }
+          id:"lengua",icon:"📚",title:"Lengua Castellana",subtitle:"Domina el arte de la comunicación",
+          topics:[
+            {title:"Ortografía",resources:[
+              {title:"Repositorio de píldoras",description:"Recursos educativos para mejorar la escritura",url:"https://onio72.github.io/cdd/",icon:"💊"},
+              {title:"Ejercicios de acentuación",description:"Practica las reglas de acentuación",url:"#",icon:"✏️"}
+            ]},
+            {title:"Comprensión Lectora",resources:[
+              {title:"Textos interactivos",description:"Mejora tu comprensión de lectura",url:"#",icon:"📖"}
+            ]},
+            {title:"Gramática",resources:[
+              {title:"Análisis sintáctico",description:"Aprende a analizar oraciones",url:"#",icon:"🔍"}
+            ]}
           ]
         },
         {
-          id: "biologia",
-          icon: "🧬",
-          title: "Biología y Geología",
-          subtitle: "Explora la vida y la Tierra",
-          topics: [
-            {
-              title: "Tema 1",
-              resources: [
-                {
-                  title: "Calendario",
-                  description: "Organiza tu tiempo de estudio",
-                  url: "https://onio72.github.io/ed/calendario.html",
-                  icon: "📅"
-                }
-              ]
-            }
+          id:"biologia",icon:"🧬",title:"Biología y Geología",subtitle:"Explora la vida y la Tierra",
+          topics:[
+            {title:"Los Seres Vivos",resources:[
+              {title:"Calendario de estudios",description:"Organiza tu tiempo de estudio eficientemente",url:"https://onio72.github.io/ed/calendario.html",icon:"📅"},
+              {title:"Clasificación de especies",description:"Aprende sobre biodiversidad",url:"#",icon:"🦋"}
+            ]},
+            {title:"La Tierra",resources:[
+              {title:"Estructura de la Tierra",description:"Capas terrestres y fenómenos geológicos",url:"#",icon:"🌋"}
+            ]}
           ]
         },
         {
-          id: "ingles",
-          icon: "🇬🇧",
-          title: "Inglés",
-          subtitle: "Conecta con el mundo",
-          topics: [
-            {
-              title: "Tema 1",
-              resources: [
-                {
-                  title: "Reparto materias",
-                  description: "Organización académica",
-                  url: "https://onio72.github.io/iesmajuelo/departamentoFQ/index2.html",
-                  icon: "📋"
-                }
-              ]
-            }
+          id:"ingles",icon:"🇬🇧",title:"Inglés",subtitle:"Conecta con el mundo",
+          topics:[
+            {title:"Vocabulario Básico",resources:[
+              {title:"Organización de materias",description:"Gestión académica y planificación",url:"https://onio72.github.io/iesmajuelo/departamentoFQ/index2.html",icon:"📋"},
+              {title:"Diccionario visual",description:"Aprende vocabulario con imágenes",url:"#",icon:"📸"}
+            ]},
+            {title:"Gramática Inglesa",resources:[
+              {title:"Tiempos verbales",description:"Domina los verbos en inglés",url:"#",icon:"⏰"}
+            ]}
           ]
         }
       ]
     };
 
-    /* =================================
-       2) RENDER: TARJETAS + NAV DINÁMICO
-       ================================= */
-    const $subjects = document.getElementById('subjects');
-    const $nav = document.getElementById('nav');
+    /* ============================
+       ESTADO Y ELEMENTOS
+       ============================ */
+    let DATA = FALLBACK_DATA;
+    let currentView = 'overview';
+    let currentSubject = null;
+    let filteredResources = [];
 
+    const $subjectsOverview = document.getElementById('subjects-overview');
+    const $subjectDetail = document.getElementById('subject-detail');
+    const $backButton = document.getElementById('back-button');
+    const $searchInput = document.getElementById('search-input');
+    const $topicsContainer = document.getElementById('topics-container');
+    const $detailIcon = document.getElementById('detail-icon');
+    const $detailTitleText = document.getElementById('detail-title-text');
+    const $detailSubtitleText = document.getElementById('detail-subtitle-text');
+
+    /* ============================
+       UTILIDADES
+       ============================ */
     function el(tag, attrs = {}, children = []) {
       const node = document.createElement(tag);
       for (const [k, v] of Object.entries(attrs)) {
         if (k === 'class') node.className = v;
         else if (k === 'html') node.innerHTML = v;
+        else if (k.startsWith('on')) node.addEventListener(k.slice(2), v);
         else node.setAttribute(k, v);
       }
       (Array.isArray(children) ? children : [children]).forEach(c => {
@@ -249,95 +288,179 @@
       });
       return node;
     }
-
-    function renderResource(res) {
-      return el('li', {}, el('a', {href: res.url, target: "_blank", class: "resource-link", rel:"noopener noreferrer"},
-        [
-          el('span', {class: "resource-icon"}, res.icon || '🔗'),
-          el('div', {class: "resource-text"}, [
-            el('div', {class: "resource-title"}, res.title),
-            el('div', {class: "resource-description"}, res.description || '')
-          ])
-        ]
-      ));
+    function countResources(category) {
+      return category.topics?.reduce((sum, topic) => sum + (topic.resources?.length || 0), 0) || 0;
+    }
+    function updateStats() {
+      document.getElementById('total-subjects').textContent = DATA.categories.length;
+      document.getElementById('total-resources').textContent = 
+        DATA.categories.reduce((sum, cat) => sum + countResources(cat), 0);
+      document.getElementById('total-topics').textContent = 
+        DATA.categories.reduce((sum, cat) => sum + (cat.topics?.length || 0), 0);
     }
 
+    /* ============================
+       RENDER: OVERVIEW
+       ============================ */
+    function renderSubjectCard(category) {
+      const resourceCount = countResources(category);
+      return el('div', {
+        class: 'subject-card',
+        tabindex: '0',
+        role: 'button',
+        onclick: () => showSubjectDetail(category),
+        onkeydown: (e)=>{ if(e.key==='Enter'||e.key===' ') showSubjectDetail(category); }
+      }, [
+        el('span', {class: 'subject-icon'}, category.icon || '📦'),
+        el('h3', {class: 'subject-title'}, category.title),
+        el('p', {class: 'subject-subtitle'}, category.subtitle || ''),
+        el('span', {class: 'subject-count'}, `${resourceCount} recursos`)
+      ]);
+    }
+    function renderSubjectsOverview() {
+      $subjectsOverview.innerHTML = '';
+      DATA.categories.forEach(category => {
+        $subjectsOverview.appendChild(renderSubjectCard(category));
+      });
+    }
+
+    /* ============================
+       RENDER: DETAIL
+       ============================ */
+    function renderResource(resource) {
+      return el('a', {
+        href: resource.url, target: '_blank', rel: 'noopener noreferrer', class: 'resource-link'
+      }, [
+        el('span', {class: 'resource-icon'}, resource.icon || '🔗'),
+        el('div', {class: 'resource-text'}, [
+          el('div', {class: 'resource-title'}, resource.title),
+          el('div', {class: 'resource-description'}, resource.description || '')
+        ])
+      ]);
+    }
     function renderTopic(topic) {
-      return el('div', {class: "topic-section"}, [
-        el('h3', {class: "topic-title"}, topic.title),
-        el('ul', {class: "resources-list"},
-          (topic.resources || []).map(renderResource)
-        )
+      const visibleResources = topic.resources?.filter(resource => 
+        filteredResources.length === 0 || filteredResources.includes(resource)
+      ) || [];
+      if (visibleResources.length === 0) return null;
+      return el('div', {class: 'topic-section'}, [
+        el('h3', {class: 'topic-title'}, topic.title),
+        el('div', {class: 'resources-grid'}, visibleResources.map(renderResource))
       ]);
     }
-
-    function renderCategory(cat, index) {
-      return el('div', {class: "subject-card", id: cat.id}, [
-        el('div', {class: "subject-header"}, [
-          el('span', {class: "subject-icon"}, cat.icon || '📦'),
-          el('h2', {class: "subject-title"}, cat.title),
-          el('p', {class: "subject-subtitle"}, cat.subtitle || '')
-        ]),
-        el('div', {class: "subject-content"},
-          (cat.topics || []).map(renderTopic)
-        )
-      ]);
-    }
-
-    function renderNavItem(cat) {
-      const a = el('a', {href: `#${cat.id}`, class: "nav-item", title: cat.title}, cat.icon || '📦');
-      a.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = document.querySelector(a.getAttribute('href'));
-        if (target) target.scrollIntoView({behavior: 'smooth', block: 'center'});
+    function renderSubjectDetail(category) {
+      $detailIcon.textContent = category.icon || '📦';
+      $detailTitleText.textContent = category.title;
+      $detailSubtitleText.textContent = category.subtitle || '';
+      $topicsContainer.innerHTML = '';
+      (category.topics || []).forEach(topic => {
+        const t = renderTopic(topic);
+        if (t) $topicsContainer.appendChild(t);
       });
-      return a;
+      if ($topicsContainer.children.length === 0) {
+        $topicsContainer.appendChild(
+          el('div', {class: 'topic-section', style: 'text-align:center;color:var(--text-light);padding:2rem;'}, [
+            el('h3', {}, '🔍 No se encontraron recursos'),
+            el('p', {}, 'Prueba con otros términos de búsqueda')
+          ])
+        );
+      }
     }
 
-    function renderAll() {
-      // Tarjetas
-      $subjects.innerHTML = '';
-      DATA.categories.forEach((cat, i) => $subjects.appendChild(renderCategory(cat, i)));
+    /* ============================
+       NAVEGACIÓN (con History API)
+       ============================ */
+    function showSubjectDetail(category) {
+      currentView = 'detail';
+      currentSubject = category;
+      filteredResources = [];
+      $searchInput.value = '';
+      $subjectsOverview.style.display = 'none';
+      $subjectDetail.style.display = 'block';
+      renderSubjectDetail(category);
+      history.pushState({view:'detail', id: category.id}, '', '#'+category.id);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
 
-      // Nav
-      $nav.innerHTML = '';
-      DATA.categories.forEach(cat => $nav.appendChild(renderNavItem(cat)));
+    function showSubjectsOverview(pushHist=true) {
+      currentView = 'overview';
+      currentSubject = null;
+      filteredResources = [];
+      $searchInput.value = '';
+      $subjectDetail.style.display = 'none';
+      $subjectsOverview.style.display = 'grid';
+      if (pushHist) history.pushState({view:'overview'}, '', '#');
+      document.querySelector('.hero')?.scrollIntoView({behavior:'smooth'});
+    }
 
-      // Observador para activar nav según scroll
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const navItem = $nav.querySelector(`[href="#${entry.target.id}"]`);
-            if (navItem) {
-              $nav.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-              navItem.classList.add('active');
-            }
-          }
+    window.onpopstate = (e)=>{
+      const state = e.state || {view:'overview'};
+      if(state.view === 'detail' && state.id){
+        const cat = DATA.categories.find(c=>c.id===state.id);
+        if (cat) showSubjectDetail(cat);
+      } else {
+        showSubjectsOverview(false);
+      }
+    };
+
+    /* ============================
+       BÚSQUEDA
+       ============================ */
+    function searchResources(query) {
+      if (!currentSubject || !query.trim()) {
+        filteredResources = [];
+        renderSubjectDetail(currentSubject);
+        return;
+      }
+      const searchTerm = query.toLowerCase().trim();
+      filteredResources = [];
+      currentSubject.topics?.forEach(topic => {
+        topic.resources?.forEach(resource => {
+          const matchesTitle = resource.title.toLowerCase().includes(searchTerm);
+          const matchesDescription = resource.description?.toLowerCase().includes(searchTerm);
+          if (matchesTitle || matchesDescription) filteredResources.push(resource);
         });
-      }, {threshold: 0.3, rootMargin: '-50px 0px'});
+      });
+      renderSubjectDetail(currentSubject);
+    }
 
-      document.querySelectorAll('.subject-card').forEach(card => observer.observe(card));
-
-      // Hover suave
-      document.querySelectorAll('.subject-card').forEach(card => {
-        card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-10px) scale(1.02)');
-        card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0) scale(1)');
+    /* ============================
+       INICIALIZACIÓN
+       ============================ */
+    function setupEventListeners() {
+      $backButton.addEventListener('click', ()=> showSubjectsOverview());
+      $searchInput.addEventListener('input', (e)=> searchResources(e.target.value));
+      document.addEventListener('keydown', (e)=>{
+        if (e.key === 'Escape' && currentView === 'detail') showSubjectsOverview();
       });
     }
 
-    renderAll();
+    function initDataFromRecursos() {
+      const raw = document.getElementById('recursos-rtf')?.textContent?.trim();
+      if (!raw) return;
+      const plain = stripRTF(raw);
+      const parsed = parseRecursos(plain);
+      if (parsed.categories && parsed.categories.length) {
+        DATA = parsed;
+      }
+    }
 
-    /* =======================================================
-       3) OPCIONAL: Cargar DATA desde data.json en producción
-       -------------------------------------------------------
-       - Crea un archivo data.json con la misma estructura que DATA.
-       - Descomenta el bloque fetch() de abajo y comenta el DATA hardcoded.
-       - Sirve los archivos con un servidor (fetch no funciona en file://).
-    ======================================================== */
-    // fetch('./data.json')
-    //   .then(r => r.json())
-    //   .then(json => { Object.assign(DATA, json); renderAll(); })
-    //   .catch(err => console.warn('Usando DATA embebido. Error al cargar data.json:', err));
+    function init() {
+      initDataFromRecursos();
+      updateStats();
+      renderSubjectsOverview();
+      setupEventListeners();
+      // Si hay hash con materia, abre directamente
+      const hash = location.hash.replace('#','').trim();
+      if (hash) {
+        const cat = DATA.categories.find(c=>c.id===hash);
+        if (cat) showSubjectDetail(cat);
+      } else {
+        history.replaceState({view:'overview'}, '', '#');
+      }
+    }
+
+    init();
   </script>
 </body>
 </html>
