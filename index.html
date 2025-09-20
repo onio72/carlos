@@ -14,64 +14,53 @@
       --border-radius:16px;--success:#48bb78;--warning:#ed8936;--error:#f56565;
     }
     body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);min-height:100vh;color:var(--text-dark);line-height:1.6}
-    .hero{text-align:center;padding:3rem 1rem 2rem;color:#fff;position:relative;overflow:hidden}
+    .hero{text-align:center;padding:3rem 1rem 1rem;color:#fff;position:relative;overflow:hidden}
     .hero::before{content:'';position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="%23ffffff" fill-opacity="0.1"/><circle cx="75" cy="75" r="1" fill="%23ffffff" fill-opacity="0.08"/><circle cx="50" cy="10" r="0.5" fill="%23ffffff" fill-opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');opacity:.3}
     .hero-content{position:relative;z-index:1}
-    .hero h1{font-size:2.5rem;font-weight:700;margin-bottom:1rem;text-shadow:0 4px 20px rgba(0,0,0,0.3);animation:fadeInUp 1s ease-out}
-    .hero p{font-size:1.1rem;font-weight:300;opacity:.9;animation:fadeInUp 1s ease-out .2s both}
+    .hero h1{font-size:2.2rem;font-weight:700;margin-bottom:.3rem;text-shadow:0 4px 20px rgba(0,0,0,0.3)}
+    .hero p{font-size:1rem;font-weight:300;opacity:.9}
     .container{max-width:1200px;margin:0 auto;padding:0 1rem}
-    .app-container{background:var(--bg-white);border-radius:var(--border-radius);box-shadow:var(--shadow);margin:-30px 1rem 3rem;position:relative;z-index:2;overflow:hidden}
-    .subjects-overview{padding:2rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.5rem}
-    .subject-card{background:var(--bg-light);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .3s ease;border:3px solid transparent;position:relative;overflow:hidden}
-    .subject-card::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(102,126,234,.1),transparent);transition:left .6s ease}
-    .subject-card:hover::before{left:100%}
-    .subject-card:hover{transform:translateY(-5px);background:#fff;border-color:var(--primary);box-shadow:0 8px 25px rgba(102,126,234,.2)}
-    .subject-icon{font-size:3rem;margin-bottom:1rem;display:block;transition:transform .3s ease}
-    .subject-card:hover .subject-icon{transform:scale(1.1) rotate(5deg)}
-    .subject-title{font-size:1.3rem;font-weight:600;color:var(--text-dark);margin-bottom:.5rem}
-    .subject-subtitle{font-size:.9rem;color:var(--text-light);font-weight:300}
-    .subject-count{display:inline-block;margin-top:.5rem;background:var(--primary);color:#fff;padding:.2rem .8rem;border-radius:20px;font-size:.8rem;font-weight:500}
-    .subject-detail{display:none;animation:slideInRight .4s ease-out}
-    .detail-header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:2rem;position:relative;overflow:hidden}
-    .detail-header::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle,rgba(255,255,255,.1) 0%,transparent 70%)}
-    .back-button{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.2);color:#fff;border:none;padding:.75rem 1.5rem;border-radius:25px;cursor:pointer;font-size:.9rem;transition:all .3s ease;margin-bottom:1rem}
-    .back-button:hover{background:rgba(255,255,255,.3);transform:translateX(-3px)}
-    .detail-title{font-size:2rem;font-weight:600;margin-bottom:.5rem;display:flex;align-items:center;gap:1rem}
-    .detail-subtitle{font-size:1rem;opacity:.8;font-weight:300}
-    .topics-container{padding:2rem}
-    .topic-section{margin-bottom:2.5rem;background:var(--bg-light);border-radius:12px;padding:1.5rem;transition:all .3s ease}
-    .topic-section:hover{background:#fff;box-shadow:0 5px 15px rgba(0,0,0,.1)}
-    .topic-title{font-size:1.2rem;font-weight:600;color:var(--primary);margin-bottom:1.5rem;display:flex;align-items:center;gap:.75rem;padding-bottom:.75rem;border-bottom:2px solid var(--primary)}
-    .topic-title::before{content:'📚';font-size:1.3rem}
-    .resources-grid{display:grid;gap:1rem}
-    .resource-link{display:flex;align-items:center;padding:1rem;background:#fff;border-radius:10px;text-decoration:none;color:var(--text-dark);transition:all .3s ease;border:2px solid transparent;position:relative;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.05)}
-    .resource-link::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(102,126,234,.08),transparent);transition:left .5s ease}
-    .resource-link:hover::before{left:100%}
-    .resource-link:hover{transform:translateX(5px);border-color:var(--primary);box-shadow:0 8px 20px rgba(102,126,234,.15)}
-    .resource-icon{font-size:1.8rem;margin-right:1rem;transition:transform .3s ease;min-width:2.5rem;text-align:center}
-    .resource-link:hover .resource-icon{transform:scale(1.15)}
-    .resource-text{flex:1}
-    .resource-title{font-weight:500;color:var(--text-dark);margin-bottom:.25rem;font-size:1rem}
-    .resource-description{font-size:.85rem;color:var(--text-light);line-height:1.4}
-    .quick-stats{display:flex;justify-content:center;gap:2rem;padding:2rem;background:rgba(255,255,255,.05);backdrop-filter:blur(10px);margin:1rem 0}
+    .app-container{background:var(--bg-white);border-radius:var(--border-radius);box-shadow:var(--shadow);margin:-20px 1rem 3rem;position:relative;z-index:2;overflow:hidden}
+    .quick-stats{display:flex;justify-content:center;gap:2rem;padding:1rem;background:rgba(255,255,255,.05);backdrop-filter:blur(10px);margin:1rem 0}
     .stat-item{text-align:center;color:#fff}
-    .stat-number{font-size:2rem;font-weight:700;display:block}
+    .stat-number{font-size:1.6rem;font-weight:700;display:block}
     .stat-label{font-size:.85rem;opacity:.8;font-weight:300}
-    .search-container{padding:1.5rem 2rem;background:var(--bg-light);border-bottom:1px solid #e2e8f0}
-    .search-input{width:100%;padding:1rem;border:2px solid transparent;border-radius:25px;background:#fff;font-size:1rem;transition:all .3s ease;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+
+    /* Buscadores */
+    .search-container{padding:1rem 1.5rem;background:var(--bg-light);border-bottom:1px solid #e2e8f0}
+    .search-input{width:100%;padding:.9rem;border:2px solid transparent;border-radius:25px;background:#fff;font-size:1rem;transition:all .3s ease;box-shadow:0 2px 10px rgba(0,0,0,.05)}
     .search-input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(102,126,234,.1)}
-    @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-    .loading{opacity:.6;pointer-events:none}
-    .fade-transition{transition:opacity .3s ease, transform .3s ease}
+
+    /* Grid materias */
+    .subjects-overview{padding:1.5rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+    .subject-card{background:var(--bg-light);border-radius:12px;padding:1.2rem;text-align:center;cursor:pointer;transition:all .3s ease;border:3px solid transparent;position:relative;overflow:hidden}
+    .subject-card:hover{transform:translateY(-4px);background:#fff;border-color:var(--primary);box-shadow:0 8px 25px rgba(102,126,234,.15)}
+    .subject-icon{font-size:2.3rem;margin-bottom:.6rem;display:block}
+    .subject-title{font-size:1.15rem;font-weight:600;color:var(--text-dark);margin-bottom:.2rem}
+    .subject-subtitle{font-size:.85rem;color:var(--text-light);font-weight:300}
+    .subject-count{display:inline-block;margin-top:.4rem;background:var(--primary);color:#fff;padding:.15rem .7rem;border-radius:20px;font-size:.78rem;font-weight:500}
+
+    /* Detalle */
+    .subject-detail{display:none}
+    .detail-header{background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;padding:1.5rem;position:relative}
+    .back-button{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.2);color:#fff;border:none;padding:.6rem 1.2rem;border-radius:25px;cursor:pointer;font-size:.9rem;transition:all .3s ease;margin-bottom:.8rem}
+    .back-button:hover{background:rgba(255,255,255,.3);transform:translateX(-2px)}
+    .detail-title{font-size:1.7rem;font-weight:600;margin-bottom:.3rem;display:flex;align-items:center;gap:.7rem}
+    .detail-subtitle{font-size:.95rem;opacity:.85;font-weight:300}
+
+    .topics-container{padding:1.2rem}
+    .topic-section{margin-bottom:1.4rem;background:var(--bg-light);border-radius:12px;padding:1rem}
+    .topic-title{font-size:1.05rem;font-weight:600;color:var(--primary);margin-bottom:.8rem;padding-bottom:.5rem;border-bottom:2px solid var(--primary)}
+    .resources-grid{display:grid;gap:.7rem}
+    .resource-link{display:flex;align-items:center;padding:.9rem;background:#fff;border-radius:10px;text-decoration:none;color:var(--text-dark);transition:all .2s ease;border:2px solid transparent;box-shadow:0 2px 8px rgba(0,0,0,.05)}
+    .resource-link:hover{transform:translateX(3px);border-color:var(--primary);box-shadow:0 8px 20px rgba(102,126,234,.12)}
+    .resource-text{flex:1}
+    .resource-title{font-weight:500;color:var(--text-dark);margin-bottom:.2rem;font-size:1rem}
+    .resource-description{font-size:.85rem;color:var(--text-light);line-height:1.35}
+
     @media (max-width:768px){
-      .hero h1{font-size:2rem}
-      .app-container{margin:-20px 1rem 2rem}
-      .subjects-overview{grid-template-columns:1fr;padding:1.5rem}
-      .detail-title{font-size:1.5rem;flex-direction:column;align-items:flex-start;gap:.5rem}
-      .quick-stats{flex-wrap:wrap;gap:1rem}
-      .topics-container{padding:1.5rem}
-      .search-container{padding:1rem 1.5rem}
+      .hero h1{font-size:1.8rem}
+      .subjects-overview{grid-template-columns:1fr}
     }
     .subject-card:focus,.resource-link:focus,.back-button:focus{outline:3px solid var(--primary);outline-offset:2px}
     @media (prefers-color-scheme: dark){
@@ -89,14 +78,23 @@
 
   <div class="container">
     <div class="app-container">
+
+      <!-- Stats -->
       <div class="quick-stats">
         <div class="stat-item"><span class="stat-number" id="total-subjects">0</span><span class="stat-label">Materias</span></div>
         <div class="stat-item"><span class="stat-number" id="total-resources">0</span><span class="stat-label">Recursos</span></div>
         <div class="stat-item"><span class="stat-number" id="total-topics">0</span><span class="stat-label">Temas</span></div>
       </div>
 
+      <!-- Buscador portada -->
+      <div class="search-container" id="home-search">
+        <input type="text" id="search-input-home" class="search-input" placeholder="Buscar materias..." aria-label="Buscar materias">
+      </div>
+
+      <!-- Vista principal: Materias -->
       <div id="subjects-overview" class="subjects-overview" aria-live="polite"></div>
 
+      <!-- Vista detalle -->
       <div id="subject-detail" class="subject-detail" aria-live="polite">
         <div class="detail-header">
           <button id="back-button" class="back-button" type="button" aria-label="Volver a materias">← Volver a materias</button>
@@ -109,161 +107,46 @@
           </h2>
         </div>
         <div class="search-container">
-          <input type="text" id="search-input" class="search-input" placeholder="Buscar recursos..." aria-label="Buscar recursos">
+          <input type="text" id="search-input" class="search-input" placeholder="Buscar recursos de esta materia..." aria-label="Buscar recursos">
         </div>
         <div id="topics-container" class="topics-container"></div>
       </div>
     </div>
   </div>
 
-  <!-- Aquí se pegaba el contenido de tu recursos.txt (RTF o texto) -->
-
-
   <script>
-    /* ========= PARSER DE recursos.txt (RTF o texto con etiquetas) ========= */
-    function stripRTF(rtfs) {
-      if (!rtfs) return '';
-      // elimina cabecera RTF y escapes simples; conserva texto entre [] y separadores |
-      return rtfs
-        .replace(/\\par[d]?/g, '\n')
-        .replace(/\\'([0-9a-fA-F]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex,16)))
-        .replace(/\\u-?\d+\??/g, '')               // quita secuencias \uNNNN
-        .replace(/\\[a-zA-Z]+\d* ?/g, '')          // quita comandos \rtf, \ansi, etc.
-        .replace(/[{}]/g, '')                      // quita llaves de grupos
-        .replace(/\s+\n/g, '\n')
-        .trim();
-    }
-
-    function parseRecursos(text) {
-      // Espera bloques: [MATERIA]id|icon|title|subtitle
-      //                 [TEMA]title
-      //                 [ENLACE]title|desc|url|icon (icon opcional)
-      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
-      const categories = [];
-      let currentCat = null;
-      let currentTopic = null;
-
-      function ensureCurrentTopic() {
-        if (!currentTopic) {
-          currentTopic = { title: 'General', resources: [] };
-          currentCat.topics.push(currentTopic);
-        }
-      }
-
-      for (const line of lines) {
-        if (line.startsWith('[MATERIA]')) {
-          const payload = line.slice(9);
-          const parts = payload.split('|');
-          const id = (parts[0] || '').trim().toLowerCase();
-          const icon = (parts[1] || '📚').trim() || '📚';
-          const title = (parts[2] || id).trim();
-          const subtitle = (parts[3] || '').trim();
-          currentCat = { id, icon, title, subtitle, topics: [] };
-          categories.push(currentCat);
-          currentTopic = null;
-        } else if (line.startsWith('[TEMA]')) {
-          const title = line.slice(6).trim();
-          currentTopic = { title, resources: [] };
-          if (currentCat) currentCat.topics.push(currentTopic);
-        } else if (line.startsWith('[ENLACE]')) {
-          const payload = line.slice(8);
-          const parts = payload.split('|');
-          const title = (parts[0] || '').trim();
-          const description = (parts[1] || '').trim();
-          const url = (parts[2] || '#').trim();
-          const icon = (parts[3] || '🔗').trim() || '🔗';
-          if (currentCat) {
-            ensureCurrentTopic();
-            currentTopic.resources.push({ title, description, url, icon });
-          }
-        }
-      }
-      return { categories };
-    }
+    /* ============================
+       CONFIG FIJA DE 9 MATERIAS
+       ============================ */
+    const DEFAULT_CATEGORIES = [
+      { id:'geografia', title:'Geografía e Historia', icon:'🌍', subtitle:'', visible:true },
+      { id:'matematicas', title:'Matemáticas', icon:'🔢', subtitle:'', visible:true },
+      { id:'lengua', title:'Lengua', icon:'📚', subtitle:'', visible:true },
+      { id:'biologia', title:'Biología', icon:'🧬', subtitle:'', visible:true },
+      { id:'ingles', title:'Inglés', icon:'🇬🇧', subtitle:'', visible:true },
+      { id:'frances', title:'Francés', icon:'🇫🇷', subtitle:'', visible:true },
+      { id:'musica', title:'Música', icon:'🎵', subtitle:'', visible:true },
+      { id:'epv', title:'Educación Plástica y Visual', icon:'🎨', subtitle:'', visible:true },
+      { id:'ef', title:'Educación Física', icon:'🏃', subtitle:'', visible:true }
+    ];
 
     /* ============================
-       FALLBACK (por si no se pega nada / parser vacío)
+       ESTADO
        ============================ */
-    const FALLBACK_DATA = {
-      categories: [
-        {
-          id:"geografia",icon:"🌍",title:"Geografía e Historia",subtitle:"Explora el mundo y su historia",
-          topics:[
-            {title:"Continentes y Océanos",resources:[
-              {title:"Continentes y océanos",description:"Aprende la geografía mundial básica",url:"https://onio72.github.io/carlos/gh1/continentes/",icon:"🗺️"},
-              {title:"Mapa interactivo mundial",description:"Explora países y capitales",url:"#",icon:"🌐"}
-            ]},
-            {title:"Historia Antigua",resources:[
-              {title:"Civilizaciones antiguas",description:"Mesopotamia, Egipto y más",url:"#",icon:"🏛️"}
-            ]}
-          ]
-        },
-        {
-          id:"matematicas",icon:"🔢",title:"Matemáticas",subtitle:"Descubre la lógica de los números",
-          topics:[
-            {title:"Números y Operaciones",resources:[
-              {title:"Fórmula empírica",description:"Conceptos matemáticos fundamentales",url:"https://onio72.github.io/iesmajuelo/bach/fq1/formulaempirica/",icon:"🧮"},
-              {title:"Calculadora avanzada",description:"Herramienta de cálculo interactiva",url:"#",icon:"📱"}
-            ]},
-            {title:"Geometría",resources:[
-              {title:"Figuras geométricas",description:"Aprende formas y medidas",url:"#",icon:"📐"}
-            ]}
-          ]
-        },
-        {
-          id:"lengua",icon:"📚",title:"Lengua Castellana",subtitle:"Domina el arte de la comunicación",
-          topics:[
-            {title:"Ortografía",resources:[
-              {title:"Repositorio de píldoras",description:"Recursos educativos para mejorar la escritura",url:"https://onio72.github.io/cdd/",icon:"💊"},
-              {title:"Ejercicios de acentuación",description:"Practica las reglas de acentuación",url:"#",icon:"✏️"}
-            ]},
-            {title:"Comprensión Lectora",resources:[
-              {title:"Textos interactivos",description:"Mejora tu comprensión de lectura",url:"#",icon:"📖"}
-            ]},
-            {title:"Gramática",resources:[
-              {title:"Análisis sintáctico",description:"Aprende a analizar oraciones",url:"#",icon:"🔍"}
-            ]}
-          ]
-        },
-        {
-          id:"biologia",icon:"🧬",title:"Biología y Geología",subtitle:"Explora la vida y la Tierra",
-          topics:[
-            {title:"Los Seres Vivos",resources:[
-              {title:"Calendario de estudios",description:"Organiza tu tiempo de estudio eficientemente",url:"https://onio72.github.io/ed/calendario.html",icon:"📅"},
-              {title:"Clasificación de especies",description:"Aprende sobre biodiversidad",url:"#",icon:"🦋"}
-            ]},
-            {title:"La Tierra",resources:[
-              {title:"Estructura de la Tierra",description:"Capas terrestres y fenómenos geológicos",url:"#",icon:"🌋"}
-            ]}
-          ]
-        },
-        {
-          id:"ingles",icon:"🇬🇧",title:"Inglés",subtitle:"Conecta con el mundo",
-          topics:[
-            {title:"Vocabulario Básico",resources:[
-              {title:"Organización de materias",description:"Gestión académica y planificación",url:"https://onio72.github.io/iesmajuelo/departamentoFQ/index2.html",icon:"📋"},
-              {title:"Diccionario visual",description:"Aprende vocabulario con imágenes",url:"#",icon:"📸"}
-            ]},
-            {title:"Gramática Inglesa",resources:[
-              {title:"Tiempos verbales",description:"Domina los verbos en inglés",url:"#",icon:"⏰"}
-            ]}
-          ]
-        }
-      ]
-    };
-
-    /* ============================
-       ESTADO Y ELEMENTOS
-       ============================ */
-    let DATA = FALLBACK_DATA;
+    let DATA = { categories: [] };             // se rellenará con merge
     let currentView = 'overview';
     let currentSubject = null;
     let filteredResources = [];
+    let homeQuery = '';
 
+    /* ============================
+       ELEMENTOS
+       ============================ */
     const $subjectsOverview = document.getElementById('subjects-overview');
     const $subjectDetail = document.getElementById('subject-detail');
     const $backButton = document.getElementById('back-button');
     const $searchInput = document.getElementById('search-input');
+    const $homeSearchInput = document.getElementById('search-input-home');
     const $topicsContainer = document.getElementById('topics-container');
     const $detailIcon = document.getElementById('detail-icon');
     const $detailTitleText = document.getElementById('detail-title-text');
@@ -286,19 +169,156 @@
       });
       return node;
     }
+
+    function stripRTF(rtfs) {
+      if (!rtfs) return '';
+      return rtfs
+        .replace(/\\par[d]?/g, '\n')
+        .replace(/\\'([0-9a-fA-F]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex,16)))
+        .replace(/\\u-?\d+\??/g, '')
+        .replace(/\\[a-zA-Z]+\d* ?/g, '')
+        .replace(/[{}]/g, '')
+        .replace(/\s+\n/g, '\n')
+        .trim();
+    }
+
+    function toBool(v, def=true){
+      if (v == null || v === '') return def;
+      v = String(v).trim().toLowerCase();
+      return ['si','sí','true','1','visible','on'].includes(v);
+    }
+
+    function parseLineParts(payload){
+      return payload.split('|').map(s=>s.trim());
+    }
+
+    function topicOrderKey(title){
+      // extrae primer número para ordenar por Tema 1,2,3...
+      const m = String(title).match(/\d+/);
+      return m ? parseInt(m[0],10) : Number.POSITIVE_INFINITY;
+    }
+
+    /* ============================
+       PARSER recursos.txt
+       Formato:
+       [MATERIA] id | icon | Título | Subtítulo | visible=si/no
+       [TEMA]     Título (p.ej. "Tema 1") | visible=si/no
+       [ENLACE]   Título | Descripción | URL
+       ============================ */
+    function parseRecursos(text) {
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const categories = [];
+      let currentCat = null;
+      let currentTopic = null;
+
+      function ensureTema1(){
+        if (!currentCat) return;
+        if (!currentCat.topics.length){
+          currentCat.topics.push({ title:'Tema 1', visible:true, resources:[] });
+        }
+      }
+
+      for (const line of lines) {
+        if (line.startsWith('[MATERIA]')) {
+          const parts = parseLineParts(line.slice(9));
+          const [id, icon, title, subtitle, visKV] = parts;
+          const visible = toBool((visKV||'').split('=').slice(1).join('='));
+          currentCat = {
+            id: (id||'').toLowerCase(),
+            icon: icon || '',
+            title: title || '',
+            subtitle: subtitle || '',
+            visible: visKV ? visible : true,
+            topics: []
+          };
+          categories.push(currentCat);
+          currentTopic = null;
+
+        } else if (line.startsWith('[TEMA]')) {
+          const parts = parseLineParts(line.slice(6));
+          const [title, visKV] = parts;
+          const visible = toBool((visKV||'').split('=').slice(1).join('='));
+          currentTopic = { title: title || 'Tema 1', visible: visKV ? visible : true, resources: [] };
+          if (currentCat) currentCat.topics.push(currentTopic);
+
+        } else if (line.startsWith('[ENLACE]')) {
+          const parts = parseLineParts(line.slice(8));
+          const [rTitle, rDesc, rUrl] = parts;
+          if (currentCat){
+            if (!currentTopic){
+              currentTopic = { title:'Tema 1', visible:true, resources:[] };
+              currentCat.topics.push(currentTopic);
+            }
+            currentTopic.resources.push({
+              title: rTitle || 'Recurso',
+              description: rDesc || '',
+              url: rUrl || '#'
+              // SIN icono por requisito
+            });
+          }
+        }
+      }
+      // Asegura Tema 1 en cada materia con al menos un tema
+      categories.forEach(c=>{
+        if (!c.topics || !c.topics.length){
+          c.topics = [{ title:'Tema 1', visible:true, resources:[] }];
+        }
+      });
+      return { categories };
+    }
+
+    /* ============================
+       MERGE: 9 materias fijas + archivo
+       ============================ */
+    function mergeDefaultsWithParsed(parsed){
+      const mapParsed = new Map(parsed.categories.map(c=>[c.id, c]));
+      const merged = DEFAULT_CATEGORIES.map(base=>{
+        const pc = mapParsed.get(base.id);
+        const out = {
+          id: base.id,
+          title: pc?.title || base.title,
+          icon: pc?.icon || base.icon,  // un solo icono por materia
+          subtitle: pc?.subtitle || base.subtitle || '',
+          visible: (pc?.visible ?? base.visible),
+          topics: []
+        };
+        // temas
+        const topics = (pc?.topics || [{ title:'Tema 1', visible:true, resources:[] }])
+          .map(t=>({
+            title: t.title || 'Tema 1',
+            visible: (t.visible ?? true),
+            resources: (t.resources || []).map(r=>({
+              title: r.title, description: r.description, url: r.url
+            }))
+          }))
+          // solo temas visibles
+          .filter(t=>t.visible)
+          // orden por número
+          .sort((a,b)=> topicOrderKey(a.title) - topicOrderKey(b.title));
+
+        out.topics = topics;
+        return out;
+      });
+
+      return { categories: merged };
+    }
+
+    /* ============================
+       CONTADORES
+       ============================ */
     function countResources(category) {
       return category.topics?.reduce((sum, topic) => sum + (topic.resources?.length || 0), 0) || 0;
     }
     function updateStats() {
       document.getElementById('total-subjects').textContent = DATA.categories.length;
-      document.getElementById('total-resources').textContent = 
+      document.getElementById('total-resources').textContent =
         DATA.categories.reduce((sum, cat) => sum + countResources(cat), 0);
-      document.getElementById('total-topics').textContent = 
+      document.getElementById('total-topics').textContent =
         DATA.categories.reduce((sum, cat) => sum + (cat.topics?.length || 0), 0);
     }
 
     /* ============================
-       RENDER: OVERVIEW
+       RENDER PORTADA
        ============================ */
     function renderSubjectCard(category) {
       const resourceCount = countResources(category);
@@ -315,64 +335,76 @@
         el('span', {class: 'subject-count'}, `${resourceCount} recursos`)
       ]);
     }
+
     function renderSubjectsOverview() {
       $subjectsOverview.innerHTML = '';
-      DATA.categories.forEach(category => {
+      const list = DATA.categories
+        .filter(c => c.visible !== false)
+        .filter(c => !homeQuery || c.title.toLowerCase().includes(homeQuery) || c.id.includes(homeQuery));
+      list.forEach(category => {
         $subjectsOverview.appendChild(renderSubjectCard(category));
       });
     }
 
     /* ============================
-       RENDER: DETAIL
+       RENDER DETALLE
        ============================ */
     function renderResource(resource) {
       return el('a', {
         href: resource.url, target: '_blank', rel: 'noopener noreferrer', class: 'resource-link'
       }, [
-        el('span', {class: 'resource-icon'}, resource.icon || '🔗'),
         el('div', {class: 'resource-text'}, [
           el('div', {class: 'resource-title'}, resource.title),
           el('div', {class: 'resource-description'}, resource.description || '')
         ])
       ]);
     }
+
     function renderTopic(topic) {
-      const visibleResources = topic.resources?.filter(resource => 
-        filteredResources.length === 0 || filteredResources.includes(resource)
-      ) || [];
+      // aplicar filtro de búsqueda en detalle
+      const visibleResources = (topic.resources||[]).filter(resource => {
+        if (!filteredResources.length) return true;
+        return filteredResources.includes(resource);
+      });
+
       if (visibleResources.length === 0) return null;
+
       return el('div', {class: 'topic-section'}, [
         el('h3', {class: 'topic-title'}, topic.title),
         el('div', {class: 'resources-grid'}, visibleResources.map(renderResource))
       ]);
     }
+
     function renderSubjectDetail(category) {
       $detailIcon.textContent = category.icon || '📦';
       $detailTitleText.textContent = category.title;
       $detailSubtitleText.textContent = category.subtitle || '';
+
       $topicsContainer.innerHTML = '';
       (category.topics || []).forEach(topic => {
         const t = renderTopic(topic);
         if (t) $topicsContainer.appendChild(t);
       });
+
       if ($topicsContainer.children.length === 0) {
         $topicsContainer.appendChild(
           el('div', {class: 'topic-section', style: 'text-align:center;color:var(--text-light);padding:2rem;'}, [
-            el('h3', {}, '🔍 No se encontraron recursos'),
-            el('p', {}, 'Prueba con otros términos de búsqueda')
+            el('h3', {}, '🔍 No hay recursos visibles'),
+            el('p', {}, 'Revisa el buscador o la visibilidad en recursos.txt')
           ])
         );
       }
     }
 
     /* ============================
-       NAVEGACIÓN (con History API)
+       NAVEGACIÓN
        ============================ */
     function showSubjectDetail(category) {
       currentView = 'detail';
       currentSubject = category;
       filteredResources = [];
       $searchInput.value = '';
+      document.getElementById('home-search').style.display = 'none';
       $subjectsOverview.style.display = 'none';
       $subjectDetail.style.display = 'block';
       renderSubjectDetail(category);
@@ -385,6 +417,7 @@
       currentSubject = null;
       filteredResources = [];
       $searchInput.value = '';
+      document.getElementById('home-search').style.display = 'block';
       $subjectDetail.style.display = 'none';
       $subjectsOverview.style.display = 'grid';
       if (pushHist) history.pushState({view:'overview'}, '', '#');
@@ -402,24 +435,48 @@
     };
 
     /* ============================
-       BÚSQUEDA
+       BÚSQUEDAS
        ============================ */
-    function searchResources(query) {
-      if (!currentSubject || !query.trim()) {
+    function searchResourcesDetail(query) {
+      if (!currentSubject) return;
+      const q = query.toLowerCase().trim();
+      if (!q) {
         filteredResources = [];
         renderSubjectDetail(currentSubject);
         return;
       }
-      const searchTerm = query.toLowerCase().trim();
       filteredResources = [];
       currentSubject.topics?.forEach(topic => {
         topic.resources?.forEach(resource => {
-          const matchesTitle = resource.title.toLowerCase().includes(searchTerm);
-          const matchesDescription = resource.description?.toLowerCase().includes(searchTerm);
-          if (matchesTitle || matchesDescription) filteredResources.push(resource);
+          const t = (resource.title||'').toLowerCase();
+          const d = (resource.description||'').toLowerCase();
+          if (t.includes(q) || d.includes(q)) filteredResources.push(resource);
         });
       });
       renderSubjectDetail(currentSubject);
+    }
+
+    /* ============================
+       CARGA DE DATOS
+       ============================ */
+    async function initDataFromRecursos() {
+      try {
+        const res = await fetch('./recursos.txt', { cache: 'no-cache' });
+        if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+        const raw = await res.text();
+        const plain = stripRTF(raw);
+        const parsed = parseRecursos(plain);
+        DATA = mergeDefaultsWithParsed(parsed);
+      } catch (e) {
+        console.warn('No se pudo cargar recursos.txt. Se muestran solo las 9 materias con Tema 1 vacío.', e);
+        // base mínima con Tema 1 vacío
+        DATA = {
+          categories: DEFAULT_CATEGORIES.map(c=>({
+            ...c,
+            topics:[{ title:'Tema 1', visible:true, resources:[] }]
+          }))
+        };
+      }
     }
 
     /* ============================
@@ -427,43 +484,38 @@
        ============================ */
     function setupEventListeners() {
       $backButton.addEventListener('click', ()=> showSubjectsOverview());
-      $searchInput.addEventListener('input', (e)=> searchResources(e.target.value));
+      $searchInput.addEventListener('input', (e)=> searchResourcesDetail(e.target.value));
+      $homeSearchInput.addEventListener('input', (e)=>{
+        homeQuery = e.target.value.toLowerCase().trim();
+        renderSubjectsOverview();
+      });
       document.addEventListener('keydown', (e)=>{
-        if (e.key === 'Escape' && currentView === 'detail') showSubjectsOverview();
+        if (e.key === 'Escape'){
+          if (currentView === 'detail') showSubjectsOverview();
+          else if (currentView === 'overview' && $homeSearchInput.value) {
+            $homeSearchInput.value=''; homeQuery=''; renderSubjectsOverview();
+          }
+        }
       });
     }
 
-    <script>
-  async function initDataFromRecursos() {
-    try {
-      const res = await fetch('./recursos.txt', { cache: 'no-cache' });
-      if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
-      const raw = await res.text();
-      const plain = stripRTF(raw);                // tu función existente
-      const parsed = parseRecursos(plain);        // tu parser existente
-      if (parsed.categories?.length) DATA = parsed;
-    } catch (e) {
-      console.warn('No se pudo cargar recursos.txt. Uso FALLBACK.', e);
+    async function init() {
+      await initDataFromRecursos();
+      updateStats();
+      renderSubjectsOverview();
+      setupEventListeners();
+
+      // abrir por hash si procede
+      const hash = location.hash.replace('#','').trim();
+      if (hash) {
+        const cat = DATA.categories.find(c => c.id === hash);
+        if (cat) showSubjectDetail(cat);
+      } else {
+        history.replaceState({view:'overview'}, '', '#');
+      }
     }
-  }
 
-  async function init() {
-    await initDataFromRecursos();                 // <- esperamos a tener los datos
-    updateStats();
-    renderSubjectsOverview();
-    setupEventListeners();
-
-    const hash = location.hash.replace('#','').trim();
-    if (hash) {
-      const cat = DATA.categories.find(c => c.id === hash);
-      if (cat) showSubjectDetail(cat);
-    } else {
-      history.replaceState({view:'overview'}, '', '#');
-    }
-  }
-
-  init();
-</script>
-
+    init();
+  </script>
 </body>
 </html>
