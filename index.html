@@ -116,10 +116,8 @@
     </div>
   </div>
 
-  <!-- Pega aquí el contenido de tu recursos.txt (RTF o texto) -->
-  <script id="recursos-rtf" type="text/plain">
-{\rtf1\ansi ... TU CONTENIDO COMPLETO DE recursos.txt ... }
-  </script>
+  <!-- Aquí se pegaba el contenido de tu recursos.txt (RTF o texto) -->
+
 
   <script>
     /* ========= PARSER DE recursos.txt (RTF o texto con etiquetas) ========= */
@@ -435,32 +433,37 @@
       });
     }
 
-    function initDataFromRecursos() {
-      const raw = document.getElementById('recursos-rtf')?.textContent?.trim();
-      if (!raw) return;
-      const plain = stripRTF(raw);
-      const parsed = parseRecursos(plain);
-      if (parsed.categories && parsed.categories.length) {
-        DATA = parsed;
-      }
+    <script>
+  async function initDataFromRecursos() {
+    try {
+      const res = await fetch('./recursos.txt', { cache: 'no-cache' });
+      if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+      const raw = await res.text();
+      const plain = stripRTF(raw);                // tu función existente
+      const parsed = parseRecursos(plain);        // tu parser existente
+      if (parsed.categories?.length) DATA = parsed;
+    } catch (e) {
+      console.warn('No se pudo cargar recursos.txt. Uso FALLBACK.', e);
     }
+  }
 
-    function init() {
-      initDataFromRecursos();
-      updateStats();
-      renderSubjectsOverview();
-      setupEventListeners();
-      // Si hay hash con materia, abre directamente
-      const hash = location.hash.replace('#','').trim();
-      if (hash) {
-        const cat = DATA.categories.find(c=>c.id===hash);
-        if (cat) showSubjectDetail(cat);
-      } else {
-        history.replaceState({view:'overview'}, '', '#');
-      }
+  async function init() {
+    await initDataFromRecursos();                 // <- esperamos a tener los datos
+    updateStats();
+    renderSubjectsOverview();
+    setupEventListeners();
+
+    const hash = location.hash.replace('#','').trim();
+    if (hash) {
+      const cat = DATA.categories.find(c => c.id === hash);
+      if (cat) showSubjectDetail(cat);
+    } else {
+      history.replaceState({view:'overview'}, '', '#');
     }
+  }
 
-    init();
-  </script>
+  init();
+</script>
+
 </body>
 </html>
