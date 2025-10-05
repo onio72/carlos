@@ -9,7 +9,7 @@
 
 [MATERIA] lengua | 📚 | Lengua |  | visible=si
 [TEMA] Tema 1 | visible=si
-[ENLACE] Diptongos e hiatos | ¿Sabes identificarlos? | https://onio72.github.io/carlos/hiatos.html
+[ENLACE] Diptongos e hiatos | ¿Sabes identificarlos? | https://onio72.github.io/carlos/lengua/hiatos.html
 
 [MATERIA] biologia | 🧬 | Biología |  | visible=si
 [TEMA] Tema 1 | visible=si
