@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coloca las Tildes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .instructions {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            transition: color 0.3s;
+        }
+
+        .score-value.green {
+            color: #28a745;
+        }
+
+        .score-value.red {
+            color: #dc3545;
+        }
+
+        .word-area {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .word-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 30px;
+            min-height: 80px;
+            flex-wrap: wrap;
+        }
+
+        .letter {
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s;
+            user-select: none;
+        }
+
+        .letter.vowel {
+            background: #e3f2fd;
+        }
+
+        .letter.vowel:hover {
+            background: #bbdefb;
+            transform: scale(1.1);
+        }
+
+        .letter.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .letter.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .check-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .check-btn:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .check-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .skip-btn {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .skip-btn:hover:not(:disabled) {
+            background: #ffb300;
+            transform: translateY(-2px);
+        }
+
+        .reset-btn {
+            background: #28a745;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background: #218838;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+            margin-top: 20px;
+        }
+
+        .correct {
+            color: #28a745;
+        }
+
+        .incorrect {
+            color: #dc3545;
+        }
+
+        .final-score {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .score-green {
+            color: #28a745;
+        }
+
+        .score-red {
+            color: #dc3545;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Coloca las Tildes</h1>
+        <div class="instructions">Haz clic en la vocal que debe llevar tilde</div>
+        
+        <div class="score-container">
+            <div class="score-item">
+                <div class="score-label">Nota</div>
+                <div class="score-value" id="score">0.0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Pregunta</div>
+                <div class="score-value" id="question-number">0</div>
+            </div>
+        </div>
+
+        <div id="game-area">
+            <div class="word-area">
+                <div class="word-display" id="word-display"></div>
+            </div>
+
+            <div class="buttons-container">
+                <button class="check-btn" onclick="checkAnswer()" id="check-btn" disabled>Comprobar</button>
+                <button class="skip-btn" onclick="skipWord()" id="skip-btn">Saltar</button>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div id="final-area" class="hidden">
+            <div class="final-score" id="final-score"></div>
+        </div>
+
+        <button class="reset-btn" onclick="resetGame()">Reiniciar Juego</button>
+    </div>
+
+    <script>
+        const wordsWithTilde = [
+            {word: "Cuéntamelo", withoutTilde: "Cuentamelo", tildeIndex: 2},
+            {word: "Dígaselo", withoutTilde: "Digaselo", tildeIndex: 1},
+            {word: "Fácilmente", withoutTilde: "Facilmente", tildeIndex: 1},
+            {word: "Rápidamente", withoutTilde: "Rapidamente", tildeIndex: 1},
+            {word: "Cómpramelo", withoutTilde: "Compramelo", tildeIndex: 1},
+            {word: "Devuélveselo", withoutTilde: "Devuelveselo", tildeIndex: 4},
+            {word: "Explícaselo", withoutTilde: "Explicaselo", tildeIndex: 4},
+            {word: "Permítemelo", withoutTilde: "Permitemelo", tildeIndex: 4},
+            {word: "Últimamente", withoutTilde: "Ultimamente", tildeIndex: 0},
+            {word: "Difícilmente", withoutTilde: "Dificilmente", tildeIndex: 3},
+            {word: "Médico", withoutTilde: "Medico", tildeIndex: 1},
+            {word: "Música", withoutTilde: "Musica", tildeIndex: 1},
+            {word: "Pájaro", withoutTilde: "Pajaro", tildeIndex: 1},
+            {word: "Teléfono", withoutTilde: "Telefono", tildeIndex: 3},
+            {word: "Público", withoutTilde: "Publico", tildeIndex: 1},
+            {word: "Número", withoutTilde: "Numero", tildeIndex: 1},
+            {word: "Técnico", withoutTilde: "Tecnico", tildeIndex: 1},
+            {word: "Rápido", withoutTilde: "Rapido", tildeIndex: 1},
+            {word: "Pálido", withoutTilde: "Palido", tildeIndex: 1},
+            {word: "Máquina", withoutTilde: "Maquina", tildeIndex: 1},
+            {word: "Océano", withoutTilde: "Oceano", tildeIndex: 0},
+            {word: "Cámara", withoutTilde: "Camara", tildeIndex: 1},
+            {word: "Término", withoutTilde: "Termino", tildeIndex: 1},
+            {word: "Pérdida", withoutTilde: "Perdida", tildeIndex: 1},
+            {word: "Físico", withoutTilde: "Fisico", tildeIndex: 1},
+            {word: "Química", withoutTilde: "Quimica", tildeIndex: 2},
+            {word: "Fábrica", withoutTilde: "Fabrica", tildeIndex: 1},
+            {word: "Círculo", withoutTilde: "Circulo", tildeIndex: 1},
+            {word: "Cántaro", withoutTilde: "Cantaro", tildeIndex: 1},
+            {word: "Lámpara", withoutTilde: "Lampara", tildeIndex: 1},
+            {word: "Sábado", withoutTilde: "Sabado", tildeIndex: 1},
+            {word: "Miércoles", withoutTilde: "Miercoles", tildeIndex: 2},
+            {word: "Página", withoutTilde: "Pagina", tildeIndex: 1},
+            {word: "Síntoma", withoutTilde: "Sintoma", tildeIndex: 1},
+            {word: "Cálculo", withoutTilde: "Calculo", tildeIndex: 1},
+            {word: "Plástico", withoutTilde: "Plastico", tildeIndex: 1},
+            {word: "Fantástico", withoutTilde: "Fantastico", tildeIndex: 4},
+            {word: "Matemática", withoutTilde: "Matematica", tildeIndex: 3},
+            {word: "Préstamo", withoutTilde: "Prestamo", tildeIndex: 2},
+            {word: "Periódico", withoutTilde: "Periodico", tildeIndex: 4},
+            {word: "Árbol", withoutTilde: "Arbol", tildeIndex: 0},
+            {word: "Lápiz", withoutTilde: "Lapiz", tildeIndex: 1},
+            {word: "Cárcel", withoutTilde: "Carcel", tildeIndex: 1},
+            {word: "Azúcar", withoutTilde: "Azucar", tildeIndex:2},
+            {word: "Césped", withoutTilde: "Cesped", tildeIndex: 1},
+            {word: "Fácil", withoutTilde: "Facil", tildeIndex: 1},
+            {word: "Difícil", withoutTilde: "Dificil", tildeIndex: 3},
+            {word: "Móvil", withoutTilde: "Movil", tildeIndex: 1},
+            {word: "Débil", withoutTilde: "Debil", tildeIndex: 1},
+            {word: "Útil", withoutTilde: "Util", tildeIndex: 0},
+            {word: "Mármol", withoutTilde: "Marmol", tildeIndex: 1},
+            {word: "Ángel", withoutTilde: "Angel", tildeIndex: 0},
+            {word: "Túnel", withoutTilde: "Tunel", tildeIndex: 1},
+            {word: "Cóndor", withoutTilde: "Condor", tildeIndex: 1},
+            {word: "Fémur", withoutTilde: "Femur", tildeIndex: 1},
+            {word: "Café", withoutTilde: "Cafe", tildeIndex: 3},
+            {word: "Sofá", withoutTilde: "Sofa", tildeIndex: 3},
+            {word: "Mamá", withoutTilde: "Mama", tildeIndex: 3},
+            {word: "Papá", withoutTilde: "Papa", tildeIndex: 3},
+            {word: "Acción", withoutTilde: "Accion", tildeIndex: 4},
+            {word: "Bebé", withoutTilde: "Bebe", tildeIndex: 3},
+            {word: "José", withoutTilde: "Jose", tildeIndex: 3},
+            {word: "Jesús", withoutTilde: "Jesus", tildeIndex: 4},
+            {word: "Inglés", withoutTilde: "Ingles", tildeIndex: 4},
+            {word: "Francés", withoutTilde: "Frances", tildeIndex: 5},
+            {word: "Alemán", withoutTilde: "Aleman", tildeIndex: 4},
+            {word: "Sillón", withoutTilde: "Sillon", tildeIndex: 4},
+            {word: "Ratón", withoutTilde: "Raton", tildeIndex: 3},
+            {word: "Canción", withoutTilde: "Cancion", tildeIndex: 5},
+            {word: "Corazón", withoutTilde: "Corazon", tildeIndex: 6}
+        ];
+
+        let score = 0;
+        let currentWord = null;
+        let usedWords = [];
+        let questionCount = 0;
+        let selectedVowelIndex = null;
+
+        const vowels = ['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U'];
+
+        function getRandomWord() {
+            if (usedWords.length === wordsWithTilde.length) {
+                usedWords = [];
+            }
+            
+            let availableWords = wordsWithTilde.filter(w => !usedWords.includes(w));
+            let randomIndex = Math.floor(Math.random() * availableWords.length);
+            let word = availableWords[randomIndex];
+            usedWords.push(word);
+            return word;
+        }
+
+        function showNewWord() {
+            if (score >= 10) {
+                endGame();
+                return;
+            }
+
+            currentWord = getRandomWord();
+            selectedVowelIndex = null;
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('feedback').textContent = '';
+            
+            const wordDisplay = document.getElementById('word-display');
+            wordDisplay.innerHTML = '';
+            
+            const letters = currentWord.withoutTilde.split('');
+            letters.forEach((letter, index) => {
+                const span = document.createElement('span');
+                span.textContent = letter;
+                span.className = 'letter';
+                
+                if (vowels.includes(letter)) {
+                    span.classList.add('vowel');
+                    span.onclick = () => selectVowel(index);
+                }
+                
+                span.dataset.index = index;
+                wordDisplay.appendChild(span);
+            });
+        }
+
+        function selectVowel(index) {
+            if (document.querySelectorAll('.letter.disabled').length > 0) return;
+            
+            const letter = document.querySelector(`[data-index="${index}"]`);
+            
+            // Si la vocal ya está seleccionada, deseleccionarla
+            if (letter.classList.contains('selected')) {
+                letter.classList.remove('selected');
+                selectedVowelIndex = null;
+                document.getElementById('check-btn').disabled = true;
+                return;
+            }
+            
+            // Deseleccionar todas las vocales
+            document.querySelectorAll('.letter.selected').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Seleccionar la nueva vocal
+            letter.classList.add('selected');
+            selectedVowelIndex = index;
+            
+            document.getElementById('check-btn').disabled = false;
+        }
+
+        function checkAnswer() {
+            if (selectedVowelIndex === null) return;
+
+            document.querySelectorAll('.letter').forEach(el => {
+                el.classList.add('disabled');
+            });
+            
+            document.getElementById('check-btn').disabled = true;
+            document.getElementById('skip-btn').disabled = true;
+            
+            questionCount++;
+            document.getElementById('question-number').textContent = questionCount;
+
+            const feedback = document.getElementById('feedback');
+            
+            if (selectedVowelIndex === currentWord.tildeIndex) {
+                score += 0.5;
+                feedback.textContent = `¡Correcto! ✓ (${currentWord.word})`;
+                feedback.className = 'feedback correct';
+            } else {
+                score -= 0.5;
+                feedback.textContent = `Incorrecto ✗ (${currentWord.word})`;
+                feedback.className = 'feedback incorrect';
+            }
+
+            if (score < 0) score = 0;
+            
+            updateScore();
+
+            setTimeout(() => {
+                document.querySelectorAll('.letter').forEach(el => {
+                    el.classList.remove('disabled');
+                });
+                document.getElementById('skip-btn').disabled = false;
+                showNewWord();
+            }, 2000);
+        }
+
+        function skipWord() {
+            showNewWord();
+        }
+
+        function updateScore() {
+            const scoreElement = document.getElementById('score');
+            scoreElement.textContent = score.toFixed(1);
+            
+            if (score >= 5) {
+                scoreElement.className = 'score-value green';
+            } else {
+                scoreElement.className = 'score-value red';
+            }
+        }
+
+        function endGame() {
+            document.getElementById('game-area').classList.add('hidden');
+            document.getElementById('final-area').classList.remove('hidden');
+            
+            const finalScore = document.getElementById('final-score');
+            const scoreClass = score >= 5 ? 'score-green' : 'score-red';
+            const message = score >= 5 ? '¡Aprobado!' : 'No aprobado';
+            
+            finalScore.className = `final-score ${scoreClass}`;
+            finalScore.textContent = `${message}\nNota final: ${score.toFixed(1)}`;
+        }
+
+        function resetGame() {
+            score = 0;
+            questionCount = 0;
+            usedWords = [];
+            currentWord = null;
+            selectedVowelIndex = null;
+            
+            updateScore();
+            document.getElementById('question-number').textContent = '0';
+            document.getElementById('feedback').textContent = '';
+            
+            document.getElementById('game-area').classList.remove('hidden');
+            document.getElementById('final-area').classList.add('hidden');
+            document.getElementById('skip-btn').disabled = false;
+            
+            showNewWord();
+        }
+
+        // Inicializar
+        showNewWord();
+    </script>
+</body>
+</html>
