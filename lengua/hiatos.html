@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Hiatos y Diptongos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .word-display {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .word {
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .buttons-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            flex: 1;
+            padding: 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-hiato {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-hiato:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+        }
+
+        .btn-diptongo {
+            background: #ed8936;
+            color: white;
+        }
+
+        .btn-diptongo:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-weight: bold;
+            font-size: 1.1em;
+            min-height: 50px;
+        }
+
+        .feedback.correct {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .feedback.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .feedback.final {
+            background: #bee3f8;
+            color: #2c5282;
+        }
+
+        .details {
+            font-size: 0.9em;
+            margin-top: 5px;
+            color: #555;
+        }
+
+        .btn-reset {
+            background: #667eea;
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-reset:hover {
+            background: #5568d3;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Quiz de Hiatos y Diptongos</h1>
+        
+        <div class="score-container">
+            <div class="score-item">
+                <div class="score-label">Puntuación</div>
+                <div class="score-value" id="score">0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Progreso</div>
+                <div class="score-value" id="progress">0/24</div>
+            </div>
+        </div>
+
+        <div class="word-display">
+            <div class="word" id="word">-</div>
+        </div>
+
+        <div class="buttons-container">
+            <button class="btn-hiato" id="btnHiato" onclick="checkAnswer('Hiato')">Hiato</button>
+            <button class="btn-diptongo" id="btnDiptongo" onclick="checkAnswer('Diptongo')">Diptongo</button>
+        </div>
+
+        <div class="feedback hidden" id="feedback"></div>
+
+        <button class="btn-reset hidden" id="btnReset" onclick="resetQuiz()">Reiniciar Quiz</button>
+    </div>
+
+    <script>
+        const palabras = [
+            { id: 1, palabra: "ciudad", tipo: "Diptongo", vocales: "Vocal cerrada átona + vocal cerrada átona (i,u)" },
+            { id: 2, palabra: "viudo", tipo: "Diptongo", vocales: "Vocal cerrada átona + vocal cerrada átona (i,u)" },
+            { id: 3, palabra: "aire", tipo: "Diptongo", vocales: "Vocal abierta átona + vocal cerrada átona (a,i)" },
+            { id: 4, palabra: "jaula", tipo: "Diptongo", vocales: "Vocal abierta átona + vocal cerrada átona (a,u)" },
+            { id: 5, palabra: "deuda", tipo: "Diptongo", vocales: "Vocal abierta tónica + vocal cerrada átona (e,u)" },
+            { id: 6, palabra: "viaje", tipo: "Diptongo", vocales: "Vocal cerrada átona + vocal abierta átona (i,a)" },
+            { id: 7, palabra: "nieve", tipo: "Diptongo", vocales: "Vocal cerrada tónica + vocal abierta átona (i,e)" },
+            { id: 8, palabra: "abuelo", tipo: "Diptongo", vocales: "Vocal abierta átona + vocal cerrada átona (a,u)" },
+            { id: 9, palabra: "monstruo", tipo: "Diptongo", vocales: "Vocal cerrada átona + vocal abierta átona (u,o)" },
+            { id: 10, palabra: "teatro", tipo: "Hiato", vocales: "Vocal abierta átona + vocal abierta átona (e,a)" },
+            { id: 11, palabra: "caer", tipo: "Hiato", vocales: "Vocal abierta átona + vocal abierta tónica (a,e)" },
+            { id: 12, palabra: "maestro", tipo: "Hiato", vocales: "Vocal abierta átona + vocal abierta átona (a,e)" },
+            { id: 13, palabra: "correo", tipo: "Hiato", vocales: "Vocal abierta átona + vocal abierta átona (e,o)" },
+            { id: 14, palabra: "toalla", tipo: "Hiato", vocales: "Vocal abierta átona + vocal abierta átona (o,a)" },
+            { id: 15, palabra: "raíz", tipo: "Hiato", vocales: "Vocal abierta átona + vocal cerrada tónica (a,í)" },
+            { id: 16, palabra: "baúl", tipo: "Hiato", vocales: "Vocal abierta átona + vocal cerrada tónica (a,ú)" },
+            { id: 17, palabra: "freír", tipo: "Hiato", vocales: "Vocal abierta tónica + vocal cerrada tónica (e,í)" },
+            { id: 18, palabra: "egoísta", tipo: "Hiato", vocales: "Vocal abierta átona + vocal cerrada tónica (o,í)" },
+            { id: 19, palabra: "sandía", tipo: "Hiato", vocales: "Vocal cerrada tónica + vocal abierta átona (í,a)" },
+            { id: 20, palabra: "frío", tipo: "Hiato", vocales: "Vocal cerrada tónica + vocal abierta átona (í,o)" },
+            { id: 21, palabra: "grúa", tipo: "Hiato", vocales: "Vocal cerrada tónica + vocal abierta átona (ú,a)" },
+            { id: 22, palabra: "flúor", tipo: "Hiato", vocales: "Vocal cerrada tónica + vocal abierta átona (ú,o)" },
+            { id: 23, palabra: "ahumado", tipo: "Diptongo", vocales: "Vocal abierta átona + vocal cerrada átona (a,u) - H intercalada" },
+            { id: 24, palabra: "bahía", tipo: "Hiato", vocales: "Vocal abierta átona + vocal cerrada tónica (a,í) - H intercalada" }
+        ];
+
+        let shuffledWords = [];
+        let currentIndex = 0;
+        let score = 0;
+        let answeredQuestions = 0;
+
+        function shuffle(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function initQuiz() {
+            shuffledWords = shuffle(palabras);
+            currentIndex = 0;
+            score = 0;
+            answeredQuestions = 0;
+            updateDisplay();
+            showNextWord();
+        }
+
+        function showNextWord() {
+            if (currentIndex < shuffledWords.length && score < 10) {
+                document.getElementById('word').textContent = shuffledWords[currentIndex].palabra;
+                document.getElementById('btnHiato').disabled = false;
+                document.getElementById('btnDiptongo').disabled = false;
+                document.getElementById('feedback').classList.add('hidden');
+            } else {
+                endQuiz();
+            }
+        }
+
+        function checkAnswer(answer) {
+            const currentWord = shuffledWords[currentIndex];
+            const isCorrect = answer === currentWord.tipo;
+            
+            document.getElementById('btnHiato').disabled = true;
+            document.getElementById('btnDiptongo').disabled = true;
+
+            const feedback = document.getElementById('feedback');
+            feedback.classList.remove('hidden', 'correct', 'incorrect');
+            
+            if (isCorrect) {
+                score += 0.5;
+                feedback.classList.add('correct');
+                feedback.innerHTML = `¡Correcto! Es un ${currentWord.tipo}.<br><span class="details">${currentWord.vocales}</span>`;
+            } else {
+                score -= 0.5;
+                feedback.classList.add('incorrect');
+                feedback.innerHTML = `Incorrecto. Es un ${currentWord.tipo}.<br><span class="details">${currentWord.vocales}</span>`;
+            }
+
+            answeredQuestions++;
+            currentIndex++;
+            updateDisplay();
+
+            if (score >= 10 || currentIndex >= shuffledWords.length) {
+                setTimeout(endQuiz, 2000);
+            } else {
+                setTimeout(showNextWord, 3000);
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById('score').textContent = score.toFixed(1);
+            document.getElementById('progress').textContent = `${answeredQuestions}/${shuffledWords.length}`;
+        }
+
+        function endQuiz() {
+            document.getElementById('word').textContent = '¡Quiz finalizado!';
+            document.getElementById('btnHiato').classList.add('hidden');
+            document.getElementById('btnDiptongo').classList.add('hidden');
+            document.querySelector('.buttons-container').classList.add('hidden');
+            
+            const feedback = document.getElementById('feedback');
+            feedback.classList.remove('hidden', 'correct', 'incorrect');
+            feedback.classList.add('final');
+            
+            if (score >= 10) {
+                feedback.innerHTML = `¡Felicidades! Has alcanzado 10 puntos.<br>Puntuación final: ${score.toFixed(1)} puntos`;
+            } else {
+                feedback.innerHTML = `Has completado todas las palabras.<br>Puntuación final: ${score.toFixed(1)} puntos`;
+            }
+            
+            document.getElementById('btnReset').classList.remove('hidden');
+        }
+
+        function resetQuiz() {
+            document.getElementById('btnHiato').classList.remove('hidden');
+            document.getElementById('btnDiptongo').classList.remove('hidden');
+            document.querySelector('.buttons-container').classList.remove('hidden');
+            document.getElementById('btnReset').classList.add('hidden');
+            initQuiz();
+        }
+
+        // Iniciar el quiz al cargar la página
+        initQuiz();
+    </script>
+</body>
+</html>
