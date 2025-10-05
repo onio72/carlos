@@ -11,6 +11,7 @@
 [TEMA] Tema 1 | visible=si
 [ENLACE] Diptongos e hiatos | ¿Sabes identificarlos? | https://onio72.github.io/carlos/lengua/hiatos.html
 [ENLACE] Clasifica palabras por acento | ¿Sabes distinguir agudas de llanas? | https://onio72.github.io/carlos/lengua/clasifica_tildes.html
+[ENLACE] Acentúa | ¿Sabes colocar el acento si hay? | https://onio72.github.io/carlos/lengua/acentua.html
 
 [MATERIA] biologia | 🧬 | Biología |  | visible=si
 [TEMA] Tema 1 | visible=si
