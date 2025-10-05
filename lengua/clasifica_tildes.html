@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Práctica de Acentuación</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            transition: color 0.3s;
+        }
+
+        .score-value.green {
+            color: #28a745;
+        }
+
+        .score-value.red {
+            color: #dc3545;
+        }
+
+        .word-display {
+            text-align: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            margin: 40px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buttons-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .option-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .option-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .option-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reset-btn {
+            background: #28a745;
+            color: white;
+            grid-column: 1 / -1;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background: #218838;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+            margin-top: 20px;
+        }
+
+        .correct {
+            color: #28a745;
+        }
+
+        .incorrect {
+            color: #dc3545;
+        }
+
+        .final-score {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .score-green {
+            color: #28a745;
+        }
+
+        .score-red {
+            color: #dc3545;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Práctica de Acentuación</h1>
+        
+        <div class="score-container">
+            <div class="score-item">
+                <div class="score-label">Nota</div>
+                <div class="score-value" id="score">0.0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Pregunta</div>
+                <div class="score-value" id="question-number">0</div>
+            </div>
+        </div>
+
+        <div id="game-area">
+            <div class="word-display" id="word-display">Pulsa el botón para comenzar</div>
+
+            <div class="buttons-container">
+                <button class="option-btn" onclick="checkAnswer('Aguda')" id="btn-aguda">Aguda</button>
+                <button class="option-btn" onclick="checkAnswer('Llana')" id="btn-llana">Llana</button>
+                <button class="option-btn" onclick="checkAnswer('Esdrújula')" id="btn-esdrujula">Esdrújula</button>
+                <button class="option-btn" onclick="checkAnswer('Sobreesdrújula')" id="btn-sobreesdrujula">Sobreesdrújula</button>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div id="final-area" class="hidden">
+            <div class="final-score" id="final-score"></div>
+        </div>
+
+        <button class="reset-btn" onclick="resetGame()">Reiniciar Juego</button>
+    </div>
+
+    <script>
+        const words = [
+            {word: "Cuéntamelo", type: "Sobreesdrújula"},
+            {word: "Dígaselo", type: "Sobreesdrújula"},
+            {word: "Fácilmente", type: "Sobreesdrújula"},
+            {word: "Rápidamente", type: "Sobreesdrújula"},
+            {word: "Cómpramelo", type: "Sobreesdrújula"},
+            {word: "Devuélveselo", type: "Sobreesdrújula"},
+            {word: "Explícaselo", type: "Sobreesdrújula"},
+            {word: "Permítemelo", type: "Sobreesdrújula"},
+            {word: "Últimamente", type: "Sobreesdrújula"},
+            {word: "Difícilmente", type: "Sobreesdrújula"},
+            {word: "Médico", type: "Esdrújula"},
+            {word: "Música", type: "Esdrújula"},
+            {word: "Pájaro", type: "Esdrújula"},
+            {word: "Teléfono", type: "Esdrújula"},
+            {word: "Público", type: "Esdrújula"},
+            {word: "Número", type: "Esdrújula"},
+            {word: "Técnico", type: "Esdrújula"},
+            {word: "Rápido", type: "Esdrújula"},
+            {word: "Pálido", type: "Esdrújula"},
+            {word: "Máquina", type: "Esdrújula"},
+            {word: "Océano", type: "Esdrújula"},
+            {word: "Cámara", type: "Esdrújula"},
+            {word: "Término", type: "Esdrújula"},
+            {word: "Pérdida", type: "Esdrújula"},
+            {word: "Físico", type: "Esdrújula"},
+            {word: "Química", type: "Esdrújula"},
+            {word: "Fábrica", type: "Esdrújula"},
+            {word: "Círculo", type: "Esdrújula"},
+            {word: "Cántaro", type: "Esdrújula"},
+            {word: "Lámpara", type: "Esdrújula"},
+            {word: "Sábado", type: "Esdrújula"},
+            {word: "Miércoles", type: "Esdrújula"},
+            {word: "Página", type: "Esdrújula"},
+            {word: "Síntoma", type: "Esdrújula"},
+            {word: "Cálculo", type: "Esdrújula"},
+            {word: "Plástico", type: "Esdrújula"},
+            {word: "Fantástico", type: "Esdrújula"},
+            {word: "Matemática", type: "Esdrújula"},
+            {word: "Préstamo", type: "Esdrújula"},
+            {word: "Periódico", type: "Esdrújula"},
+            {word: "Casa", type: "Llana"},
+            {word: "Perro", type: "Llana"},
+            {word: "Libro", type: "Llana"},
+            {word: "Mesa", type: "Llana"},
+            {word: "Puerta", type: "Llana"},
+            {word: "Ventana", type: "Llana"},
+            {word: "Martes", type: "Llana"},
+            {word: "Verde", type: "Llana"},
+            {word: "Blanco", type: "Llana"},
+            {word: "Imagen", type: "Llana"},
+            {word: "Volumen", type: "Llana"},
+            {word: "Joven", type: "Llana"},
+            {word: "Resumen", type: "Llana"},
+            {word: "Orden", type: "Llana"},
+            {word: "Margen", type: "Llana"},
+            {word: "Árbol", type: "Llana"},
+            {word: "Lápiz", type: "Llana"},
+            {word: "Cárcel", type: "Llana"},
+            {word: "Azúcar", type: "Llana"},
+            {word: "Césped", type: "Llana"},
+            {word: "Fácil", type: "Llana"},
+            {word: "Difícil", type: "Llana"},
+            {word: "Móvil", type: "Llana"},
+            {word: "Débil", type: "Llana"},
+            {word: "Útil", type: "Llana"},
+            {word: "Mármol", type: "Llana"},
+            {word: "Ángel", type: "Llana"},
+            {word: "Túnel", type: "Llana"},
+            {word: "Cóndor", type: "Llana"},
+            {word: "Fémur", type: "Llana"},
+            {word: "Reloj", type: "Aguda"},
+            {word: "Pared", type: "Aguda"},
+            {word: "Nariz", type: "Aguda"},
+            {word: "Verdad", type: "Aguda"},
+            {word: "Amistad", type: "Aguda"},
+            {word: "Ciudad", type: "Aguda"},
+            {word: "Papel", type: "Aguda"},
+            {word: "Animal", type: "Aguda"},
+            {word: "Libertad", type: "Aguda"},
+            {word: "Cartel", type: "Aguda"},
+            {word: "Pastel", type: "Aguda"},
+            {word: "Hotel", type: "Aguda"},
+            {word: "Miel", type: "Aguda"},
+            {word: "Sal", type: "Aguda"},
+            {word: "Pan", type: "Aguda"},
+            {word: "Café", type: "Aguda"},
+            {word: "Sofá", type: "Aguda"},
+            {word: "Mamá", type: "Aguda"},
+            {word: "Papá", type: "Aguda"},
+            {word: "Acción", type: "Aguda"},
+            {word: "Bebé", type: "Aguda"},
+            {word: "José", type: "Aguda"},
+            {word: "Jesús", type: "Aguda"},
+            {word: "Inglés", type: "Aguda"},
+            {word: "Francés", type: "Aguda"},
+            {word: "Alemán", type: "Aguda"},
+            {word: "Sillón", type: "Aguda"},
+            {word: "Ratón", type: "Aguda"},
+            {word: "Canción", type: "Aguda"},
+            {word: "Corazón", type: "Aguda"}
+        ];
+
+        let score = 0;
+        let currentWord = null;
+        let usedWords = [];
+        let questionCount = 0;
+
+        function getRandomWord() {
+            if (usedWords.length === words.length) {
+                usedWords = [];
+            }
+            
+            let availableWords = words.filter(w => !usedWords.includes(w));
+            let randomIndex = Math.floor(Math.random() * availableWords.length);
+            let word = availableWords[randomIndex];
+            usedWords.push(word);
+            return word;
+        }
+
+        function showNewWord() {
+            if (score >= 10) {
+                endGame();
+                return;
+            }
+
+            currentWord = getRandomWord();
+            document.getElementById('word-display').textContent = currentWord.word;
+            document.getElementById('feedback').textContent = '';
+            enableButtons();
+        }
+
+        function checkAnswer(answer) {
+            if (!currentWord) return;
+
+            disableButtons();
+            questionCount++;
+            document.getElementById('question-number').textContent = questionCount;
+
+            const feedback = document.getElementById('feedback');
+            
+            if (answer === currentWord.type) {
+                score += 0.5;
+                feedback.textContent = '¡Correcto! ✓';
+                feedback.className = 'feedback correct';
+            } else {
+                score -= 0.5;
+                feedback.textContent = `Incorrecto ✗ (Era ${currentWord.type})`;
+                feedback.className = 'feedback incorrect';
+            }
+
+            if (score < 0) score = 0;
+            
+            updateScore();
+
+            setTimeout(() => {
+                showNewWord();
+            }, 1500);
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score.toFixed(1);
+        }
+
+        function enableButtons() {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = false);
+        }
+
+        function disableButtons() {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = true);
+        }
+
+        function endGame() {
+            document.getElementById('game-area').classList.add('hidden');
+            document.getElementById('final-area').classList.remove('hidden');
+            
+            const finalScore = document.getElementById('final-score');
+            const scoreClass = score >= 5 ? 'score-green' : 'score-red';
+            const message = score >= 5 ? '¡Aprobado!' : 'No aprobado';
+            
+            finalScore.className = `final-score ${scoreClass}`;
+            finalScore.textContent = `${message}\nNota final: ${score.toFixed(1)}`;
+        }
+
+        function resetGame() {
+            score = 0;
+            questionCount = 0;
+            usedWords = [];
+            currentWord = null;
+            
+            updateScore();
+            document.getElementById('question-number').textContent = '0';
+            document.getElementById('word-display').textContent = 'Pulsa el botón para comenzar';
+            document.getElementById('feedback').textContent = '';
+            
+            document.getElementById('game-area').classList.remove('hidden');
+            document.getElementById('final-area').classList.add('hidden');
+            
+            disableButtons();
+        }
+
+        // Inicializar
+        disableButtons();
+        document.querySelector('.reset-btn').addEventListener('click', function() {
+            if (score === 0 && questionCount === 0) {
+                showNewWord();
+            }
+        });
+    </script>
+</body>
+</html>
