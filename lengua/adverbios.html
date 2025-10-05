@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tipos de Adverbios</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 700px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .score-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+            transition: color 0.3s;
+        }
+
+        .score-value.green {
+            color: #28a745;
+        }
+
+        .score-value.red {
+            color: #dc3545;
+        }
+
+        .word-display {
+            text-align: center;
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+            margin: 40px 0;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .buttons-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .option-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .option-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .option-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reset-btn {
+            background: #28a745;
+            color: white;
+            grid-column: 1 / -1;
+            margin-top: 10px;
+        }
+
+        .reset-btn:hover {
+            background: #218838;
+        }
+
+        .feedback {
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            min-height: 30px;
+            margin-top: 20px;
+        }
+
+        .correct {
+            color: #28a745;
+        }
+
+        .incorrect {
+            color: #dc3545;
+        }
+
+        .final-score {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+
+        .score-green {
+            color: #28a745;
+        }
+
+        .score-red {
+            color: #dc3545;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .wide-btn {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tipos de Adverbios</h1>
+        
+        <div class="score-container">
+            <div class="score-item">
+                <div class="score-label">Nota</div>
+                <div class="score-value" id="score">0.0</div>
+            </div>
+            <div class="score-item">
+                <div class="score-label">Pregunta</div>
+                <div class="score-value" id="question-number">0</div>
+            </div>
+        </div>
+
+        <div id="game-area">
+            <div class="word-display" id="word-display">Pulsa el botón para comenzar</div>
+
+            <div class="buttons-container">
+                <button class="option-btn" onclick="checkAnswer('Cantidad')" id="btn-cantidad">Cantidad</button>
+                <button class="option-btn" onclick="checkAnswer('Modo')" id="btn-modo">Modo</button>
+                <button class="option-btn" onclick="checkAnswer('Tiempo')" id="btn-tiempo">Tiempo</button>
+                <button class="option-btn" onclick="checkAnswer('Lugar')" id="btn-lugar">Lugar</button>
+                <button class="option-btn" onclick="checkAnswer('Afirmación')" id="btn-afirmacion">Afirmación</button>
+                <button class="option-btn" onclick="checkAnswer('Negación')" id="btn-negacion">Negación</button>
+                <button class="option-btn wide-btn" onclick="checkAnswer('Duda')" id="btn-duda">Duda</button>
+            </div>
+
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div id="final-area" class="hidden">
+            <div class="final-score" id="final-score"></div>
+        </div>
+
+        <button class="reset-btn" onclick="resetGame()">Reiniciar Juego</button>
+    </div>
+
+    <script>
+        const adverbs = [
+            // Cantidad
+            {word: "Mucho", type: "Cantidad"},
+            {word: "Poco", type: "Cantidad"},
+            {word: "Bastante", type: "Cantidad"},
+            {word: "Demasiado", type: "Cantidad"},
+            {word: "Muy", type: "Cantidad"},
+            {word: "Más", type: "Cantidad"},
+            {word: "Menos", type: "Cantidad"},
+            {word: "Algo", type: "Cantidad"},
+            {word: "Casi", type: "Cantidad"},
+            {word: "Todo", type: "Cantidad"},
+            
+            // Modo
+            {word: "Bien", type: "Modo"},
+            {word: "Mal", type: "Modo"},
+            {word: "Regular", type: "Modo"},
+            {word: "Despacio", type: "Modo"},
+            {word: "Deprisa", type: "Modo"},
+            {word: "Así", type: "Modo"},
+            {word: "Rápido", type: "Modo"},
+            {word: "Claro", type: "Modo"},
+            {word: "Peor", type: "Modo"},
+            {word: "Mejor", type: "Modo"},
+            
+            // Tiempo
+            {word: "Hoy", type: "Tiempo"},
+            {word: "Ayer", type: "Tiempo"},
+            {word: "Mañana", type: "Tiempo"},
+            {word: "Ahora", type: "Tiempo"},
+            {word: "Luego", type: "Tiempo"},
+            {word: "Después", type: "Tiempo"},
+            {word: "Antes", type: "Tiempo"},
+            {word: "Siempre", type: "Tiempo"},
+            {word: "Nunca", type: "Tiempo"},
+            {word: "Tarde", type: "Tiempo"},
+            
+            // Lugar
+            {word: "Aquí", type: "Lugar"},
+            {word: "Ahí", type: "Lugar"},
+            {word: "Allí", type: "Lugar"},
+            {word: "Cerca", type: "Lugar"},
+            {word: "Lejos", type: "Lugar"},
+            {word: "Dentro", type: "Lugar"},
+            {word: "Fuera", type: "Lugar"},
+            {word: "Arriba", type: "Lugar"},
+            {word: "Abajo", type: "Lugar"},
+            {word: "Detrás", type: "Lugar"},
+            
+            // Afirmación
+            {word: "Sí", type: "Afirmación"},
+            {word: "También", type: "Afirmación"},
+            {word: "Ciertamente", type: "Afirmación"},
+            {word: "Efectivamente", type: "Afirmación"},
+            {word: "Verdaderamente", type: "Afirmación"},
+            {word: "Claro", type: "Afirmación"},
+            {word: "Por supuesto", type: "Afirmación"},
+            {word: "Desde luego", type: "Afirmación"},
+            {word: "En efecto", type: "Afirmación"},
+            {word: "Exactamente", type: "Afirmación"},
+            
+            // Negación
+            {word: "No", type: "Negación"},
+            {word: "Nunca", type: "Negación"},
+            {word: "Jamás", type: "Negación"},
+            {word: "Tampoco", type: "Negación"},
+            {word: "Ni", type: "Negación"},
+            {word: "En absoluto", type: "Negación"},
+            {word: "De ninguna manera", type: "Negación"},
+            {word: "De ningún modo", type: "Negación"},
+            {word: "Para nada", type: "Negación"},
+            {word: "Nunca más", type: "Negación"},
+            
+            // Duda
+            {word: "Quizá", type: "Duda"},
+            {word: "Quizás", type: "Duda"},
+            {word: "Tal vez", type: "Duda"},
+            {word: "Acaso", type: "Duda"},
+            {word: "Probablemente", type: "Duda"},
+            {word: "Posiblemente", type: "Duda"},
+            {word: "A lo mejor", type: "Duda"},
+            {word: "Puede que", type: "Duda"},
+            {word: "Eventualmente", type: "Duda"},
+            {word: "Ojalá", type: "Duda"}
+        ];
+
+        let score = 0;
+        let currentWord = null;
+        let usedWords = [];
+        let questionCount = 0;
+
+        function getRandomWord() {
+            if (usedWords.length === adverbs.length) {
+                usedWords = [];
+            }
+            
+            let availableWords = adverbs.filter(w => !usedWords.includes(w));
+            let randomIndex = Math.floor(Math.random() * availableWords.length);
+            let word = availableWords[randomIndex];
+            usedWords.push(word);
+            return word;
+        }
+
+        function showNewWord() {
+            if (score >= 10) {
+                endGame();
+                return;
+            }
+
+            currentWord = getRandomWord();
+            document.getElementById('word-display').textContent = currentWord.word;
+            document.getElementById('feedback').textContent = '';
+            enableButtons();
+        }
+
+        function checkAnswer(answer) {
+            if (!currentWord) return;
+
+            disableButtons();
+            questionCount++;
+            document.getElementById('question-number').textContent = questionCount;
+
+            const feedback = document.getElementById('feedback');
+            
+            if (answer === currentWord.type) {
+                score += 0.5;
+                feedback.textContent = '¡Correcto! ✓';
+                feedback.className = 'feedback correct';
+            } else {
+                score -= 0.5;
+                feedback.textContent = `Incorrecto ✗ (Es de ${currentWord.type})`;
+                feedback.className = 'feedback incorrect';
+            }
+
+            if (score < 0) score = 0;
+            
+            updateScore();
+
+            setTimeout(() => {
+                showNewWord();
+            }, 1500);
+        }
+
+        function updateScore() {
+            const scoreElement = document.getElementById('score');
+            scoreElement.textContent = score.toFixed(1);
+            
+            if (score >= 5) {
+                scoreElement.className = 'score-value green';
+            } else {
+                scoreElement.className = 'score-value red';
+            }
+        }
+
+        function enableButtons() {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = false);
+        }
+
+        function disableButtons() {
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = true);
+        }
+
+        function endGame() {
+            document.getElementById('game-area').classList.add('hidden');
+            document.getElementById('final-area').classList.remove('hidden');
+            
+            const finalScore = document.getElementById('final-score');
+            const scoreClass = score >= 5 ? 'score-green' : 'score-red';
+            const message = score >= 5 ? '¡Aprobado!' : 'No aprobado';
+            
+            finalScore.className = `final-score ${scoreClass}`;
+            finalScore.textContent = `${message}\nNota final: ${score.toFixed(1)}`;
+        }
+
+        function resetGame() {
+            score = 0;
+            questionCount = 0;
+            usedWords = [];
+            currentWord = null;
+            
+            updateScore();
+            document.getElementById('question-number').textContent = '0';
+            document.getElementById('word-display').textContent = 'Pulsa el botón para comenzar';
+            document.getElementById('feedback').textContent = '';
+            
+            document.getElementById('game-area').classList.remove('hidden');
+            document.getElementById('final-area').classList.add('hidden');
+            
+            disableButtons();
+        }
+
+        // Inicializar
+        disableButtons();
+        document.querySelector('.reset-btn').addEventListener('click', function() {
+            if (score === 0 && questionCount === 0) {
+                showNewWord();
+            }
+        });
+    </script>
+</body>
+</html>
