@@ -1,7 +1,7 @@
 [MATERIA] geografia | 🌍 | Geografía e Historia |  | visible=si
 [TEMA] Tema 1 | visible=si
 [ENLACE] Continentes y océanos | Aprende la geografía mundial básica | https://onio72.github.io/carlos/gh1/continentes/
-[ENLACE] Mapa interactivo mundial | Explora países y capitales | #
+[ENLACE] Mapa interactivo mundial | Ubica por latitud y longitud | https://onio72.github.io/carlos/gh1/latitud/
 
 [MATERIA] matematicas | 🔢 | Matemáticas |  | visible=si
 [TEMA] Tema 1 | visible=si
