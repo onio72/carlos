@@ -20,7 +20,7 @@
 
 [MATERIA] ingles | 🇬🇧 | Inglés |  | visible=si
 [TEMA] Tema 1 | visible=si
-[ENLACE] Organización de materias | Gestión académica | https://onio72.github.io/iesmajuelo/departamentoFQ/index2.html
+[ENLACE] Verbos en inglés | https://drive.google.com/file/d/1A6UfNRa9j3sBoqI0CH2Qm2T2wHwXbs6x/view?usp=drive_link
 
 [MATERIA] frances | 🇫🇷 | Francés |  | visible=si
 [TEMA] Tema 1 | visible=si
