@@ -1,0 +1,660 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>Ubica la capital — Globo / Mapa (NE, arco de horizonte + etiquetas en ecuador)</title>
+<style>
+  :root{
+    --rojo:#e53935; --celeste:#6ec6ff; --fg:#1f2937; --bg:#f3f4f6; --card:#fff;
+    --muted:#6b7280; --ok:#16a34a; --accent:#2563eb; --land:#e7dfc8; --land-stroke:#cfbf94;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial}
+  .wrap{max-width:1400px;margin:24px auto;padding:0 16px}
+  h1{font-size:1.35rem;margin:0 0 10px}
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:16px}
+  .card{background:var(--card);border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.06);padding:16px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0 10px}
+  .toolbar label{font-size:.92rem;color:var(--muted)}
+  .btn{appearance:none;border:0;border-radius:10px;padding:10px 14px;cursor:pointer;background:var(--accent);color:#fff;font-weight:600}
+  .btn.secondary{background:#0ea5e9}.btn.ghost{background:#e5e7eb;color:#111827}.btn:disabled{opacity:.5;cursor:not-allowed}
+  .row{display:flex;gap:8px;align-items:center;margin:8px 0}
+  select{width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;transition:border-color .2s, background-color .2s}
+  .score{font-weight:700}.kv{font-size:.95rem;color:var(--muted)}.pill{display:inline-block;padding:2px 10px;border-radius:999px;background:#eef2ff;color:#3730a3;font-weight:600}
+  .legend{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 2px}.legend span{display:inline-flex;gap:6px;align-items:center;font-size:.9rem;color:var(--muted)}
+  .dot{width:14px;height:4px;border-radius:2px;background:var(--celeste);display:inline-block}.dot.red{background:var(--rojo)}.dot.green{background:var(--ok)}.dot.black{background:#111827}
+  .grow{flex:1}
+  #view{display:block;width:100%;max-width:100%;border-radius:12px;background:#ffffff;cursor:grab}
+  #view.dragging{cursor:grabbing}
+  .hint{font-size:.9rem;color:var(--muted)}
+  .breakdown{font-size:.95rem;margin-top:6px}
+  .okField{border-color:#16a34a !important; background:#ecfdf5}
+  .koField{border-color:#dc2626 !important; background:#fef2f2}
+  .okText{color:#16a34a;font-weight:700}
+  .koText{color:#dc2626;font-weight:700}
+  .totalOK{ color:#16a34a; font-weight:700; }
+  .totalKO{ color:#dc2626; font-weight:700; }
+  @media (max-width:1100px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🌍 Ubica la capital — Globo giratorio / Mapa con datos “Natural Earth”</h1>
+  <div class="grid">
+    <div class="card">
+      <div class="toolbar">
+        <label><input type="radio" name="mode" value="globe" checked> Globo (arrastrar para girar)</label>
+        <label id="mapLabel"><input type="radio" name="mode" value="map"> Mapa equirectangular</label>
+        <span class="grow"></span>
+        <label><input type="checkbox" id="toggleLand" checked> Mostrar continentes e islas</label>
+        <span class="pill">Objetivo: 10 puntos</span>
+      </div>
+
+      <div class="legend">
+        <span><i class="dot red"></i>Ecuador y meridiano 0° (etiquetas 0° y 180° en globo)</span>
+        <span><i class="dot"></i>Paralelos ±15°, ±30°, ±60° y meridianos cada 30°</span>
+        <span><i class="dot black"></i>Tu clic</span>
+        <span><i class="dot green"></i>Capital real</span>
+      </div>
+
+      <canvas id="view" width="1400" height="820" aria-label="globo/mapa interactivo"></canvas>
+
+      <div class="hint">Haz clic para ubicar la capital y pulsa <b>Corregir</b>. En globo puedes girar con el ratón o con ← →.</div>
+
+      <div class="toolbar">
+        <button id="btnCheck" class="btn">Corregir</button>
+        <button id="btnNext" class="btn secondary" disabled>Otro ejercicio</button>
+        <button id="btnReset" class="btn ghost">Reiniciar</button>
+        <span class="grow"></span>
+        <span>Puntuación total: <span id="total" class="score totalKO">0.00</span> / 10</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row"><div class="kv">Capital:</div><div id="qName" class="score"></div></div>
+      <div class="row"><div class="kv">Lat / Lon:</div><div id="qCoords"></div></div>
+      <div style="height:1px;background:#eef2f7;margin:12px 0"></div>
+
+      <div class="row">
+        <div class="grow">
+          <label class="small">País</label>
+          <select id="countrySel"></select>
+        </div>
+        <div class="grow">
+          <label class="small">Continente</label>
+          <select id="contSel">
+            <option value="">— Selecciona —</option>
+            <option>África</option><option>América</option><option>Asia</option><option>Europa</option><option>Oceanía</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="grow"><label class="small">Tu clic (lat, lon)</label><div id="userLL" class="kv">—</div></div>
+        <div class="grow"><label class="small">Distancia</label><div id="distOut" class="kv">—</div></div>
+      </div>
+
+      <div id="resultOut" class="result"></div>
+      <div id="breakdown" class="breakdown"></div>
+      <div id="hintOut" class="hint"></div>
+      <div style="height:1px;background:#eef2f7;margin:12px 0"></div>
+      <div class="hint">Ponderación: ubicación 70%, país 15%, continente 15%. Ubicación escala lineal de 50 km (100%) a 5000 km (0%).</div>
+      <div id="landStatus" class="hint" style="margin-top:6px"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ========= Utilidades ========= */
+function toRad(d){return d*Math.PI/180}
+function toDeg(r){return r*180/Math.PI}
+function normLon(l){ return ((l+540)%360)-180; }
+function haversine(lat1,lon1,lat2,lon2){
+  const R=6371, dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(a));
+}
+
+/* ========= Capitales ========= */
+const CAPITALS = [
+  // América
+  {name:"Washington D. C.", country:"Estados Unidos", continent:"América", lat:38.8951, lon:-77.0364, hemi:"NW"},
+  {name:"Ciudad de México", country:"México", continent:"América", lat:19.4326, lon:-99.1332, hemi:"NW"},
+  {name:"Brasilia", country:"Brasil", continent:"América", lat:-15.7939, lon:-47.8828, hemi:"SW"},
+  {name:"Buenos Aires", country:"Argentina", continent:"América", lat:-34.6037, lon:-58.3816, hemi:"SW"},
+  {name:"Bogotá", country:"Colombia", continent:"América", lat:4.7110, lon:-74.0721, hemi:"NE"},
+  {name:"Lima", country:"Perú", continent:"América", lat:-12.0464, lon:-77.0428, hemi:"SW"},
+  {name:"Santiago", country:"Chile", continent:"América", lat:-33.4489, lon:-70.6693, hemi:"SW"},
+  {name:"Ottawa", country:"Canadá", continent:"América", lat:45.4215, lon:-75.6972, hemi:"NW"},
+  // Europa
+  {name:"Madrid", country:"España", continent:"Europa", lat:40.4168, lon:-3.7038, hemi:"NE"},
+  {name:"Ámsterdam", country:"Países Bajos", continent:"Europa", lat:52.3676, lon:4.9041, hemi:"NE"},
+  {name:"París", country:"Francia", continent:"Europa", lat:48.8566, lon:2.3522, hemi:"NE"},
+  {name:"Londres", country:"Reino Unido", continent:"Europa", lat:51.5074, lon:-0.1278, hemi:"NE"},
+  {name:"Berlín", country:"Alemania", continent:"Europa", lat:52.52, lon:13.405, hemi:"NE"},
+  {name:"Roma", country:"Italia", continent:"Europa", lat:41.9028, lon:12.4964, hemi:"NE"},
+  {name:"Atenas", country:"Grecia", continent:"Europa", lat:37.9838, lon:23.7275, hemi:"NE"},
+  {name:"Moscú", country:"Rusia", continent:"Europa", lat:55.7558, lon:37.6173, hemi:"NE"},
+  // África
+  {name:"Argel", country:"Argelia", continent:"África", lat:36.7538, lon:3.0588, hemi:"NE"},
+  {name:"El Cairo", country:"Egipto", continent:"África", lat:30.0444, lon:31.2357, hemi:"NE"},
+  {name:"Pretoria", country:"Sudáfrica", continent:"África", lat:-25.7479, lon:28.2293, hemi:"SE"},
+  {name:"Nairobi", country:"Kenia", continent:"África", lat:-1.2921, lon:36.8219, hemi:"SE"},
+  {name:"Abuya", country:"Nigeria", continent:"África", lat:9.0765, lon:7.3986, hemi:"NE"},
+  {name:"Addis Abeba", country:"Etiopía", continent:"África", lat:8.9806, lon:38.7578, hemi:"NE"},
+  {name:"Kinshasa", country:"R. D. del Congo", continent:"África", lat:-4.4419, lon:15.2663, hemi:"SE"},
+  // Asia
+  {name:"Nueva Delhi", country:"India", continent:"Asia", lat:28.6139, lon:77.2090, hemi:"NE"},
+  {name:"Pekín", country:"China", continent:"Asia", lat:39.9042, lon:116.4074, hemi:"NE"},
+  {name:"Tokio", country:"Japón", continent:"Asia", lat:35.6762, lon:139.6503, hemi:"NE"},
+  {name:"Seúl", country:"Corea del Sur", continent:"Asia", lat:37.5665, lon:126.9780, hemi:"NE"},
+  {name:"Yakarta", country:"Indonesia", continent:"Asia", lat:-6.2088, lon:106.8456, hemi:"SE"},
+  {name:"Bangkok", country:"Tailandia", continent:"Asia", lat:13.7563, lon:100.5018, hemi:"NE"},
+  {name:"Manila", country:"Filipinas", continent:"Asia", lat:14.5995, lon:120.9842, hemi:"NE"},
+  {name:"Teherán", country:"Irán", continent:"Asia", lat:35.6892, lon:51.3890, hemi:"NE"},
+  {name:"Riad", country:"Arabia Saudí", continent:"Asia", lat:24.7136, lon:46.6753, hemi:"NE"},
+  {name:"Ankara", country:"Turquía", continent:"Asia", lat:39.9334, lon:32.8597, hemi:"NE"},
+  // Oceanía
+  {name:"Canberra", country:"Australia", continent:"Oceanía", lat:-35.2809, lon:149.1300, hemi:"SE"},
+  {name:"Wellington", country:"Nueva Zelanda", continent:"Oceanía", lat:-41.2866, lon:174.7762, hemi:"SW"}
+];
+const COUNTRIES = Array.from(new Set(CAPITALS.map(c => c.country))).sort();
+const HEMIS = ["NE","NW","SE","SW"];
+
+/* ========= Proyecciones ========= */
+function projEquirect(lat, lon, W, H){ return {x:(normLon(lon)+180)/360*W, y:(90-lat)/180*H}; }
+function projOrtho(lat, lon, W, H, lon0=0, lat0=0){
+  const R=Math.min(W,H)*0.45, cx=W/2, cy=H/2;
+  const φ=toRad(lat), λ=toRad(lon), φ0=toRad(lat0), λ0=toRad(lon0);
+  const cosc = Math.sin(φ0)*Math.sin(φ)+Math.cos(φ0)*Math.cos(φ)*Math.cos(λ-λ0);
+  if (cosc < 0) return null;
+  const x = R*Math.cos(φ)*Math.sin(λ-λ0)+cx;
+  const y = -R*(Math.cos(φ0)*Math.sin(φ)-Math.sin(φ0)*Math.cos(φ)*Math.cos(λ-λ0))+cy;
+  return {x,y,cx,cy,R};
+}
+function inverseEquirect(x,y,W,H){ return {lat:90 - y/H*180, lon:normLon(x/W*360 - 180)}; }
+function inverseOrtho(x,y,W,H,lon0=0,lat0=0){
+  const R=Math.min(W,H)*0.45, cx=W/2, cy=H/2;
+  const X=(x-cx)/R, Y=(cy-y)/R, ρ=Math.hypot(X,Y);
+  if (ρ>1) return null;
+  const c=Math.asin(ρ), φ0=toRad(lat0), λ0=toRad(lon0);
+  let φ=Math.asin(Math.cos(c)*Math.sin(φ0)+(Y*Math.sin(c)*Math.cos(φ0))/(ρ||1));
+  let λ=λ0+Math.atan2(X*Math.sin(c), ρ*Math.cos(φ0)*Math.cos(c)-Y*Math.sin(φ0)*Math.sin(c));
+  return {lat:toDeg(φ), lon:normLon(toDeg(λ))};
+}
+
+/* ========= Estado y canvas ========= */
+const canvas = document.getElementById('view');
+const ctx = canvas.getContext('2d');
+ctx.lineJoin='round'; ctx.miterLimit=2;
+function isGlobe(){ return document.querySelector('input[name="mode"]:checked').value === 'globe'; }
+function getMapRadio(){ return document.querySelector('input[name="mode"][value="map"]'); }
+function landEnabled(){ return document.getElementById('toggleLand').checked; }
+function getCSS(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function clear(){ ctx.clearRect(0,0,canvas.width,canvas.height); }
+
+let globeLon0 = 0;
+let totalScore = 0;
+let used = new Set();
+let current = null;
+let pickCycle = 0;
+let userClick = null;
+let lockMapUntilGraded = false;
+
+/* ========= Natural Earth ========= */
+const LAND_URL_110 = "https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_land.geojson";
+const landStatus = document.getElementById('landStatus');
+let LAND_POLYS = []; // {rings:[[lat,lon]...]...}
+
+async function loadLand(){
+  try{
+    landStatus.textContent = "Cargando contornos (Natural Earth 110m)…";
+    const resp = await fetch(LAND_URL_110);
+    const geo = await resp.json();
+    const polys = [];
+    for (const f of geo.features){
+      const g = f.geometry; if(!g) continue;
+      if (g.type === "Polygon"){
+        const rings = g.coordinates.map(r => r.map(([lo,la]) => [la, normLon(lo)]));
+        polys.push({rings});
+      } else if (g.type === "MultiPolygon"){
+        for (const p of g.coordinates){
+          const rings = p.map(r => r.map(([lo,la]) => [la, normLon(lo)]));
+          polys.push({rings});
+        }
+      }
+    }
+    LAND_POLYS = polys;
+    landStatus.textContent = "Contornos cargados.";
+    drawGraticule(); drawMarkers();
+  }catch(e){
+    console.error(e);
+    landStatus.textContent = "No se pudieron cargar los contornos.";
+  }
+}
+
+/* ========= Geometría esfera ========= */
+function latLonToXYZ(lat, lon){ const φ=toRad(lat), λ=toRad(lon); return {x:Math.cos(φ)*Math.cos(λ), y:Math.cos(φ)*Math.sin(λ), z:Math.sin(φ)}; }
+function xyzToLatLon({x,y,z}){ const r=Math.hypot(x,y,z)||1; const φ=Math.asin(z/r), λ=Math.atan2(y,x); return {lat:toDeg(φ), lon:normLon(toDeg(λ))}; }
+function slerpXYZ(a,b,t){ const dot=Math.min(1,Math.max(-1,a.x*b.x+a.y*b.y+a.z*b.z)); const θ=Math.acos(dot); if(θ<1e-9) return {x:a.x,y:a.y,z:a.z}; const s1=Math.sin((1-t)*θ)/Math.sin(θ), s2=Math.sin(t*θ)/Math.sin(θ); return {x:a.x*s1+b.x*s2, y:a.y*s1+b.y*s2, z:a.z*s1+b.z*s2}; }
+function centralAngleRad(lat1,lon1,lat2,lon2){ const φ1=toRad(lat1), φ2=toRad(lat2), Δλ=toRad(lon2-lon1); return Math.acos(Math.sin(φ1)*Math.sin(φ2)+Math.cos(φ1)*Math.cos(φ2)*Math.cos(Δλ)); }
+function densifyRing(ringLL, STEP_DEG=1.0){
+  const out=[]; const n=ringLL.length;
+  for(let i=0;i<n;i++){
+    const [lat1,lon1]=ringLL[i], [lat2,lon2]=ringLL[(i+1)%n];
+    out.push([lat1,lon1]);
+    const angDeg = toDeg(centralAngleRad(lat1,lon1,lat2,lon2));
+    const segs = Math.max(0, Math.ceil(angDeg/STEP_DEG)-1);
+    if(segs>0){
+      const A=latLonToXYZ(lat1,lon1), B=latLonToXYZ(lat2,lon2);
+      for(let k=1;k<=segs;k++){ const t=k/(segs+1); const P=slerpXYZ(A,B,t); const ll=xyzToLatLon(P); out.push([ll.lat,ll.lon]); }
+    }
+  }
+  return out;
+}
+
+/* === Visibilidad y recorte en horizonte (globo) === */
+function isVisibleOnOrtho(lat, lon, lat0=0, lon0=globeLon0){
+  const φ=toRad(lat), λ=toRad(lon), φ0=toRad(lat0), λ0=toRad(lon0);
+  const cosc = Math.sin(φ0)*Math.sin(φ)+Math.cos(φ0)*Math.cos(φ)*Math.cos(λ-λ0);
+  return cosc >= 0;
+}
+function horizonIntersection(a, b, lat0=0, lon0=globeLon0){
+  let lo = 0, hi = 1;
+  const A = latLonToXYZ(a[0], a[1]);
+  const B = latLonToXYZ(b[0], b[1]);
+  for (let i=0;i<22;i++){
+    const t = (lo+hi)/2;
+    const P = slerpXYZ(A,B,t);
+    const m = xyzToLatLon(P);
+    if (isVisibleOnOrtho(m.lat, m.lon, lat0, lon0)) lo = t; else hi = t;
+  }
+  const P = slerpXYZ(A,B,lo);
+  const m = xyzToLatLon(P);
+  return [m.lat, m.lon];
+}
+
+/* ========= Dibujo tierra ========= */
+function drawLand(W,H){
+  if (!landEnabled() || LAND_POLYS.length===0) return;
+
+  ctx.fillStyle=getCSS('--land');
+  ctx.strokeStyle=getCSS('--land-stroke');
+  ctx.lineWidth=1;
+
+  const proj = (lat,lon)=> isGlobe()
+    ? projOrtho(lat,lon,W,H,globeLon0,0)
+    : projEquirect(lat,lon,W,H);
+
+  if (!isGlobe()){
+    // MAPA: corte en antimeridiano + evenodd
+    for (const poly of LAND_POLYS){
+      ctx.beginPath();
+      for (const rawRing of poly.rings){
+        const ring = densifyRing(rawRing, 1.0);
+        let moved=false;
+        for (let i=0;i<ring.length;i++){
+          const [lat,lon] = ring[i];
+          const p = proj(lat,lon);
+          if (!p){ moved=false; continue; }
+          if (i>0){
+            const prevLon = ring[i-1][1];
+            if (Math.abs(normLon(lon - prevLon)) > 180){ moved=false; }
+          }
+          if (!moved){ ctx.moveTo(p.x,p.y); moved=true; } else { ctx.lineTo(p.x,p.y); }
+        }
+        ctx.closePath();
+      }
+      ctx.fill('evenodd');
+      ctx.stroke();
+    }
+    return;
+  }
+
+  // GLOBO: recorte + cierre con ARCO en borde del disco
+  const R=Math.min(W,H)*0.45, cx=W/2, cy=H/2;
+
+  for (const poly of LAND_POLYS){
+    ctx.beginPath();
+
+    for (const rawRing of poly.rings){
+      const ring = densifyRing(rawRing, 2.0);
+      if (ring.length < 2) continue;
+
+      let prev = ring[0];
+      let prevVis = isVisibleOnOrtho(prev[0], prev[1]);
+      let started = false;
+      let pendingExitAngle = null; // ángulo en borde del disco donde salimos
+
+      for (let i=1; i<=ring.length; i++){
+        const curr = ring[i % ring.length];
+        const currVis = isVisibleOnOrtho(curr[0], curr[1]);
+
+        if (prevVis && currVis){
+          const p = proj(curr[0], curr[1]);
+          if (!started){
+            const s = proj(prev[0], prev[1]);
+            if (s){ ctx.moveTo(s.x, s.y); started = true; }
+          }
+          if (p) ctx.lineTo(p.x, p.y);
+
+        } else if (prevVis !== currVis){
+          const I = horizonIntersection(prev, curr, 0, globeLon0);
+          const pI = proj(I[0], I[1]);
+
+          if (prevVis){
+            // salimos: trazar hasta el horizonte y guardar ángulo de salida
+            if (!started){
+              const s = proj(prev[0], prev[1]);
+              if (s){ ctx.moveTo(s.x, s.y); started = true; }
+            }
+            if (pI){
+              ctx.lineTo(pI.x, pI.y);
+              pendingExitAngle = Math.atan2(pI.y - cy, pI.x - cx);
+            }
+            started = false; // cerramos el subtrazo visible
+
+          } else {
+            // entramos: si teníamos salida pendiente, unir con arco por el borde
+            if (pI && pendingExitAngle != null){
+              const enterAngle = Math.atan2(pI.y - cy, pI.x - cx);
+              // Elegimos el “camino corto” a lo largo del borde
+              let a0 = pendingExitAngle, a1 = enterAngle;
+              let d = ((a1 - a0 + Math.PI*3) % (Math.PI*2)) - Math.PI; // en [-π,π]
+              ctx.arc(cx, cy, R, a0, a0 + d, d < 0); // antihorario si d<0
+              pendingExitAngle = null;
+              // Ahora continuamos desde el punto de entrada
+              ctx.moveTo(pI.x, pI.y);
+              started = true;
+              const p = proj(curr[0], curr[1]);
+              if (p) ctx.lineTo(p.x, p.y);
+            } else {
+              // sin salida previa (raro): empezar en el horizonte
+              if (pI){ ctx.moveTo(pI.x, pI.y); started = true; }
+              const p = proj(curr[0], curr[1]); if (p) ctx.lineTo(p.x, p.y);
+            }
+          }
+
+        } else {
+          started = false;
+        }
+
+        prev = curr; prevVis = currVis;
+      }
+
+      // Si el anillo terminó “saliendo” y no tuvo entrada posterior en esta vuelta,
+      // cerramos hasta el primer punto visible del mismo anillo con arco; para
+      // simplificar lo dejamos abierto (no genera cuerdas porque ya trazamos arcos
+      // en pares de salida/entrada). 
+    }
+
+    ctx.fill('evenodd'); // respeta lagos interiores
+    ctx.stroke();
+  }
+}
+
+/* ========= Rejilla, etiquetas y marcas ========= */
+function pathLine(points,color,width=1.2){
+  ctx.strokeStyle=color; ctx.lineWidth=width; ctx.beginPath();
+  let moved=false; for(const p of points){ if(!p){moved=false;continue;} if(!moved){ctx.moveTo(p.x,p.y); moved=true;} else ctx.lineTo(p.x,p.y); }
+  ctx.stroke();
+}
+
+function drawLabelsOnGlobe(W,H){
+  if (!isGlobe()) return;
+  // 0° y 180° (arriba)
+  const labelAt=(lat,lon,text,style='#e53935',fw='bold')=>{
+    const p=projOrtho(lat,lon,W,H,globeLon0,0); if (!p) return;
+    ctx.fillStyle=style; ctx.font=`${fw} 14px system-ui,-apple-system,Segoe UI,Roboto,Arial`;
+    ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(text,p.x,p.y);
+  };
+  labelAt(78,0,"0°"); labelAt(78,180,"180°");
+
+  // Etiquetas de meridianos SOBRE EL ECUADOR
+  const meridians=[-150,-120,-90,-60,-30,0,30,60,90,120,150];
+  ctx.fillStyle="#64748b"; ctx.font="12px system-ui,-apple-system,Segoe UI,Roboto,Arial";
+  ctx.textAlign="center"; ctx.textBaseline="bottom";
+  for (const m of meridians){
+    const p=projOrtho(0,m, W,H,globeLon0,0);
+    if (p) ctx.fillText(`${Math.abs(m)}°${m>0?'E':(m<0?'W':'')}`, p.x, p.y - 3);
+  }
+
+  // Paralelos (como guía)
+  const parallels=[-60,-30,-15,15,30,60];
+  ctx.textAlign="left"; ctx.textBaseline="middle";
+  for (const lat of parallels){
+    const p=projOrtho(lat, globeLon0, W,H,globeLon0,0);
+    if (p) ctx.fillText(`${Math.abs(lat)}°${lat>0?'N':'S'}`, p.x + (W*0.23), p.y);
+  }
+}
+
+function drawLabelsOnMap(W,H){
+  if (isGlobe()) return;
+  ctx.fillStyle="#64748b"; ctx.font="12px system-ui,-apple-system,Segoe UI,Roboto,Arial";
+  // Meridianos sobre el ecuador
+  ctx.textAlign="center"; ctx.textBaseline="bottom";
+  const meridians=[-180,-150,-120,-90,-60,-30,0,30,60,90,120,150,180];
+  const yEq = (90-0)/180*H;
+  for (const m of meridians){
+    const x=(normLon(m)+180)/360*W;
+    ctx.fillText(`${(m===180?180:Math.abs(m))}°${m>0?'E':(m<0?'W':'')}`, x, yEq - 3);
+  }
+  // Paralelos en eje izquierdo
+  ctx.textAlign="left"; ctx.textBaseline="middle";
+  const parallels=[-60,-30,-15,0,15,30,60];
+  for (const lat of parallels){
+    const y=(90-lat)/180*H;
+    ctx.fillText(`${Math.abs(lat)}°${lat>0?'N':(lat<0?'S':'')}`, 6, y);
+  }
+}
+
+function drawGraticule(){
+  clear();
+  const W=canvas.width, H=canvas.height;
+
+  if (isGlobe()){
+    const R=Math.min(W,H)*0.45, cx=W/2, cy=H/2;
+    ctx.fillStyle="#f8fafc"; ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill();
+  } else { ctx.fillStyle="#f8fafc"; ctx.fillRect(0,0,W,H); }
+
+  drawLand(W,H);
+
+  const proj=(lat,lon)=> isGlobe()? projOrtho(lat,lon,W,H,globeLon0,0) : projEquirect(lat,lon,W,H);
+
+  const eq=[]; for(let lon=-180; lon<=180; lon+=1){ eq.push(proj(0,lon)); } pathLine(eq, getCSS('--rojo'), 2);
+  const pm=[]; for(let lat=-90; lat<=90; lat+=1.5){ pm.push(proj(lat,0)); } pathLine(pm, getCSS('--rojo'), 2);
+
+  const meridians=[-180,-150,-120,-90,-60,-30,30,60,90,120,150,180];
+  for(const m of meridians){ const pts=[]; for(let lat=-90; lat<=90; lat+=2){ pts.push(proj(lat,m)); } pathLine(pts, getCSS('--celeste'), 1); }
+  const parallels=[-90,-60,-30,-15,15,30,60,90];
+  for(const lat of parallels){ const pts=[]; for(let lon=-180; lon<=180; lon+=2){ pts.push(proj(lat,lon)); } pathLine(pts, getCSS('--celeste'), 1); }
+
+  drawLabelsOnGlobe(W,H);
+  drawLabelsOnMap(W,H);
+}
+
+function drawMarkers(){
+  const W=canvas.width, H=canvas.height;
+  const proj=(lat,lon)=> isGlobe()? projOrtho(lat,lon,W,H,globeLon0,0) : projEquirect(lat,lon,W,H);
+  if (userClick){ const p=proj(userClick.lat,userClick.lon); if (p){ ctx.fillStyle="#111827"; ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2); ctx.fill(); } }
+  if (current && current.revealed){ const p=proj(current.lat,current.lon); if (p){ ctx.fillStyle=getCSS('--ok'); ctx.beginPath(); ctx.arc(p.x,p.y,6,0,Math.PI*2); ctx.fill(); } }
+}
+</script>
+<script>
+/* ========= Lógica del ejercicio ========= */
+const qName=document.getElementById('qName'), qCoords=document.getElementById('qCoords'), userLL=document.getElementById('userLL'),
+      distOut=document.getElementById('distOut'), resultOut=document.getElementById('resultOut'), hintOut=document.getElementById('hintOut'),
+      totalEl=document.getElementById('total'), breakdownEl=document.getElementById('breakdown');
+const btnCheck=document.getElementById('btnCheck'), btnNext=document.getElementById('btnNext'), btnReset=document.getElementById('btnReset');
+const contSel=document.getElementById('contSel'), countrySel=document.getElementById('countrySel');
+const mapRadio = getMapRadio();
+
+countrySel.innerHTML = '<option value="">— Selecciona —</option>' + COUNTRIES.map(c=>`<option>${c}</option>`).join('');
+
+function paintTotal(){
+  totalEl.classList.remove('totalOK','totalKO');
+  totalEl.classList.add(totalScore >= 5 ? 'totalOK' : 'totalKO');
+}
+
+function pickCapital(){
+  const targetHemi = HEMIS[pickCycle % HEMIS.length]; pickCycle++;
+  const pool = CAPITALS.filter(c=>c.hemi===targetHemi && !used.has(c.name));
+  const fallback = CAPITALS.filter(c=>!used.has(c.name));
+  const list = pool.length ? pool : fallback;
+  return list.length ? list[Math.floor(Math.random()*list.length)] : null;
+}
+
+function setMapLock(locked){
+  lockMapUntilGraded = locked;
+  mapRadio.disabled = locked;
+  document.getElementById('mapLabel').style.opacity = locked ? .5 : 1;
+  document.getElementById('mapLabel').title = locked ? "Termina y corrige este ejercicio para cambiar a mapa" : "";
+}
+
+function newExercise(){
+  countrySel.classList.remove('okField','koField');
+  contSel.classList.remove('okField','koField');
+
+  if (totalScore >= 10){ resultOut.textContent="🎉 ¡Has alcanzado 10 puntos! No hay más ejercicios."; hintOut.textContent=""; btnCheck.disabled=true; btnNext.disabled=true; return; }
+  current = pickCapital(); if (!current){ resultOut.textContent="No quedan capitales por usar."; btnCheck.disabled=true; btnNext.disabled=true; return; }
+  used.add(current.name); current.revealed=false; userClick=null;
+  qName.textContent=current.name;
+  qCoords.textContent=`lat ${current.lat.toFixed(2)}°, lon ${current.lon.toFixed(2)}°`;
+  userLL.textContent="—"; distOut.textContent="—"; resultOut.textContent=""; breakdownEl.textContent="";
+  hintOut.textContent="Selecciona país y continente, y ubica la capital.";
+  btnCheck.disabled=false; btnNext.disabled=true;
+
+  // Si empezamos en globo, bloquear cambio a mapa hasta corregir
+  setMapLock(isGlobe());
+
+  drawGraticule(); drawMarkers();
+}
+
+function grade(){
+  if (!current) return;
+  countrySel.classList.remove('okField','koField');
+  contSel.classList.remove('okField','koField');
+
+  let locationScore=0, distKm=null;
+  if (userClick){
+    distKm=haversine(userClick.lat,userClick.lon,current.lat,current.lon);
+    const d0=50, d1=5000;
+    locationScore = distKm<=d0 ? 1 : (distKm>=d1 ? 0 : 1 - (distKm - d0)/(d1 - d0));
+  }
+  const countryOK = countrySel.value===current.country ? 1 : 0;
+  const contOK = contSel.value===current.continent ? 1 : 0;
+
+  const locPoints = 0.70*locationScore;
+  const countryPoints = 0.15*countryOK;
+  const contPoints = 0.15*contOK;
+  const gained = Math.max(0, Math.min(1, locPoints + countryPoints + contPoints));
+
+  countrySel.classList.add(countryOK ? 'okField' : 'koField');
+  contSel.classList.add(contOK ? 'okField' : 'koField');
+
+  current.revealed = true; drawGraticule(); drawMarkers();
+
+  totalScore = Math.min(10, +(totalScore + gained).toFixed(2));
+  totalEl.textContent = totalScore.toFixed(2); paintTotal();
+
+  resultOut.textContent = `Puntuación del ejercicio: ${gained.toFixed(2)} / 1`;
+  if (distKm!=null) distOut.textContent = `${distKm.toFixed(0)} km`;
+  breakdownEl.innerHTML = `
+    <span class="${locPoints>0?'okText':''}">Localización: ${locPoints.toFixed(2)}</span> ·
+    <span class="${countryOK?'okText':'koText'}">País: ${countryPoints.toFixed(2)}</span> ·
+    <span class="${contOK?'okText':'koText'}">Continente: ${contPoints.toFixed(2)}</span>
+  `;
+  hintOut.textContent = `Correcta: ${current.name} — ${current.country} (${current.continent}).`;
+
+  btnCheck.disabled=true; btnNext.disabled = totalScore >= 10;
+
+  // Al corregir, permitir cambio a mapa
+  setMapLock(false);
+}
+</script>
+<script>
+/* ========= Interacción ========= */
+// Giro y clic en globo con umbral
+let dragging=false, dragPrevX=0, dragAccum=0;
+canvas.addEventListener('mousedown', (e)=>{
+  if (!isGlobe()) return;
+  dragging=true; dragPrevX=e.clientX; dragAccum=0;
+  canvas.classList.add('dragging');
+});
+window.addEventListener('mousemove', (e)=>{
+  if (!dragging) return;
+  const dx=e.clientX-dragPrevX; dragPrevX=e.clientX; dragAccum += Math.abs(dx);
+  const diskW=Math.min(canvas.width,canvas.height)*0.9;
+  const degPerPixel = 180/(diskW/2);
+  globeLon0 = normLon(globeLon0 - dx*degPerPixel);
+  drawGraticule(); drawMarkers();
+});
+window.addEventListener('mouseup', (e)=>{
+  if (!dragging) return;
+  dragging=false; canvas.classList.remove('dragging');
+  const moved = dragAccum; dragAccum=0;
+  if (moved < 3){ // tratar como clic en globo
+    const rect=canvas.getBoundingClientRect();
+    const x=(e.clientX-rect.left)*(canvas.width/rect.width);
+    const y=(e.clientY-rect.top)*(canvas.height/rect.height);
+    const ll = inverseOrtho(x,y,canvas.width,canvas.height,globeLon0,0);
+    if (ll){
+      userClick=ll; userLL.textContent=`lat ${ll.lat.toFixed(2)}°, lon ${ll.lon.toFixed(2)}°`;
+      drawGraticule(); drawMarkers();
+    }
+  }
+});
+
+// Clic directo en MAPA
+canvas.addEventListener('click', (ev)=>{
+  if (isGlobe()) return;
+  const rect=canvas.getBoundingClientRect();
+  const x=(ev.clientX-rect.left)*(canvas.width/rect.width);
+  const y=(ev.clientY-rect.top)*(canvas.height/rect.height);
+  const ll = inverseEquirect(x,y,canvas.width,canvas.height);
+  if (!ll) return;
+  userClick=ll; userLL.textContent=`lat ${ll.lat.toFixed(2)}°, lon ${ll.lon.toFixed(2)}°`;
+  drawGraticule(); drawMarkers();
+});
+
+canvas.addEventListener('mouseleave', ()=>{ dragging=false; canvas.classList.remove('dragging'); dragAccum=0; });
+
+window.addEventListener('keydown', (e)=>{
+  if (!isGlobe()) return;
+  if (e.key==='ArrowLeft'){ globeLon0=normLon(globeLon0-4); drawGraticule(); drawMarkers(); }
+  if (e.key==='ArrowRight'){ globeLon0=normLon(globeLon0+4); drawGraticule(); drawMarkers(); }
+});
+
+/* ========= Botones y radios ========= */
+document.querySelectorAll('input[name="mode"]').forEach(r=>{
+  r.addEventListener('change', (ev)=>{
+    if (lockMapUntilGraded && ev.target.value==='map'){
+      ev.preventDefault();
+      document.querySelector('input[name="mode"][value="globe"]').checked = true;
+      return;
+    }
+    drawGraticule(); drawMarkers();
+  });
+});
+document.getElementById('toggleLand').addEventListener('change', ()=>{ drawGraticule(); drawMarkers(); });
+document.getElementById('btnCheck').addEventListener('click', grade);
+document.getElementById('btnNext').addEventListener('click', ()=>{ countrySel.value=""; contSel.value=""; newExercise(); });
+document.getElementById('btnReset').addEventListener('click', ()=>{
+  totalScore=0; totalEl.textContent="0.00"; paintTotal();
+  used.clear(); userClick=null; countrySel.value=""; contSel.value="";
+  document.getElementById('btnCheck').disabled=false; document.getElementById('btnNext').disabled=true;
+  drawGraticule(); drawMarkers(); newExercise();
+});
+
+/* ========= Inicio ========= */
+function init(){ drawGraticule(); paintTotal(); }
+(async function(){
+  init();
+  await loadLand();
+  newExercise();
+})();
+</script>
+</body>
+</html>
