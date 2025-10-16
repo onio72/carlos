@@ -5,7 +5,7 @@
 
 [MATERIA] matematicas | 🔢 | Matemáticas |  | visible=si
 [TEMA] Tema 1 | visible=si
-[ENLACE] Fórmula empírica | Conceptos matemáticos fundamentales | https://onio72.github.io/iesmajuelo/bach/fq1/formulaempirica/
+[ENLACE] Números primos | ¿Cómo distinguirlos? | https://drive.google.com/file/d/10qD2Q8ZD82YGFl9s3altZkdFmCB9xBcj/view?usp=drive_link
 
 [MATERIA] lengua | 📚 | Lengua |  | visible=si
 [TEMA] Tema 1 | visible=si
@@ -14,7 +14,7 @@
 [ENLACE] Acentúa | ¿Sabes colocar el acento si hay? | https://onio72.github.io/carlos/lengua/acentua.html
 [ENLACE] Adverbios | ¿Sabes de qué tipo son? | https://onio72.github.io/carlos/lengua/adverbios.html
 
-[MATERIA] biologia | 🧬 | Biología |  | visible=si
+[MATERIA] biologia | 🧬 | Biología |  | visible=no
 [TEMA] Tema 1 | visible=si
 [ENLACE] Calendario de estudios | Organiza tu tiempo de estudio | https://onio72.github.io/ed/calendario.html
 
@@ -22,14 +22,14 @@
 [TEMA] Tema 1 | visible=si
 [ENLACE] Verbos en inglés | Repasa las distintas formas verbales | https://drive.google.com/file/d/1A6UfNRa9j3sBoqI0CH2Qm2T2wHwXbs6x/view?usp=sharing
 
-[MATERIA] frances | 🇫🇷 | Francés |  | visible=si
+[MATERIA] frances | 🇫🇷 | Francés |  | visible=no
 [TEMA] Tema 1 | visible=si
 
-[MATERIA] musica | 🎵 | Música |  | visible=si
+[MATERIA] musica | 🎵 | Música |  | visible=no
 [TEMA] Tema 1 | visible=si
 
-[MATERIA] epv | 🎨 | Educación Plástica y Visual |  | visible=si
+[MATERIA] epv | 🎨 | Educación Plástica y Visual |  | visible=no
 [TEMA] Tema 1 | visible=si
 
-[MATERIA] ef | 🏃 | Educación Física |  | visible=si
+[MATERIA] ef | 🏃 | Educación Física |  | visible=no
 [TEMA] Tema 1 | visible=si
