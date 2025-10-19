@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prepositions Trainer — no repeats</title>
+<style>
+  :root{--bg:#f7f9fc;--card:#fff;--ink:#0f172a;--muted:#475569;--ok:#16a34a;--ko:#dc2626;--border:#e5e7eb;--shadow:0 8px 24px rgba(2,6,23,.08);--r:16px}
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+  .wrap{max-width:940px;margin:clamp(12px,4vw,48px) auto;padding:clamp(12px,3vw,28px)}
+  header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:16px}
+  h1{margin:0;font-size:clamp(18px,3vw,30px)}
+  .chip{font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:999px;background:#fff;margin-left:6px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:clamp(16px,3vw,28px)}
+  .row{display:grid;gap:10px}
+  .es{padding:14px 16px;border:1px solid var(--border);border-radius:12px;background:#fafafa}
+  .es small{color:var(--muted)}
+  input[type="text"]{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:12px;font:inherit}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  button{padding:10px 16px;border-radius:12px;border:1px solid var(--border);background:var(--ink);color:#fff;cursor:pointer;font-weight:700;box-shadow:var(--shadow)}
+  button.secondary{background:#fff;color:var(--ink)} button:disabled{opacity:.45}
+  .score{margin-top:10px;font-weight:800} .score.ok{color:var(--ok)} .score.ko{color:var(--ko)}
+  .fb{margin-top:12px}.ok{color:var(--ok);font-weight:700}.ko{color:var(--ko);font-weight:700}
+  .ended{background:#ecfeff;border-color:#bae6fd}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Prepositions Trainer</h1>
+    <div>
+      <span class="chip">+0.25 acierto</span>
+      <span class="chip">−0.25 error</span>
+      <span class="chip">Objetivo: 10.00</span>
+      <span class="chip" id="leftChip"></span>
+    </div>
+  </header>
+
+  <section class="card" id="taskCard">
+    <div class="row">
+      <div class="es" id="esBox"><small>Frase en español</small><br>—</div>
+      <div>
+        <label for="answer" class="es" style="display:block;margin-bottom:8px">
+          Escribe la oración completa en inglés con la preposición correcta.
+        </label>
+        <input id="answer" type="text" placeholder="Write the full sentence in English…">
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="checkBtn">Corregir</button>
+      <button id="nextBtn" class="secondary">Otro ejercicio</button>
+    </div>
+    <div class="score" id="scoreBox">Nota: 0.00 / 10</div>
+    <div id="feedback" class="fb"></div>
+  </section>
+</div>
+
+<script>
+/* === Banco de frases (on, in, under, between, above, behind, in front of) === */
+const BANK = [
+  {es:"El gato está sobre la mesa.", en:"The cat is on the table."},
+  {es:"El sombrero está sobre la cabeza del hombre.", en:"The hat is on the man's head."},
+  {es:"La lámpara está sobre el escritorio.", en:"The lamp is on the desk."},
+  {es:"El póster está sobre la puerta.", en:"The poster is on the door."},
+
+  {es:"El libro está dentro de la caja.", en:"The book is in the box."},
+  {es:"La pelota está en la mochila.", en:"The ball is in the backpack."},
+  {es:"El dinero está en la cartera.", en:"The money is in the wallet."},
+  {es:"El perro está en el coche.", en:"The dog is in the car."},
+
+  {es:"El libro está debajo de la mesa.", en:"The book is under the table."},
+  {es:"El gato está debajo de la silla.", en:"The cat is under the chair."},
+  {es:"El zapato está debajo de la cama.", en:"The shoe is under the bed."},
+  {es:"La pelota está debajo del sofá.", en:"The ball is under the sofa."},
+
+  {es:"La tele está entre el hombre y la mesa.", en:"The TV is between the man and the table."},
+  {es:"La pelota está entre las cajas.", en:"The ball is between the boxes."},
+  {es:"El parque está entre la escuela y el hospital.", en:"The park is between the school and the hospital."},
+  {es:"El libro está entre los cuadernos.", en:"The book is between the notebooks."},
+
+  {es:"El póster está encima de la ventana (sin tocar).", en:"The poster is above the window."},
+  {es:"El avión está sobre la ciudad.", en:"The plane is above the city."},
+  {es:"La lámpara está por encima de la mesa.", en:"The lamp is above the table."},
+  {es:"El sol está sobre las nubes.", en:"The sun is above the clouds."},
+
+  {es:"La silla está detrás de la mesa.", en:"The chair is behind the table."},
+  {es:"El coche está detrás de la casa.", en:"The car is behind the house."},
+  {es:"El perro está detrás del árbol.", en:"The dog is behind the tree."},
+  {es:"La mochila está detrás de la puerta.", en:"The backpack is behind the door."},
+
+  {es:"El niño está delante de la pizarra.", en:"The boy is in front of the board."},
+  {es:"El banco está delante del museo.", en:"The bench is in front of the museum."},
+  {es:"El coche está delante del garaje.", en:"The car is in front of the garage."},
+  {es:"El hombre está delante de la tienda.", en:"The man is in front of the shop."}
+];
+
+/* === Utilidades === */
+const esBox = document.getElementById("esBox");
+const ans = document.getElementById("answer");
+const scoreBox = document.getElementById("scoreBox");
+const checkBtn = document.getElementById("checkBtn");
+const nextBtn = document.getElementById("nextBtn");
+const feedback = document.getElementById("feedback");
+const taskCard = document.getElementById("taskCard");
+const leftChip = document.getElementById("leftChip");
+
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a;}
+function norm(s){return (s||"").toLowerCase().replace(/\./g,"").replace(/\btv\b/g,"television").replace(/\s+/g," ").trim();}
+
+/* === Sin repeticiones: cola barajada una sola vez === */
+let order = shuffle([...Array(BANK.length).keys()]);
+let cursor = 0;    // siguiente índice en 'order'
+let current = null;
+let score = 0;
+let finished = false;
+
+function updateLeft(){ leftChip.textContent = `${BANK.length - cursor} restantes`; }
+
+function pick(){
+  if(finished) return;
+  if(cursor >= order.length){
+    // No quedan ítems y no llegó a 10 → termina igualmente
+    finished = true;
+    checkBtn.disabled = true; nextBtn.disabled = true; taskCard.classList.add("ended");
+    esBox.innerHTML = `<small>Fin</small><br>Has completado todos los ejercicios sin repetir.`;
+    feedback.innerHTML = "";
+    updateLeft();
+    return;
+  }
+  current = BANK[ order[cursor++] ];
+  esBox.innerHTML = `<small>Frase en español</small><br>${current.es}`;
+  ans.value = ""; ans.focus();
+  feedback.innerHTML = "";
+  updateLeft();
+}
+
+function updateScore(delta){
+  score = Math.max(0, Math.min(10, +(score + delta).toFixed(2)));
+  scoreBox.className = "score " + (score>=5?"ok":"ko");
+  scoreBox.textContent = `Nota: ${score.toFixed(2)} / 10`;
+  if(score>=10){
+    finished = true;
+    checkBtn.disabled = true; nextBtn.disabled = true; taskCard.classList.add("ended");
+    esBox.innerHTML = `<small>¡Perfecto!</small><br>Has alcanzado 10 puntos.`;
+    feedback.innerHTML = "";
+  }
+}
+
+checkBtn.addEventListener("click", ()=>{
+  if(!current) return;
+  const ok = norm(ans.value) === norm(current.en);
+  updateScore(ok ? 0.25 : -0.25);
+  feedback.innerHTML = ok
+    ? `<span class="ok">✔ Correcto</span> — ${current.en}`
+    : `<span class="ko">✖ Incorrecto</span> — Solución: ${current.en}`;
+});
+
+nextBtn.addEventListener("click", ()=>{ if(!finished) pick(); });
+ans.addEventListener("keydown", e=>{ if(e.key==="Enter"){ e.preventDefault(); checkBtn.click(); }});
+
+/* Inicio */
+pick(); updateScore(0);
+</script>
+</body>
+</html>
