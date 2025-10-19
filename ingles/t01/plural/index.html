@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Plurales en inglés · Práctica</title>
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --panel:#ffffff;
+    --muted:#6b7280;    /* gray-500 */
+    --text:#0f172a;     /* slate-900 */
+    --border:#e5e7eb;   /* gray-200 */
+    --ok:#16a34a;       /* green-600 */
+    --warn:#d97706;     /* amber-600 */
+    --bad:#dc2626;      /* red-600 */
+    --accent:#2563eb;   /* blue-600 */
+    --input:#f9fafb;    /* gray-50 */
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    background: var(--bg);
+    color:var(--text);
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+
+  .app{
+    width:min(960px,100%);
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:20px 18px 16px;
+    box-shadow: 0 10px 26px rgba(15,23,42,.08);
+  }
+
+  header{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:8px; }
+  h1{ font-size:clamp(18px,2.2vw,24px); margin:0; letter-spacing:.2px; }
+  .sub{ color:var(--muted); font-size:13px; margin-top:4px; }
+
+  .toolbar{
+    display:flex; gap:8px; flex-wrap:wrap; align-items:center; justify-content:space-between;
+    margin:10px 0 16px;
+  }
+  .badge{
+    font-size:12px; color:#374151; background:#f3f4f6; border:1px solid var(--border);
+    padding:6px 10px; border-radius:999px; display:inline-flex; gap:6px; align-items:center;
+  }
+  .badge b{ color:#111827 }
+
+  .btn{
+    border:1px solid var(--border);
+    background:#eef2ff;
+    color:#1e3a8a;
+    padding:10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:transform .05s ease, background .2s, border-color .2s;
+    font-weight:600; letter-spacing:.1px;
+  }
+  .btn:hover{ background:#e0e7ff; border-color:#c7d2fe }
+  .btn:active{ transform:translateY(1px) }
+  .btn[disabled]{ opacity:.6; cursor:not-allowed }
+
+  .grid{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  @media (max-width: 780px){ .grid{ grid-template-columns: 1fr; } }
+
+  .card{
+    background:#ffffff;
+    border:1px solid var(--border);
+    border-radius:12px; padding:12px;
+  }
+  .row{
+    display:grid; grid-template-columns: 160px 1fr 40px; gap:10px; align-items:center;
+    border-bottom:1px dashed #e5e7eb; padding:10px 0;
+  }
+  .row:first-child{ padding-top:2px }
+  .row:last-child{ border-bottom:none; padding-bottom:4px }
+
+  .singular{ font-weight:600; letter-spacing:.2px; }
+
+  .input{
+    width:100%;
+    background:var(--input);
+    border:1px solid var(--border);
+    border-radius:10px; color:var(--text);
+    padding:10px 12px; outline:none; font-size:14px;
+  }
+  .input:focus{ border-color:#93c5fd; background:#ffffff; box-shadow:0 0 0 3px rgba(59,130,246,.15) }
+
+  .mark{ text-align:center; font-weight:800; font-size:16px; color:#9ca3af }
+  .ok{ color:var(--ok) }
+  .reg{ color:var(--warn) }
+  .bad{ color:var(--bad) }
+
+  .foot{
+    display:flex; align-items:center; justify-content:space-between; margin-top:14px; gap:8px; flex-wrap:wrap;
+  }
+  .score{ font-size:18px; font-weight:800; letter-spacing:.3px; }
+  .score.ok{ color:var(--ok) }
+  .score.bad{ color:var(--bad) }
+  .hint{ color:var(--muted); font-size:12px }
+</style>
+</head>
+<body>
+  <main class="app" role="application" aria-labelledby="app-title">
+    <header>
+      <div>
+        <h1 id="app-title">Pluralizador · Inglés</h1>
+        <div class="sub">Escribe el <b>plural</b> correcto. No hay pistas ni reglas visibles.</div>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="badge" aria-live="polite">Intento: <b id="attempt">1</b></div>
+      <div class="badge" aria-live="polite">Total acumulado: <b id="total">0.00</b> / 10</div>
+      <div class="badge" aria-live="polite">Estado: <b id="status">En curso</b></div>
+      <div class="toolbar-actions" style="margin-left:auto; display:flex; gap:8px;">
+        <button class="btn" id="btn-correct">Corregir</button>
+        <button class="btn" id="btn-next">Otro ejercicio</button>
+      </div>
+    </div>
+
+    <section class="card" aria-describedby="desc">
+      <div id="desc" class="hint" style="margin-bottom:8px">
+        Puntuación: <b>Exacta</b> = +0.25, <b>Casi</b> = +0.10, <b>Error</b> = −0.25. El total llega hasta 10.
+      </div>
+      <div class="grid" id="exercise">
+        <!-- columnas con filas se inyectan vía JS -->
+      </div>
+    </section>
+
+    <div class="foot">
+      <div id="score" class="score">Nota: 0.00 / 10</div>
+      <div id="remark" class="hint">La nota se muestra en <span style="color: var(--ok)">verde</span> si ≥ 5; en <span style="color: var(--bad)">rojo</span> si &lt; 5.</div>
+    </div>
+  </main>
+
+<script>
+/* === Banco de palabras por categoría (interno, sin mostrar) === */
+const BANK = {
+  s: [
+    ["book","books"],["car","cars"],["pen","pens"],["dog","dogs"],["cat","cats"],
+    ["chair","chairs"],["boy","boys"],["toy","toys"],["day","days"],["key","keys"],
+    ["photo","photos"],["piano","pianos"],["roof","roofs"],["chef","chefs"]
+  ],
+  es: [
+    ["bus","buses"],["box","boxes"],["brush","brushes"],["class","classes"],["dish","dishes"],
+    ["fox","foxes"],["watch","watches"],["match","matches"],["quiz","quizzes"],["wish","wishes"],
+    ["church","churches"],["glass","glasses"],["buzz","buzzes"]
+  ],
+  ies: [
+    ["city","cities"],["baby","babies"],["lady","ladies"],["story","stories"],["party","parties"],
+    ["puppy","puppies"],["army","armies"],["country","countries"],["fly","flies"],["family","families"],
+    /* Extras sencillos */
+    ["body","bodies"],["enemy","enemies"],["candy","candies"],["berry","berries"],["duty","duties"]
+  ]
+};
+
+// Parámetros del ejercicio
+const ITEMS_PER_EX = 8; // 8 palabras por ejercicio
+const SIMILARITY_TOL = 0.30; // “menos de 3 décimas” ≈ distancia relativa ≤ 0.30
+const EXACT_SCORE = 0.25;
+const NEAR_SCORE  = 0.10;
+const WRONG_SCORE = -0.25;
+const PASS_LIMIT  = 10.0;
+
+let attempt = 1;
+let totalScore = 0.0;
+let locked = false;
+
+const elExercise = document.getElementById("exercise");
+const elAttempt  = document.getElementById("attempt");
+const elTotal    = document.getElementById("total");
+const elStatus   = document.getElementById("status");
+const elScore    = document.getElementById("score");
+const btnCorrect = document.getElementById("btn-correct");
+const btnNext    = document.getElementById("btn-next");
+
+function rndPick(arr){ return arr[Math.floor(Math.random()*arr.length)] }
+
+// Levenshtein distancia
+function levenshtein(a,b){
+  a = a.toLowerCase(); b = b.toLowerCase();
+  const m = a.length, n = b.length;
+  const dp = Array.from({length:m+1}, ()=> new Array(n+1).fill(0));
+  for(let i=0;i<=m;i++) dp[i][0]=i;
+  for(let j=0;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++){
+    for(let j=1;j<=n;j++){
+      const cost = a[i-1]===b[j-1] ? 0 : 1;
+      dp[i][j] = Math.min(
+        dp[i-1][j] + 1,
+        dp[i][j-1] + 1,
+        dp[i-1][j-1] + cost
+      );
+    }
+  }
+  return dp[m][n];
+}
+
+// Normaliza respuesta
+function norm(s){ return s.trim().replace(/\s+/g," ") }
+
+// Genera un bloque de ejercicios intercalando internamente las categorías
+function generateExercise(){
+  elExercise.innerHTML = "";
+  const leftCol  = document.createElement("div");
+  const rightCol = document.createElement("div");
+  leftCol.className = "card";
+  rightCol.className = "card";
+
+  // s → es → ies → s → ... (sin mostrar nada al alumno)
+  const cats = ["s","es","ies"];
+  const used = new Set();
+  const items = [];
+  let catIdx = Math.floor(Math.random()*3);
+
+  while(items.length < ITEMS_PER_EX){
+    const cat = cats[catIdx % 3];
+    let pair, tries=0;
+    do{
+      pair = rndPick(BANK[cat]);
+      tries++;
+      if(tries>50) break;
+    }while(used.has(cat+"|"+pair[0]));
+    used.add(cat+"|"+pair[0]);
+    items.push({cat, singular: pair[0], plural: pair[1]});
+    catIdx++;
+  }
+
+  const leftItems  = items.slice(0, ITEMS_PER_EX/2);
+  const rightItems = items.slice(ITEMS_PER_EX/2);
+
+  function makeRows(list){
+    const frag = document.createDocumentFragment();
+    list.forEach((it) => {
+      const row = document.createElement("div");
+      row.className = "row";
+      row.dataset.expected = it.plural;
+      row.dataset.cat = it.cat; // solo interno
+
+      const sing = document.createElement("div");
+      sing.className = "singular";
+      sing.textContent = it.singular; // SIN pistas
+
+      const input = document.createElement("input");
+      input.type="text"; input.className="input"; input.autocomplete="off";
+      input.placeholder = "Escribe el plural…";
+      input.setAttribute("aria-label", `Plural de ${it.singular}`);
+
+      const mark = document.createElement("div");
+      mark.className = "mark";
+      mark.textContent = "·";
+
+      row.appendChild(sing);
+      row.appendChild(input);
+      row.appendChild(mark);
+      frag.appendChild(row);
+    });
+    return frag;
+  }
+
+  leftCol.appendChild(makeRows(leftItems));
+  rightCol.appendChild(makeRows(rightItems));
+  elExercise.appendChild(leftCol);
+  elExercise.appendChild(rightCol);
+
+  setNote(); // refresca nota acumulada
+  elStatus.textContent = "En curso";
+  btnCorrect.disabled = false;
+}
+
+function correctNow(){
+  if(locked) return;
+
+  const rows = [...elExercise.querySelectorAll(".row")];
+  let scoreDelta = 0;
+
+  rows.forEach(row=>{
+    const expected = norm(row.dataset.expected);
+    const input = row.querySelector("input");
+    const mark  = row.querySelector(".mark");
+    const given = norm(input.value);
+
+    mark.classList.remove("ok","reg","bad");
+    input.style.borderColor = "var(--border)";
+
+    if(!given){
+      mark.textContent = "✗"; mark.classList.add("bad");
+      scoreDelta += WRONG_SCORE;
+      input.style.borderColor = "var(--bad)";
+      return;
+    }
+
+    if(given.toLowerCase() === expected.toLowerCase()){
+      mark.textContent = "✓"; mark.classList.add("ok");
+      scoreDelta += EXACT_SCORE;
+      input.style.borderColor = "var(--ok)";
+      return;
+    }
+
+    const dist = levenshtein(given, expected);
+    const rel = dist / Math.max(expected.length,1);
+    if(rel <= SIMILARITY_TOL){
+      mark.textContent = "≈"; mark.classList.add("reg");
+      scoreDelta += NEAR_SCORE;
+      input.style.borderColor = "var(--warn)";
+    }else{
+      mark.textContent = "✗"; mark.classList.add("bad");
+      scoreDelta += WRONG_SCORE;
+      input.style.borderColor = "var(--bad)";
+    }
+  });
+
+  totalScore = clamp2(totalScore + scoreDelta, 0, PASS_LIMIT);
+  document.getElementById("total").textContent = totalScore.toFixed(2);
+  setNote();
+
+  if(totalScore >= PASS_LIMIT - 1e-9){
+    document.getElementById("status").textContent = "Completado (10/10)";
+    btnCorrect.disabled = true;
+    btnNext.disabled = true;
+    locked = true;
+  }else{
+    document.getElementById("status").textContent = "Corregido";
+    btnCorrect.disabled = true;
+  }
+}
+
+function nextExercise(){
+  if(locked) return;
+  const elAttempt = document.getElementById("attempt");
+  elAttempt.textContent = String(Number(elAttempt.textContent) + 1);
+  generateExercise();
+}
+
+function setNote(){
+  const elScore = document.getElementById("score");
+  const total = totalScore;
+  elScore.textContent = `Nota: ${total.toFixed(2)} / 10`;
+  elScore.classList.remove("ok","bad");
+  if(total >= 5) elScore.classList.add("ok"); else elScore.classList.add("bad");
+}
+
+function clamp2(x, lo, hi){ return Math.max(lo, Math.min(hi, x)) }
+
+// Eventos
+btnCorrect.addEventListener("click", correctNow);
+btnNext.addEventListener("click", nextExercise);
+
+// Inicializa
+generateExercise();
+</script>
+</body>
+</html>
