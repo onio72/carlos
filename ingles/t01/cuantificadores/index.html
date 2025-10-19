@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Artículos y cuantificadores: a / an / some / any</title>
+<style>
+  :root{
+    --bg:#f7f9fc;
+    --card:#ffffff;
+    --ink:#0f172a;
+    --muted:#475569;
+    --ok:#16a34a;
+    --ko:#dc2626;
+    --accent:#2563eb;
+    --border:#e5e7eb;
+    --shadow:0 6px 20px rgba(2,6,23,.08);
+    --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.35;
+  }
+  .wrap{
+    max-width:900px;
+    margin:clamp(16px,4vw,48px) auto;
+    padding: clamp(12px,2.5vw,28px);
+  }
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:16px; margin-bottom:18px;
+  }
+  h1{font-size:clamp(18px,2.8vw,28px); margin:0; letter-spacing:.2px}
+  .card{
+    background:var(--card); border:1px solid var(--border);
+    border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:clamp(16px,3vw,26px);
+  }
+  .row{display:grid; gap:8px; grid-template-columns:1fr}
+  .es, .en{
+    padding:14px 16px; border:1px solid var(--border);
+    border-radius:12px; background:#fafafa;
+  }
+  .es small{color:var(--muted)}
+  .slot{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:2px 6px; border-radius:8px; background:#eef2ff; border:1px dashed #c7d2fe;
+  }
+  select{
+    font:inherit; padding:6px 10px; border:1px solid var(--border);
+    border-radius:10px; background:white; cursor:pointer; min-width:110px;
+  }
+  .controls{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px}
+  button{
+    padding:10px 16px; border-radius:12px; border:1px solid var(--border);
+    background:var(--ink); color:white; cursor:pointer; font-weight:600;
+    box-shadow:var(--shadow);
+  }
+  button.secondary{background:#ffffff; color:var(--ink)}
+  button:disabled{opacity:.45; cursor:not-allowed}
+  .score{
+    margin-top:10px; font-weight:800; letter-spacing:.3px;
+  }
+  .score.ok{color:var(--ok)} .score.ko{color:var(--ko)}
+  .chips{display:flex; gap:8px; margin-top:8px; flex-wrap:wrap}
+  .chip{
+    font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--border);
+    background:#fff;
+  }
+  footer{margin-top:18px; color:var(--muted); font-size:13px}
+  .type{font-weight:700; color:var(--accent)}
+  .ended{
+    background:#ecfeff; border-color:#bae6fd;
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Articles & Quantifiers Trainer</h1>
+      <div class="chips" id="chips">
+        <span class="chip">+ acierto: +0.25</span>
+        <span class="chip">− error: −0.25</span>
+        <span class="chip">Objetivo: 10.00</span>
+      </div>
+    </header>
+
+    <section class="card" id="taskCard">
+      <div class="row">
+        <div class="es" id="esText"><small>Frase en español</small><br>—</div>
+        <div class="en" id="enText">—</div>
+      </div>
+
+      <div class="controls">
+        <button id="checkBtn">Corregir</button>
+        <button id="nextBtn" class="secondary">Otro ejercicio</button>
+      </div>
+      <div class="score" id="scoreBox">Nota: 0.00 / 10</div>
+    </section>
+
+    <footer>
+      Alterna automáticamente <span class="type">afirmativas</span>, <span class="type">negativas</span> y <span class="type">preguntas</span>.  
+      Elige el cuantificador correcto en el desplegable (<strong>a</strong>, <strong>an</strong>, <strong>some</strong>, <strong>any</strong>).
+    </footer>
+  </div>
+
+<script>
+/* ====== BANCO DE ÍTEMS (30) ======
+Cada ítem:
+- es: enunciado en español
+- en: plantilla en inglés con {Q} como hueco para el cuantificador
+- key: solución correcta ('a' | 'an' | 'some' | 'any')
+- type: 'aff' | 'neg' | 'q' (afirmativa, negativa, pregunta)
+*/
+const BANK = [
+  // Countable (aff)
+  {es:"Hay un gato en el jardín.", en:"There is {Q} cat in the garden.", key:"a", type:"aff"},
+  {es:"Hay una manzana en la mesa.", en:"There is {Q} apple on the table.", key:"an", type:"aff"},
+  {es:"Hay algunos plátanos en la bolsa.", en:"There are {Q} bananas in the bag.", key:"some", type:"aff"},
+  {es:"Hay algunos libros en el escritorio.", en:"There are {Q} books on the desk.", key:"some", type:"aff"},
+  {es:"Hay un autobús en la parada.", en:"There is {Q} bus at the stop.", key:"a", type:"aff"},
+  // Countable (neg)
+  {es:"No hay un lápiz en el suelo.", en:"There isn’t {Q} pencil on the floor.", key:"a", type:"neg"},
+  {es:"No hay sillas en la habitación.", en:"There aren’t {Q} chairs in the room.", key:"any", type:"neg"},
+  {es:"No hay alumnos en el pasillo.", en:"There aren’t {Q} students in the corridor.", key:"any", type:"neg"},
+  {es:"No hay ningún plátano en la mesa, pero hay algunas manzanas.", en:"There isn’t {Q} banana on the table, but there are some apples.", key:"a", type:"neg"},
+  // Countable (q)
+  {es:"¿Hay una chaqueta en la cama?", en:"Is there {Q} jacket on the bed?", key:"a", type:"q"},
+  {es:"¿Hay zapatos debajo de la silla?", en:"Are there {Q} shoes under the chair?", key:"any", type:"q"},
+  {es:"¿Hay alumnos en el aula?", en:"Are there {Q} students in the classroom?", key:"any", type:"q"},
+
+  // Uncountable (aff)
+  {es:"Hay algo de leche en la nevera.", en:"There is {Q} milk in the fridge.", key:"some", type:"aff"},
+  {es:"Hay algo de azúcar en la mesa.", en:"There is {Q} sugar on the table.", key:"some", type:"aff"},
+  {es:"Hay algo de zumo en el vaso.", en:"There is {Q} juice in the glass.", key:"some", type:"aff"},
+  {es:"Hay algo de dinero en mi cartera.", en:"There is {Q} money in my wallet.", key:"some", type:"aff"},
+  {es:"Hay algo de música de fondo.", en:"There is {Q} music in the background.", key:"some", type:"aff"},
+  // Uncountable (neg)
+  {es:"No hay nada de agua en la botella.", en:"There isn’t {Q} water in the bottle.", key:"any", type:"neg"},
+  {es:"No hay nada de pan en la cocina.", en:"There isn’t {Q} bread in the kitchen.", key:"any", type:"neg"},
+  {es:"No hay nada de arroz en el plato.", en:"There isn’t {Q} rice on the plate.", key:"any", type:"neg"},
+  {es:"No hay nada de tiempo que perder.", en:"There isn’t {Q} time to lose.", key:"any", type:"neg"},
+  // Uncountable (q)
+  {es:"¿Hay algo de café en la taza?", en:"Is there {Q} coffee in the cup?", key:"any", type:"q"},
+  {es:"¿Hay algo de queso en la nevera?", en:"Is there {Q} cheese in the fridge?", key:"any", type:"q"},
+  {es:"¿Queda algo de leche?", en:"Is there {Q} milk left?", key:"any", type:"q"},
+
+  // Mixed
+  {es:"Hay algunas manzanas pero no hay nada de zumo.", en:"There are some apples but there isn’t {Q} juice.", key:"any", type:"neg"},
+  {es:"Hay un bocadillo y algo de agua.", en:"There is {Q} sandwich and some water.", key:"a", type:"aff"},
+  {es:"No hay ningún huevo pero hay algo de queso.", en:"There aren’t any eggs but there is {Q} cheese.", key:"some", type:"aff"},
+  {es:"Hay una naranja y algo de pan.", en:"There is {Q} orange and some bread.", key:"an", type:"aff"},
+  {es:"¿Hay algo de leche o algo de té?", en:"Is there {Q} milk or any tea?", key:"any", type:"q"},
+  {es:"Hay algunas fotos en la pared.", en:"There are {Q} pictures on the wall.", key:"some", type:"aff"}
+];
+
+const OPTIONS = ["a","an","some","any"];
+
+let score = 0;        // 0..10
+let finished = false;
+let cycle = ["aff","neg","q"]; // alterna tipos
+let cycleIndex = 0;
+let usedIds = new Set();
+let current = null;   // objeto del BANK actualmente mostrado
+let currentSelectValue = null;
+
+const esBox = document.getElementById("esText");
+const enBox = document.getElementById("enText");
+const scoreBox = document.getElementById("scoreBox");
+const checkBtn = document.getElementById("checkBtn");
+const nextBtn  = document.getElementById("nextBtn");
+const card = document.getElementById("taskCard");
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+
+function renderItem(item){
+  esBox.innerHTML = `<small>Frase en español</small><br>${item.es}`;
+  // Selección mezclada (correcta NO siempre en la misma posición)
+  const opts = shuffle([...OPTIONS]);
+  const select = document.createElement("select");
+  select.setAttribute("aria-label","Selecciona el cuantificador");
+  opts.forEach(o=>{
+    const op = document.createElement("option");
+    op.value = o; op.textContent = o;
+    select.appendChild(op);
+  });
+  // Bootstrap visual muy simple
+  const html = item.en.replace("{Q}", `<span class="slot">elige → ${select.outerHTML}</span>`);
+  enBox.innerHTML = html;
+
+  // Guardamos referencia real al <select> que quedó dentro
+  currentSelectValue = () => enBox.querySelector("select")?.value ?? null;
+}
+
+function pickNext(){
+  if(finished){return;}
+  const wantType = cycle[cycleIndex % cycle.length];
+  // candidatos del tipo actual no usados
+  const candidates = BANK
+    .map((obj, idx)=>({...obj, __id: idx}))
+    .filter(o=>o.type===wantType && !usedIds.has(o.__id));
+
+  // si se agotan los del tipo deseado, abrimos a cualquiera no usado para mantener flujo
+  const pool = candidates.length ? candidates
+                                 : BANK.map((o,idx)=>({...o,__id:idx})).filter(o=>!usedIds.has(o.__id));
+
+  if(pool.length===0){
+    endSession("Has completado todas las frases del banco. ¡Buen trabajo!");
+    return;
+  }
+  // elegimos uno al azar del pool
+  const next = pool[Math.floor(Math.random()*pool.length)];
+  current = next;
+  renderItem(next);
+  cycleIndex++; // alterna tipo para el siguiente
+}
+
+function updateScore(delta){
+  score = Math.max(0, Math.min(10, +(score + delta).toFixed(2)));
+  const cls = score>=5 ? "ok" : "ko";
+  scoreBox.className = `score ${cls}`;
+  scoreBox.textContent = `Nota: ${score.toFixed(2)} / 10`;
+  if(score>=10){
+    endSession("¡Enhorabuena! Has alcanzado 10 puntos. No se ofrecen más ejercicios.");
+  }
+}
+
+function endSession(msg){
+  finished = true;
+  checkBtn.disabled = true;
+  nextBtn.disabled = true;
+  card.classList.add("ended");
+  enBox.innerHTML = `<strong>${msg}</strong>`;
+}
+
+checkBtn.addEventListener("click", ()=>{
+  if(!current){return;}
+  const val = currentSelectValue?.();
+  if(!val){return;}
+  // registrar que ya se intentó esta
+  usedIds.add(current.__id);
+  const correct = (val === current.key);
+  updateScore(correct ? 0.25 : -0.25);
+
+  // feedback mínimo
+  const fb = document.createElement("div");
+  fb.style.marginTop = "10px";
+  fb.innerHTML = correct
+    ? `<span style="color:var(--ok); font-weight:700">✔ Correcto</span> — ${current.en.replace("{Q}", `<strong>${current.key}</strong>`)}`
+    : `<span style="color:var(--ko); font-weight:700">✖ Incorrecto</span> — Solución: ${current.en.replace("{Q}", `<strong>${current.key}</strong>`)}`;
+  // evitar acumulación de muchos bloques: deja como último feedback
+  const olds = enBox.parentElement.querySelectorAll(".feedback");
+  olds.forEach(n=>n.remove());
+  fb.className = "feedback";
+  enBox.parentElement.appendChild(fb);
+});
+
+nextBtn.addEventListener("click", ()=>{
+  if(finished) return;
+  pickNext();
+});
+
+// Inicializa
+pickNext();
+updateScore(0);
+</script>
+</body>
+</html>
