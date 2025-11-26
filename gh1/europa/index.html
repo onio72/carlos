@@ -1,1 +1,413 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Juego de Mapa: Europa Física</title>
+  <style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f0f2f5;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    header { margin-bottom: 20px; text-align: center; }
+    h1 { color: #2c3e50; margin-bottom: 5px; }
+    p { color: #666; margin-top: 0; }
+
+    #scoreboard {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 20px;
+        padding: 10px 25px;
+        background-color: #fff;
+        border-radius: 50px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        color: #27ae60;
+    }
+
+    #game-container {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 1200px;
+        gap: 20px;
+    }
+
+    /* Contenedor del mapa ajustado para Europa */
+    #map-container {
+        position: relative;
+        width: 100%;
+        /* Ajuste de aspecto para mapa A4 aprox (alto / ancho * 100) */
+        padding-top: 70.7%; 
+        border: 4px solid #fff;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        border-radius: 8px;
+        background-color: #a4d4e6; /* Color mar por si la imagen tarda en cargar */
+        overflow: hidden;
+    }
+
+    #world-map {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: fill; /* Forzamos a llenar para que las coordenadas no se muevan */
+    }
+
+    #labels-container {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    #draggable-labels {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .draggable-label {
+        width: 35px;
+        height: 35px;
+        line-height: 35px;
+        background-color: #3498db;
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        font-weight: bold;
+        font-size: 1.1em;
+        cursor: grab;
+        box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+        transition: transform 0.2s, background-color 0.2s;
+        user-select: none;
+    }
+
+    .draggable-label:hover { background-color: #2980b9; transform: scale(1.1); }
+    .draggable-label:active { cursor: grabbing; }
+    .hidden { opacity: 0.2; pointer-events: none; }
+
+    .drop-zone {
+        position: absolute;
+        width: 24px;
+        height: 24px;
+        border: 2px dashed rgba(0, 0, 0, 0.5);
+        background-color: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transform: translate(-50%, -50%); /* Centrar exactamente en el punto */
+        z-index: 10;
+        transition: all 0.3s;
+    }
+
+    /* Iconos visuales para montañas */
+    .peak-icon, .peak-icon-double { pointer-events: none; }
+    
+    .peak-icon {
+        position: absolute; bottom: 100%;
+        border-left: 6px solid transparent; border-right: 6px solid transparent;
+        border-bottom: 10px solid #c0392b;
+    }
+
+    .peak-icon-double::before, .peak-icon-double::after {
+        content: ''; position: absolute; bottom: 100%;
+        border-left: 5px solid transparent; border-right: 5px solid transparent;
+        border-bottom: 8px solid #8e44ad;
+    }
+    .peak-icon-double::before { left: -6px; }
+    .peak-icon-double::after { left: 2px; }
+
+    .drop-zone.hover { background-color: rgba(255, 255, 0, 0.5); transform: translate(-50%, -50%) scale(1.2); }
+    .drop-zone.correct { background-color: #2ecc71; border-color: #27ae60; }
+    .drop-zone.incorrect { background-color: #e74c3c; border-color: #c0392b; }
+
+    .placed-label {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        background-color: #2c3e50;
+        color: white;
+        font-size: 0.9em;
+        font-weight: bold;
+        display: flex; justify-content: center; align-items: center;
+        pointer-events: none;
+    }
+
+    #tables-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        width: 100%;
+        max-width: 1200px;
+        margin-top: 30px;
+    }
+
+    .category-table {
+        flex: 1 1 300px;
+        background: white;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .category-table h3 {
+        background-color: #34495e;
+        color: white;
+        padding: 12px;
+        margin: 0;
+        font-size: 1.1em;
+    }
+
+    .category-table table { width: 100%; border-collapse: collapse; }
+    .category-table td { padding: 8px 12px; border-bottom: 1px solid #eee; }
+    .category-table tr:last-child td { border-bottom: none; }
+    .category-table .num { font-weight: bold; color: #2980b9; width: 30px; text-align: center; background: #f9f9f9; }
+
+    .controls { margin-top: 20px; display: flex; gap: 15px; }
+    button {
+        padding: 12px 25px; font-size: 1em; border: none; border-radius: 5px; cursor: pointer; color: white; font-weight: bold; transition: filter 0.2s;
+    }
+    #check-btn { background-color: #27ae60; }
+    #reset-btn { background-color: #c0392b; }
+    button:hover { filter: brightness(1.1); }
+
+    /* Modo calibración (oculto por defecto) */
+    #debug-coords {
+        margin-top: 20px; padding: 10px; background: #333; color: #0f0; font-family: monospace; display: none; width: 90%;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Geografía de Europa</h1>
+    <p>Arrastra los números a su ubicación correcta. <br>
+       <span style="color:#c0392b">▲ Pico</span> | <span style="color:#8e44ad">▲▲ Cordillera</span>
+    </p>
+  </header>
+
+  <section id="scoreboard">Puntuación: <span id="score">0</span></section>
+
+  <div id="game-container">
+    <div id="labels-container">
+        <div id="draggable-labels"></div>
+    </div>
+
+    <div id="map-container">
+      <img src="mapa-europa-fisico-mudo.jpg" alt="Mapa físico de Europa" id="world-map">
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="check-btn">Comprobar</button>
+    <button id="reset-btn">Reiniciar</button>
+    <button onclick="document.getElementById('debug-coords').style.display='block'" style="background:#555; font-size:0.7em;">Calibrar</button>
+  </div>
+
+  <textarea id="debug-coords" rows="3"></textarea>
+  <div id="tables-container"></div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // DATOS DE EUROPA
+        // NOTA IMPORTANTE: Las coordenadas (left, top) son ESTIMADAS.
+        // Usa el botón "Calibrar" abajo para obtener las exactas haciendo clic en tu mapa.
+        const dropzoneData = [
+            // SISTEMAS MONTAÑOSOS
+            {"category":"SISTEMAS MONTAÑOSOS","name":"Montes Urales","left":82.5, "top":28.8,"icon":"double"},
+            {"category":"SISTEMAS MONTAÑOSOS","name":"Montes Escandinavos","left":45.0, "top":22.7,"icon":"double"},
+            {"category":"SISTEMAS MONTAÑOSOS","name":"Cárpatos","left":54.3, "top":66.0,"icon":"double"},
+            {"category":"SISTEMAS MONTAÑOSOS","name":"Alpes","left":37.0, "top":67.8,"icon":"double"},
+            {"category":"SISTEMAS MONTAÑOSOS","name":"Pirineos","left":23.9, "top":73.6,"icon":"double"},
+            {"category":"SISTEMAS MONTAÑOSOS","name":"Balcanes","left":48.6, "top":77.0,"icon":"double"},
+            {"category":"SISTEMAS MONTAÑOSOS","name":"Cáucaso","left":79.5, "top":70.9,"icon":"double"},
+            {"category":"SISTEMAS MONTAÑOSOS","name":"Macizo Central Francés","left":29.3, "top":70.2,"icon":"double"},
+            
+            // PICOS
+            {"category":"PICOS","name":"Elbrus","left":81.3, "top":73.4,"icon":"single"},
+            {"category":"PICOS","name":"Mont Blanc","left":34.0, "top":66.5,"icon":"single"},
+            {"category":"PICOS","name":"Aneto","left":25.4, "top":75.1,"icon":"single"},
+
+            // LLANURAS Y MESETAS
+            {"category":"LLANURAS Y MESETAS","name":"Gran Llanura Europea","left":57.4, "top":44.0},
+
+            // MARES Y OCEANOS
+            {"category":"MARES Y OCÉANOS","name":"Océano Atlántico","left":10,"top":50},
+            {"category":"MARES Y OCÉANOS","name":"Mar Mediterráneo","left":37.8, "top":85.7},
+            {"category":"MARES Y OCÉANOS","name":"Mar del Norte","left":33.5, "top":42.8},
+            {"category":"MARES Y OCÉANOS","name":"Mar Báltico","left":49.2, "top":40.0},
+            {"category":"MARES Y OCÉANOS","name":"Mar Negro","left":66.5, "top":74.3},
+            {"category":"MARES Y OCÉANOS","name":"Mar Caspio","left":88.5, "top":69.9},
+
+            // PENINSULAS E ISLAS
+            {"category":"PENÍNSULAS E ISLAS","name":"Península Ibérica","left":16.8, "top":78.7},
+            {"category":"PENÍNSULAS E ISLAS","name":"Península Itálica","left":40.2, "top":78.5},
+            {"category":"PENÍNSULAS E ISLAS","name":"Península Escandinava","left":44.2, "top":30.5},
+            {"category":"PENÍNSULAS E ISLAS","name":"Islas Británicas","left":25.3, "top":47.8},
+            {"category":"PENÍNSULAS E ISLAS","name":"Islandia","left":21.7, "top":14.4}
+        ];
+
+        const mapContainer = document.getElementById('map-container');
+        const checkBtn = document.getElementById('check-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const scoreElement = document.getElementById('score');
+        const draggableLabelsContainer = document.getElementById('draggable-labels');
+        const tablesContainer = document.getElementById('tables-container');
+        
+        // --- Lógica de Calibración ---
+        // Al hacer clic en el mapa, te da las coordenadas exactas en la consola y el textarea
+        mapContainer.addEventListener('click', (e) => {
+            if(e.target.classList.contains('draggable-label') || e.target.classList.contains('placed-label')) return;
+            const rect = mapContainer.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            const output = `"left":${x.toFixed(1)}, "top":${y.toFixed(1)}`;
+            console.log(output);
+            document.getElementById('debug-coords').value = output;
+        });
+        // -----------------------------
+
+        let numberedFeatures = [];
+        let score = 0;
+        let draggedLabel = null;
+        let dropZones = [];
+
+        function initGame() {
+            // Asignar números
+            numberedFeatures = dropzoneData.map((item, index) => ({ ...item, number: index + 1 }));
+            
+            renderDropZones();
+            generateLabels();
+            generateTables();
+            score = 0;
+            scoreElement.textContent = score;
+        }
+
+        function renderDropZones() {
+            mapContainer.querySelectorAll('.drop-zone').forEach(z => z.remove());
+            dropZones = [];
+
+            numberedFeatures.forEach(feature => {
+                const zone = document.createElement('div');
+                zone.classList.add('drop-zone');
+                zone.dataset.target = feature.name;
+                zone.dataset.correctNumber = feature.number.toString();
+                zone.style.left = feature.left + '%';
+                zone.style.top = feature.top + '%';
+
+                if (feature.icon) {
+                    const icon = document.createElement('span');
+                    icon.className = feature.icon === 'double' ? 'peak-icon-double' : 'peak-icon';
+                    zone.appendChild(icon);
+                }
+
+                zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('hover'); });
+                zone.addEventListener('dragleave', () => zone.classList.remove('hover'));
+                zone.addEventListener('drop', handleDrop);
+
+                mapContainer.appendChild(zone);
+                dropZones.push(zone);
+            });
+        }
+
+        function generateLabels() {
+            draggableLabelsContainer.innerHTML = '';
+            numberedFeatures.forEach(feature => {
+                const label = document.createElement('div');
+                label.classList.add('draggable-label');
+                label.textContent = feature.number;
+                label.setAttribute('draggable', 'true');
+                label.dataset.number = feature.number;
+                
+                label.addEventListener('dragstart', (e) => {
+                    draggedLabel = label;
+                    e.dataTransfer.setData('text/plain', feature.number);
+                    setTimeout(() => label.classList.add('hidden'), 0);
+                });
+                
+                label.addEventListener('dragend', () => {
+                    if (draggedLabel) {
+                        draggedLabel.classList.remove('hidden');
+                        draggedLabel = null;
+                    }
+                });
+
+                draggableLabelsContainer.appendChild(label);
+            });
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('hover');
+            const number = e.dataTransfer.getData('text/plain');
+            
+            // Si ya hay uno, devolverlo
+            const existing = this.querySelector('.placed-label');
+            if (existing) {
+                const oldNum = existing.textContent;
+                document.querySelector(`.draggable-label[data-number="${oldNum}"]`).style.visibility = 'visible';
+                existing.remove();
+            }
+
+            // Colocar nuevo
+            const placed = document.createElement('div');
+            placed.classList.add('placed-label');
+            placed.textContent = number;
+            this.appendChild(placed);
+
+            // Ocultar el original
+            const original = document.querySelector(`.draggable-label[data-number="${number}"]`);
+            if(original) original.style.visibility = 'hidden';
+        }
+
+        function generateTables() {
+            tablesContainer.innerHTML = '';
+            const categories = [...new Set(numberedFeatures.map(f => f.category))];
+            
+            categories.forEach(cat => {
+                const div = document.createElement('div');
+                div.className = 'category-table';
+                let html = `<h3>${cat}</h3><table>`;
+                numberedFeatures.filter(f => f.category === cat).forEach(f => {
+                    html += `<tr><td class="num">${f.number}</td><td>${f.name}</td></tr>`;
+                });
+                html += '</table>';
+                div.innerHTML = html;
+                tablesContainer.appendChild(div);
+            });
+        }
+
+        checkBtn.addEventListener('click', () => {
+            let correctCount = 0;
+            dropZones.forEach(zone => {
+                zone.classList.remove('correct', 'incorrect');
+                const placed = zone.querySelector('.placed-label');
+                if (placed && placed.textContent === zone.dataset.correctNumber) {
+                    zone.classList.add('correct');
+                    correctCount++;
+                } else if (placed) {
+                    zone.classList.add('incorrect');
+                }
+            });
+            scoreElement.textContent = `${correctCount} / ${numberedFeatures.length}`;
+            if(correctCount === numberedFeatures.length) alert("¡Perfecto! Has completado el mapa.");
+        });
+
+        resetBtn.addEventListener('click', initGame);
+
+        initGame();
+    });
+  </script>
+</body>
+</html>
