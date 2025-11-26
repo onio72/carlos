@@ -2,6 +2,9 @@
 [TEMA] Tema 1 | visible=si
 [ENLACE] Continentes y océanos | Aprende la geografía mundial básica | https://onio72.github.io/carlos/gh1/continentes/
 [ENLACE] Mapa interactivo mundial | Ubica por latitud y longitud | https://onio72.github.io/carlos/gh1/latitud/
+[TEMA] Tema 2 | visible=si
+[ENLACE] Accidentes geográficos del mundo | Ubica los accidentes geográficos | https://onio72.github.io/carlos/gh1/mundi/
+[ENLACE] Accidentes geográficos de Europa | Ubica los accidentes geográficos | https://onio72.github.io/carlos/gh1/europa/
 
 [MATERIA] matematicas | 🔢 | Matemáticas |  | visible=si
 [TEMA] Tema 1 | visible=si
