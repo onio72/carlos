@@ -17,9 +17,9 @@
 [ENLACE] Acentúa | ¿Sabes colocar el acento si hay? | https://onio72.github.io/carlos/lengua/acentua.html
 [ENLACE] Adverbios | ¿Sabes de qué tipo son? | https://onio72.github.io/carlos/lengua/adverbios.html
 
-[MATERIA] biologia | 🧬 | Biología |  | visible=no
-[TEMA] Tema 1 | visible=si
-[ENLACE] Calendario de estudios | Organiza tu tiempo de estudio | https://onio72.github.io/ed/calendario.html
+[MATERIA] biologia | 🧬 | Biología |  | visible=si
+[TEMA] Tema 5 | visible=si
+[ENLACE] Tabla resumen | ¿Eres capaz de completar la tabla? | https://onio72.github.io/carlos/bg/t05/tablaresumen.html
 
 [MATERIA] ingles | 🇬🇧 | Inglés |  | visible=si
 [TEMA] Tema 1 | visible=si
