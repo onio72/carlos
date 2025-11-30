@@ -1,1 +1,494 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Mundo Invisible: Mapa Comparativo (Múltiples Etiquetas por Celda)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0fdf4;
+        }
+        
+        /* Tabla con layout fijo */
+        #comparative-table {
+            table-layout: fixed;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /* Colgroup: fija los anchos de las columnas */
+        .col-feature {
+            width: 25%;
+        }
+        .col-group {
+            width: 18.75%;
+        }
+
+        #comparative-table th,
+        #comparative-table td {
+            border: 1px solid #94b8b8;
+            box-sizing: border-box;
+        }
+
+        #comparative-table th:first-child,
+        #comparative-table td:first-child {
+            width: 25%;
+        }
+
+        #comparative-table th:not(:first-child) {
+            width: 18.75%;
+        }
+        
+        .concept {
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: grab;
+            user-select: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            line-height: 1.1;
+            margin: 2px;
+            white-space: nowrap;
+        }
+
+        .concept-default {
+            background-color: #e0f7fa;
+            color: #006064;
+            border: 1px solid #b2ebf2;
+        }
+
+        /* Contenedor interno de las celdas de arrastre (div, NO el <td>) */
+        .drop-target {
+            min-height: 4.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            justify-content: center;
+            background-color: #ffffff;
+            transition: background-color 0.15s ease;
+            padding: 0.5rem;
+            width: 100%;
+        }
+        
+        .drop-target.hover {
+            background-color: #e0f2f1;
+            border: 2px dashed #4caf50 !important;
+        }
+
+        .row-header-cell {
+            vertical-align: middle;
+            text-align: left;
+            padding-left: 1rem;
+            min-height: 4.5rem;
+            font-size: 0.875rem;
+        }
+
+        .concept.dropped {
+            cursor: default;
+            box-shadow: none;
+        }
+
+        .concept.correct {
+            background-color: #a5d6a7 !important;
+            color: #1b5e20 !important;
+            border-color: #4caf50 !important;
+            animation: pulse-correct 0.5s 1;
+        }
+
+        .concept.incorrect {
+            background-color: #ffcdd2 !important;
+            color: #b71c1c !important;
+            border-color: #ef9a9a !important;
+            animation: shake 0.5s 1;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        @keyframes pulse-correct {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8 flex flex-col items-center">
+
+    <!-- MODAL -->
+    <div id="message-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">Resultado</h3>
+            <p id="modal-message" class="mb-6 text-gray-600"></p>
+            <button onclick="document.getElementById('message-modal').classList.add('hidden')" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 transition">Aceptar</button>
+        </div>
+    </div>
+
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-8 mt-4 text-center">El Mundo Invisible: Un Mapa Comparativo</h1>
+
+    <div class="w-full max-w-6xl">
+        <table id="comparative-table" class="min-w-full divide-y divide-gray-200 shadow-lg rounded-lg">
+            <colgroup>
+                <col class="col-feature">
+                <col class="col-group">
+                <col class="col-group">
+                <col class="col-group">
+                <col class="col-group">
+            </colgroup>
+
+            <thead class="bg-teal-100 text-teal-800">
+                <tr>
+                    <th class="py-2 px-2 sm:px-4 text-center text-sm font-semibold uppercase tracking-wider border-r border-teal-200">Característica</th>
+                    <th class="py-2 px-2 sm:px-4 text-center text-sm font-semibold uppercase tracking-wider border-r border-teal-200">Virus</th>
+                    <th class="py-2 px-2 sm:px-4 text-center text-sm font-semibold uppercase tracking-wider border-r border-teal-200">Moneras (Bacterias)</th>
+                    <th class="py-2 px-2 sm:px-4 text-center text-sm font-semibold uppercase tracking-wider border-r border-teal-200">Protoctistas</th>
+                    <th class="py-2 px-2 sm:px-4 text-center text-sm font-semibold uppercase tracking-wider">Hongos</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                <!-- Fila 1: Tipo de Célula -->
+                <tr>
+                    <td class="px-2 sm:px-4 py-2 font-medium text-gray-900 bg-emerald-50 border-r border-gray-200 row-header-cell">Tipo de Célula</td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="0" data-col="0"></div>
+                    </td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="0" data-col="1"></div>
+                    </td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="0" data-col="2"></div>
+                    </td>
+                    <td>
+                        <div class="drop-target" data-row="0" data-col="3"></div>
+                    </td>
+                </tr>
+                <!-- Fila 2: Organización -->
+                <tr>
+                    <td class="px-2 sm:px-4 py-2 font-medium text-gray-900 bg-emerald-50 border-r border-gray-200 row-header-cell">Organización</td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="1" data-col="0"></div>
+                    </td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="1" data-col="1"></div>
+                    </td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="1" data-col="2"></div>
+                    </td>
+                    <td>
+                        <div class="drop-target" data-row="1" data-col="3"></div>
+                    </td>
+                </tr>
+                <!-- Fila 3: Nutrición -->
+                <tr>
+                    <td class="px-2 sm:px-4 py-2 font-medium text-gray-900 bg-emerald-50 border-r border-gray-200 row-header-cell">Nutrición</td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="2" data-col="0"></div>
+                    </td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="2" data-col="1"></div>
+                    </td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="2" data-col="2"></div>
+                    </td>
+                    <td>
+                        <div class="drop-target" data-row="2" data-col="3"></div>
+                    </td>
+                </tr>
+                <!-- Fila 4: Rol Principal -->
+                <tr>
+                    <td class="px-2 sm:px-4 py-2 font-medium text-gray-900 bg-emerald-50 border-r border-gray-200 row-header-cell">Rol Principal</td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="3" data-col="0"></div>
+                    </td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="3" data-col="1"></div>
+                    </td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="3" data-col="2"></div>
+                    </td>
+                    <td>
+                        <div class="drop-target" data-row="3" data-col="3"></div>
+                    </td>
+                </tr>
+                <!-- Fila 5: Ejemplo Clave -->
+                <tr>
+                    <td class="px-2 sm:px-4 py-2 font-medium text-gray-900 bg-emerald-50 border-r border-gray-200 row-header-cell">Ejemplo Clave</td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="4" data-col="0"></div>
+                    </td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="4" data-col="1"></div>
+                    </td>
+                    <td class="border-r border-gray-200">
+                        <div class="drop-target" data-row="4" data-col="2"></div>
+                    </td>
+                    <td>
+                        <div class="drop-target" data-row="4" data-col="3"></div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-8 w-full max-w-6xl">
+        <h2 id="concept-list-title" class="text-xl font-semibold text-gray-700 mb-4">Conceptos para arrastrar:</h2>
+        <div id="concept-list" class="p-4 bg-white rounded-lg shadow-inner min-h-24 border border-gray-200">
+            <!-- Las filas de conceptos se insertarán aquí con JavaScript -->
+        </div>
+
+        <div class="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
+            <button id="check-button" class="px-8 py-3 bg-indigo-600 text-white font-bold rounded-lg shadow-md hover:bg-indigo-700 transition duration-300 transform hover:scale-105 disabled:opacity-50">
+                Comprobar Respuestas
+            </button>
+            <div id="score-display" class="text-xl font-semibold text-gray-700 p-3 rounded-md bg-white border border-gray-300 w-full sm:w-auto text-center">
+                Puntuación: 0 / 10
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Respuestas correctas por celda
+        const correctAnswers = [
+            ["Acelular", "Procariota", "Eucariota", "Eucariota"],
+            ["Partícula", "Unicelular", "Uni o Pluricelular", "Uni o Pluricelular"],
+            ["Parásito Obligado", "Autótrofa o Heterótrofa", "Autótrofa o Heterótrofa", "Heterótrofa"],
+            ["Patógeno", "Productor, Descomponedor", "Patógeno, Productor,", "Consumidor, Descomponedor, Simbionte"],
+            ["Gripe, VIH", "E. coli, Cianobacterias", "Ameba, Algas", "Levadura, Champiñón"]
+        ];
+
+        // Nombres de las filas/características (para etiquetar los grupos)
+        const featureNames = [
+            "Tipo de Célula",
+            "Organización",
+            "Nutrición",
+            "Rol Principal",
+            "Ejemplo Clave"
+        ];
+
+        // Agrupamos conceptos por fila de la tabla (una lista por característica)
+        const conceptGroups = correctAnswers.map(row =>
+            row.flatMap(cell =>
+                cell
+                    .split(',')
+                    .map(part => part.trim())
+                    .filter(p => p.length > 0)
+            )
+        );
+
+        const conceptsToDrag = conceptGroups.flat();
+        const totalRequiredConcepts = conceptsToDrag.length; // 26
+
+        const conceptList = document.getElementById('concept-list');
+        const dropTargets = document.querySelectorAll('.drop-target');
+        const checkButton = document.getElementById('check-button');
+        const scoreDisplay = document.getElementById('score-display');
+        const conceptListTitle = document.getElementById('concept-list-title');
+
+        let draggedItem = null;
+
+        // Utilidades
+        function showMessage(title, message) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+            document.getElementById('message-modal').classList.remove('hidden');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Crear filas de conceptos agrupados por tipo (una fila por característica)
+        function createConcepts() {
+            conceptList.innerHTML = '';
+
+            conceptGroups.forEach((group, rowIndex) => {
+                const rowWrapper = document.createElement('div');
+                rowWrapper.classList.add('mb-3', 'w-full');
+
+                const label = document.createElement('div');
+                label.textContent = featureNames[rowIndex] + ':';
+                label.classList.add('text-sm', 'font-semibold', 'text-gray-600', 'mb-1');
+                rowWrapper.appendChild(label);
+
+                const rowDiv = document.createElement('div');
+                rowDiv.classList.add('concept-row', 'flex', 'flex-wrap', 'justify-center', 'gap-2');
+                rowDiv.dataset.rowIndex = rowIndex;
+
+                const shuffled = shuffleArray([...group]);
+
+                shuffled.forEach(text => {
+                    const conceptDiv = document.createElement('div');
+                    conceptDiv.classList.add('concept', 'concept-default', 'shadow-md', 'hover:shadow-lg', 'transition');
+                    conceptDiv.textContent = text;
+                    conceptDiv.setAttribute('draggable', true);
+                    // Guardamos a qué fila pertenece este concepto
+                    conceptDiv.dataset.groupRow = rowIndex;
+                    rowDiv.appendChild(conceptDiv);
+                });
+
+                rowWrapper.appendChild(rowDiv);
+                conceptList.appendChild(rowWrapper);
+            });
+        }
+
+        // Drag & Drop
+        document.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('concept')) {
+                draggedItem = e.target;
+                setTimeout(() => e.target.style.opacity = '0.4', 0);
+            }
+        });
+
+        document.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('concept')) {
+                e.target.style.opacity = '1';
+                draggedItem = null;
+            }
+        });
+
+        dropTargets.forEach(target => {
+            target.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (draggedItem) {
+                    target.classList.add('hover');
+                }
+            });
+
+            target.addEventListener('dragleave', () => {
+                target.classList.remove('hover');
+            });
+
+            target.addEventListener('drop', (e) => {
+                e.preventDefault();
+                target.classList.remove('hover');
+
+                if (draggedItem) {
+                    // Mover el elemento: appendChild ya lo saca del contenedor anterior
+                    target.appendChild(draggedItem);
+
+                    draggedItem.classList.remove('concept-default', 'correct', 'incorrect');
+                    draggedItem.classList.add('dropped', 'bg-gray-100', 'text-gray-700');
+
+                    scoreDisplay.textContent = 'Puntuación: ? / 10';
+                    checkButton.disabled = false;
+                }
+            });
+        });
+
+        // Devolver al panel de conceptos (a su fila original)
+        conceptList.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        conceptList.addEventListener('drop', (e) => {
+            e.preventDefault();
+            if (draggedItem) {
+                const rowIndex = draggedItem.dataset.groupRow;
+                const rowDiv = conceptList.querySelector(`.concept-row[data-row-index="${rowIndex}"]`);
+
+                if (rowDiv) {
+                    rowDiv.appendChild(draggedItem);
+                } else {
+                    // En caso raro, lo devolvemos al contenedor principal
+                    conceptList.appendChild(draggedItem);
+                }
+
+                draggedItem.classList.remove('dropped', 'correct', 'incorrect', 'bg-gray-100', 'text-gray-700');
+                if (!draggedItem.classList.contains('concept-default')) {
+                    draggedItem.classList.add('concept-default');
+                }
+
+                scoreDisplay.textContent = 'Puntuación: ? / 10';
+            }
+        });
+
+        // Comprobación
+        checkButton.addEventListener('click', () => {
+            let correctCount = 0;
+            let conceptsPlaced = 0;
+
+            dropTargets.forEach(target => {
+                const row = parseInt(target.dataset.row);
+                const col = parseInt(target.dataset.col);
+
+                const correctFullString = correctAnswers[row][col];
+                const correctParts = correctFullString
+                    .split(',')
+                    .map(p => p.trim())
+                    .filter(p => p.length > 0);
+
+                target.querySelectorAll('.concept').forEach(droppedConcept => {
+                    conceptsPlaced++;
+                    const conceptText = droppedConcept.textContent.trim();
+                    const isCorrect = correctParts.includes(conceptText);
+
+                    if (isCorrect) {
+                        droppedConcept.classList.remove('incorrect', 'bg-gray-100', 'text-gray-700');
+                        droppedConcept.classList.add('correct');
+                        correctCount++;
+                    } else {
+                        droppedConcept.classList.add('incorrect');
+
+                        setTimeout(() => {
+                            if (droppedConcept.parentNode === target) {
+                                // Devolver al grupo de origen
+                                const groupRow = droppedConcept.dataset.groupRow;
+                                const rowDiv = conceptList.querySelector(`.concept-row[data-row-index="${groupRow}"]`);
+                                if (rowDiv) {
+                                    rowDiv.appendChild(droppedConcept);
+                                } else {
+                                    conceptList.appendChild(droppedConcept);
+                                }
+                                droppedConcept.classList.remove('dropped', 'correct', 'incorrect', 'bg-gray-100', 'text-gray-700');
+                                droppedConcept.classList.add('concept-default');
+                            }
+                        }, 500);
+                    }
+                });
+            });
+
+            if (conceptsPlaced !== totalRequiredConcepts) {
+                const missing = totalRequiredConcepts - conceptsPlaced;
+                showMessage(
+                    'Faltan Etiquetas',
+                    `Debes arrastrar las ${totalRequiredConcepts} etiquetas. Aún faltan ${missing} etiquetas por colocar.`
+                );
+                return;
+            }
+
+            const score = (correctCount / totalRequiredConcepts) * 10;
+            scoreDisplay.textContent = `Puntuación: ${score.toFixed(2)} / 10`;
+
+            if (correctCount === totalRequiredConcepts) {
+                showMessage('¡Felicidades!', `Has colocado correctamente las ${totalRequiredConcepts} etiquetas y has obtenido un ${score.toFixed(0)}/10.`);
+                checkButton.disabled = true;
+            } else if (correctCount > 0) {
+                showMessage(
+                    'A seguir practicando',
+                    `Tienes ${correctCount} respuestas correctas de ${totalRequiredConcepts}. Las incorrectas han vuelto a su fila en el panel de conceptos.`
+                );
+            } else {
+                showMessage(
+                    'Vaya...',
+                    'Por ahora no hay etiquetas correctas. Las incorrectas han sido devueltas al panel de conceptos para que puedas reintentar.'
+                );
+            }
+        });
+
+        // Inicializar
+        createConcepts();
+        conceptListTitle.innerHTML = `Conceptos para arrastrar (${totalRequiredConcepts} disponibles), agrupados por tipo de característica:`;
+    </script>
+</body>
+</html>
 
