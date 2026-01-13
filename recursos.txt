@@ -21,8 +21,8 @@
 [TEMA] Tema 5 | visible=si
 [ENLACE] Tabla resumen | ¿Eres capaz de completar la tabla? | https://onio72.github.io/carlos/bg/t05/tablaresumen.html
 [TEMA] Tema 6 | visible=si
-[ENLACE] Tabla resumen | Talofitas | https://onio72.github.io/carlos/bg/t06/talofitas/index.html
-[ENLACE] Tabla resumen | Cormofitas | https://onio72.github.io/carlos/bg/t06/cormofitas/index.html
+[ENLACE] Tabla resumen | Talofitas | https://onio72.github.io/carlos/bg/t06/talofitas/
+[ENLACE] Tabla resumen | Cormofitas | https://onio72.github.io/carlos/bg/t06/cormofitas/
 
 [MATERIA] ingles | 🇬🇧 | Inglés |  | visible=si
 [TEMA] Tema 1 | visible=si
