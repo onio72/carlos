@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reto de Verbos Irregulares - 1º ESO</title>
+    <!-- Tailwind CSS desde CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Google Fonts: Nunito -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Iconos Phosphor -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .score-transition {
+            transition: color 0.5s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .shake {
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+        /* Confetti simple */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: fall linear forwards;
+            z-index: 100;
+        }
+        @keyframes fall {
+            to { transform: translateY(100vh) rotate(720deg); }
+        }
+        /* Input styles specific to state */
+        .input-given {
+            background-color: #eff6ff; /* blue-50 */
+            color: #0369a1; /* blue-700 */
+            border-color: #60a5fa; /* blue-400 */
+            font-weight: 900;
+            box-shadow: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+            pointer-events: none; /* No editable */
+            user-select: none;
+        }
+        .input-active {
+            background-color: #ffffff; 
+            border-color: #cbd5e1; /* slate-300 */
+            color: #334155; /* slate-700 */
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        }
+        .input-active:focus {
+            background-color: #ffffff;
+            border-color: #3b82f6; /* blue-500 */
+            ring: 2px solid #bfdbfe;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        /* Disabled button state */
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+            background-color: #94a3b8 !important; /* slate-400 */
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+
+    <!-- Header / Score Board -->
+    <header class="w-full max-w-lg flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-black text-slate-700">Irregular Verbs</h1>
+            <p class="text-slate-500 text-sm">Challenge 1º ESO</p>
+        </div>
+        <div class="bg-white px-6 py-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Puntuación</span>
+            <span id="scoreDisplay" class="text-4xl font-black score-transition text-red-500">0.00</span>
+        </div>
+    </header>
+
+    <!-- Game Card -->
+    <main id="gameCard" class="bg-white w-full max-w-lg rounded-3xl shadow-xl overflow-hidden border border-slate-100 relative transition-all duration-300">
+        <!-- Progress bar based on score 0-10 -->
+        <div class="h-2 w-full bg-slate-100">
+            <div id="progressBar" class="h-full bg-blue-400 transition-all duration-500" style="width: 0%"></div>
+        </div>
+
+        <div class="p-8">
+            <!-- Question Area -->
+            <div id="questionArea">
+                <div class="mb-6 text-center">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Completa las formas que faltan</p>
+                </div>
+
+                <!-- Fixed Order Inputs Grid -->
+                <div class="space-y-5">
+                    <!-- 1. Base Form -->
+                    <div class="relative">
+                        <label id="labelBase" class="block text-xs font-black text-slate-400 mb-1 ml-1 uppercase flex items-center gap-2">Base Form</label>
+                        <input type="text" id="inputBase" class="w-full border-2 text-xl font-bold rounded-xl px-4 py-3 outline-none transition-all text-center" autocomplete="off">
+                    </div>
+
+                    <!-- 2. Past Simple -->
+                    <div class="relative">
+                        <label id="labelPast" class="block text-xs font-black text-slate-400 mb-1 ml-1 uppercase flex items-center gap-2">Past Simple</label>
+                        <input type="text" id="inputPast" class="w-full border-2 text-xl font-bold rounded-xl px-4 py-3 outline-none transition-all text-center" autocomplete="off">
+                    </div>
+
+                    <!-- 3. Past Participle -->
+                    <div class="relative">
+                        <label id="labelPart" class="block text-xs font-black text-slate-400 mb-1 ml-1 uppercase flex items-center gap-2">Past Participle</label>
+                        <input type="text" id="inputPart" class="w-full border-2 text-xl font-bold rounded-xl px-4 py-3 outline-none transition-all text-center" autocomplete="off">
+                    </div>
+                </div>
+
+                <!-- Feedback Message -->
+                <div id="feedback" class="mt-6 h-6 text-center text-sm font-bold text-transparent">Feedback</div>
+
+                <!-- Action Button -->
+                <button id="actionBtn" onclick="checkAnswer()" disabled class="mt-6 w-full bg-blue-500 hover:bg-blue-600 text-white font-black text-lg py-4 rounded-xl shadow-lg shadow-blue-200 transform transition active:scale-95 flex items-center justify-center gap-2">
+                    <span>Comprobar</span>
+                    <i class="ph ph-check-circle text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Victory Screen (Hidden by default) -->
+            <div id="victoryScreen" class="hidden text-center py-10">
+                <i class="ph-fill ph-trophy text-6xl text-yellow-400 mb-4 inline-block bounce"></i>
+                <h2 class="text-3xl font-black text-slate-800 mb-2">¡Enhorabuena!</h2>
+                <p class="text-slate-500 mb-8">Has alcanzado el 10. ¡Objetivo cumplido!</p>
+                <button onclick="restartGame()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-green-200 transition">
+                    Jugar Otra Vez
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Teacher/Settings Panel -->
+    <details class="w-full max-w-lg mt-8 group">
+        <summary class="list-none flex items-center justify-center gap-2 text-slate-400 cursor-pointer hover:text-slate-600 transition text-sm font-bold select-none">
+            <i class="ph ph-gear"></i> Configuración de Profesor
+        </summary>
+        <div class="mt-4 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            
+            <div class="mb-2 flex justify-between items-center text-xs text-slate-500 font-mono">
+                <span id="statsN">N: 15</span>
+                <span id="statsn">n(80%): 12</span>
+            </div>
+
+            <!-- List Input -->
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Lista de Verbos (Separados por comas)</label>
+                <textarea id="verbListInput" class="w-full h-24 text-sm p-3 bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-blue-400 resize-none font-mono text-slate-600"></textarea>
+                <div class="flex justify-end mt-2">
+                    <button onclick="updateVerbList()" class="text-xs bg-slate-800 text-white px-3 py-1.5 rounded-lg hover:bg-slate-700 transition">
+                        Actualizar Lista
+                    </button>
+                </div>
+            </div>
+
+            <!-- Data Management -->
+            <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-100">
+                <button onclick="exportData()" class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-600 py-2 rounded-lg text-xs font-bold transition">
+                    <i class="ph ph-download-simple"></i> Exportar JSON
+                </button>
+                <label class="flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-600 py-2 rounded-lg text-xs font-bold transition cursor-pointer">
+                    <i class="ph ph-upload-simple"></i> Importar JSON
+                    <input type="file" id="fileInput" class="hidden" accept=".json" onchange="importData(this)">
+                </label>
+                <button onclick="emailBackup()" class="col-span-2 flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-600 py-2 rounded-lg text-xs font-bold transition border border-blue-100">
+                    <i class="ph ph-envelope"></i> Enviar Backup por Email
+                </button>
+            </div>
+        </div>
+    </details>
+
+    <script>
+        // --- DATA ---
+        const verbDictionary = {
+            'be': { past: 'was/were', participle: 'been' },
+            'beat': { past: 'beat', participle: 'beaten' },
+            'become': { past: 'became', participle: 'become' },
+            'begin': { past: 'began', participle: 'begun' },
+            'bend': { past: 'bent', participle: 'bent' },
+            'bet': { past: 'bet', participle: 'bet' },
+            'bite': { past: 'bit', participle: 'bitten' },
+            'bleed': { past: 'bled', participle: 'bled' },
+            'blow': { past: 'blew', participle: 'blown' },
+            'break': { past: 'broke', participle: 'broken' },
+            'bring': { past: 'brought', participle: 'brought' },
+            'build': { past: 'built', participle: 'built' },
+            'burn': { past: 'burnt/burned', participle: 'burnt/burned' },
+            'buy': { past: 'bought', participle: 'bought' },
+            'catch': { past: 'caught', participle: 'caught' },
+            'choose': { past: 'chose', participle: 'chosen' },
+            'come': { past: 'came', participle: 'come' },
+            'cost': { past: 'cost', participle: 'cost' },
+            'cut': { past: 'cut', participle: 'cut' },
+            'do': { past: 'did', participle: 'done' },
+            'draw': { past: 'drew', participle: 'drawn' },
+            'drink': { past: 'drank', participle: 'drunk' },
+            'drive': { past: 'drove', participle: 'driven' },
+            'eat': { past: 'ate', participle: 'eaten' },
+            'fall': { past: 'fell', participle: 'fallen' },
+            'feel': { past: 'felt', participle: 'felt' },
+            'fight': { past: 'fought', participle: 'fought' },
+            'find': { past: 'found', participle: 'found' },
+            'fly': { past: 'flew', participle: 'flown' },
+            'forget': { past: 'forgot', participle: 'forgotten' },
+            'get': { past: 'got', participle: 'got/gotten' },
+            'give': { past: 'gave', participle: 'given' },
+            'go': { past: 'went', participle: 'gone' },
+            'grow': { past: 'grew', participle: 'grown' },
+            'hang': { past: 'hung', participle: 'hung' },
+            'have': { past: 'had', participle: 'had' },
+            'hear': { past: 'heard', participle: 'heard' },
+            'hide': { past: 'hid', participle: 'hidden' },
+            'hit': { past: 'hit', participle: 'hit' },
+            'hold': { past: 'held', participle: 'held' },
+            'hurt': { past: 'hurt', participle: 'hurt' },
+            'keep': { past: 'kept', participle: 'kept' },
+            'know': { past: 'knew', participle: 'known' },
+            'learn': { past: 'learnt/learned', participle: 'learnt/learned' },
+            'leave': { past: 'left', participle: 'left' },
+            'lend': { past: 'lent', participle: 'lent' },
+            'let': { past: 'let', participle: 'let' },
+            'lose': { past: 'lost', participle: 'lost' },
+            'make': { past: 'made', participle: 'made' },
+            'mean': { past: 'meant', participle: 'meant' },
+            'meet': { past: 'met', participle: 'met' },
+            'pay': { past: 'paid', participle: 'paid' },
+            'put': { past: 'put', participle: 'put' },
+            'read': { past: 'read', participle: 'read' },
+            'ride': { past: 'rode', participle: 'ridden' },
+            'ring': { past: 'rang', participle: 'rung' },
+            'run': { past: 'ran', participle: 'run' },
+            'say': { past: 'said', participle: 'said' },
+            'see': { past: 'saw', participle: 'seen' },
+            'sell': { past: 'sold', participle: 'sold' },
+            'send': { past: 'sent', participle: 'sent' },
+            'show': { past: 'showed', participle: 'shown' },
+            'shut': { past: 'shut', participle: 'shut' },
+            'sing': { past: 'sang', participle: 'sung' },
+            'sit': { past: 'sat', participle: 'sat' },
+            'sleep': { past: 'slept', participle: 'slept' },
+            'speak': { past: 'spoke', participle: 'spoken' },
+            'spend': { past: 'spent', participle: 'spent' },
+            'stand': { past: 'stood', participle: 'stood' },
+            'steal': { past: 'stole', participle: 'stolen' },
+            'swim': { past: 'swam', participle: 'swum' },
+            'take': { past: 'took', participle: 'taken' },
+            'teach': { past: 'taught', participle: 'taught' },
+            'tear': { past: 'tore', participle: 'torn' },
+            'tell': { past: 'told', participle: 'told' },
+            'think': { past: 'thought', participle: 'thought' },
+            'throw': { past: 'threw', participle: 'thrown' },
+            'understand': { past: 'understood', participle: 'understood' },
+            'wake': { past: 'woke', participle: 'woken' },
+            'wear': { past: 'wore', participle: 'worn' },
+            'win': { past: 'won', participle: 'won' },
+            'write': { past: 'wrote', participle: 'written' }
+        };
+
+        // --- STATE ---
+        let activeVerbsList = ['be', 'beat', 'become', 'begin', 'bend', 'bet', 'bite', 'bleed', 'blow', 'break', 'bring', 'build', 'burn', 'buy', 'catch'];
+        let remainingVerbs = []; // Deck of cards logic
+        let score = 0;
+        let totalVerbs = 0; // Was N
+        let targetThreshold = 0; // Was n (80% of N)
+        let currentRound = null;
+        let isWaiting = false;
+
+        // --- DOM ---
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const progressBar = document.getElementById('progressBar');
+        const verbListInput = document.getElementById('verbListInput');
+        const feedbackEl = document.getElementById('feedback');
+        const statsN = document.getElementById('statsN');
+        const statsn = document.getElementById('statsn');
+        
+        // Fixed inputs
+        const inputs = {
+            base: document.getElementById('inputBase'),
+            past: document.getElementById('inputPast'),
+            part: document.getElementById('inputPart')
+        };
+        const labels = {
+            base: document.getElementById('labelBase'),
+            past: document.getElementById('labelPast'),
+            part: document.getElementById('labelPart')
+        };
+
+        const actionBtn = document.getElementById('actionBtn');
+        const questionArea = document.getElementById('questionArea');
+        const victoryScreen = document.getElementById('victoryScreen');
+
+        // --- INIT & LOGIC ---
+
+        function init() {
+            verbListInput.value = activeVerbsList.join(', ');
+            calculateParams();
+            remainingVerbs = [...activeVerbsList]; // Initialize deck
+            
+            // Add input listeners for validation
+            inputs.base.addEventListener('input', updateButtonState);
+            inputs.past.addEventListener('input', updateButtonState);
+            inputs.part.addEventListener('input', updateButtonState);
+            
+            updateScoreUI();
+            generateQuestion();
+        }
+
+        function calculateParams() {
+            totalVerbs = activeVerbsList.length;
+            targetThreshold = Math.round(totalVerbs * 0.8);
+            if (targetThreshold === 0) targetThreshold = 1; 
+            statsN.textContent = `N: ${totalVerbs}`;
+            statsn.textContent = `n(80%): ${targetThreshold}`;
+        }
+
+        function updateButtonState() {
+            if (isWaiting) return; // Don't change if in waiting state
+
+            if (currentRound && currentRound.answers) {
+                const ans1 = currentRound.answers[0].el.value.trim();
+                const ans2 = currentRound.answers[1].el.value.trim();
+                
+                if (ans1.length > 0 && ans2.length > 0) {
+                    actionBtn.disabled = false;
+                } else {
+                    actionBtn.disabled = true;
+                }
+            }
+        }
+
+        function generateQuestion() {
+            if (score >= 9.99) return showVictory();
+
+            // Deck logic: Refill if empty
+            if (remainingVerbs.length === 0) {
+                remainingVerbs = [...activeVerbsList];
+                console.log("Baraja rellenada");
+            }
+
+            // Pick random index from remaining verbs
+            const randomIndex = Math.floor(Math.random() * remainingVerbs.length);
+            const verbKey = remainingVerbs[randomIndex];
+            
+            const verbData = verbDictionary[verbKey];
+
+            if (!verbData) {
+                remainingVerbs.splice(randomIndex, 1);
+                return generateQuestion();
+            }
+
+            // Remove selected verb from the deck
+            remainingVerbs.splice(randomIndex, 1);
+
+            // Define the 3 slots
+            const fullSet = [
+                { type: 'base', val: verbKey, el: inputs.base, label: labels.base, name: 'Base Form' },
+                { type: 'past', val: verbData.past, el: inputs.past, label: labels.past, name: 'Past Simple' },
+                { type: 'part', val: verbData.participle, el: inputs.part, label: labels.part, name: 'Past Participle' }
+            ];
+
+            // Pick one to be the clue
+            const clueIndex = Math.floor(Math.random() * 3);
+            
+            // Setup UI
+            fullSet.forEach((item, index) => {
+                // Reset styles
+                item.el.value = '';
+                item.el.classList.remove('input-given', 'input-active', 'bg-red-50', 'border-red-300', 'text-red-500');
+                item.label.innerHTML = item.name; // Reset label
+                
+                if (index === clueIndex) {
+                    // This is the DATA
+                    item.el.value = item.val;
+                    item.el.classList.add('input-given');
+                    item.el.readOnly = true;
+                    // Add badge to label
+                    item.label.innerHTML = `${item.name} <span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[10px] tracking-wide border border-blue-200">DATO</span>`;
+                } else {
+                    // This is the INPUT
+                    item.el.classList.add('input-active');
+                    item.el.readOnly = false;
+                }
+            });
+
+            // Identify which are answers
+            currentRound = {
+                clueIndex: clueIndex,
+                answers: fullSet.filter((_, i) => i !== clueIndex)
+            };
+
+            // Focus first available input
+            const firstInput = currentRound.answers[0].el;
+            firstInput.focus();
+
+            // Reset Button & Feedback
+            actionBtn.disabled = true; // Start disabled
+            feedbackEl.textContent = '';
+            feedbackEl.className = "mt-6 h-6 text-center text-sm font-bold text-transparent";
+            actionBtn.innerHTML = `<span>Comprobar</span> <i class="ph ph-check-circle text-xl"></i>`;
+            actionBtn.classList.remove('bg-red-500', 'bg-green-500');
+            actionBtn.classList.add('bg-blue-500', 'hover:bg-blue-600');
+            
+            isWaiting = false;
+        }
+
+        function cleanInput(str) {
+            return str.trim().toLowerCase();
+        }
+
+        function validate(input, correct) {
+            const val = cleanInput(input);
+            const answers = correct.split('/');
+            // Add flexibility: check if input matches strict full string (e.g. "was/were") 
+            // OR matches one of the split options (e.g. "was" OR "were")
+            return val === correct || answers.includes(val);
+        }
+
+        function checkAnswer() {
+            if (isWaiting) {
+                generateQuestion();
+                return;
+            }
+
+            // Guard clause just in case, though button is disabled
+            const ans1 = currentRound.answers[0];
+            const ans2 = currentRound.answers[1];
+            
+            if (ans1.el.value.trim() === '' || ans2.el.value.trim() === '') {
+                return; 
+            }
+
+            const isCorrect1 = validate(ans1.el.value, ans1.val);
+            const isCorrect2 = validate(ans2.el.value, ans2.val);
+
+            // Determine Points
+            let pointsPerField = 0;
+            if (score < 5) {
+                // Bracket 1
+                pointsPerField = 5 / (2 * targetThreshold);
+            } else {
+                // Bracket 2
+                let remaining = totalVerbs - targetThreshold;
+                if (remaining < 1) remaining = 1;
+                pointsPerField = 5 / (2 * remaining);
+            }
+
+            let scoreChange = 0;
+            if (isCorrect1) scoreChange += pointsPerField;
+            else scoreChange -= pointsPerField;
+
+            if (isCorrect2) scoreChange += pointsPerField;
+            else scoreChange -= pointsPerField;
+
+            if (isCorrect1 && isCorrect2) {
+                applyScore(scoreChange);
+                handleSuccess();
+            } else {
+                applyScore(scoreChange);
+                handleFail(ans1, ans2, isCorrect1, isCorrect2);
+            }
+        }
+
+        function applyScore(change) {
+            score += change;
+            if (score < 0) score = 0;
+            if (score > 10) score = 10;
+            updateScoreUI();
+        }
+
+        function handleSuccess() {
+            feedbackEl.textContent = "¡Correcto! Muy bien.";
+            feedbackEl.className = "mt-6 h-6 text-center text-sm font-bold text-green-500";
+            
+            actionBtn.disabled = false; // Ensure button enabled for "Next"
+            actionBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            actionBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+            actionBtn.innerHTML = `<span>¡Genial!</span> <i class="ph ph-arrow-right text-xl"></i>`;
+            
+            isWaiting = true;
+            setTimeout(() => {
+                if(score < 9.99) generateQuestion();
+                else showVictory();
+            }, 1000);
+        }
+
+        function handleFail(a1, a2, ok1, ok2) {
+            document.getElementById('gameCard').classList.add('shake');
+            setTimeout(() => document.getElementById('gameCard').classList.remove('shake'), 500);
+
+            if(!ok1) {
+                a1.el.value = a1.val.split('/')[0]; // Show primary answer
+                a1.el.classList.add('text-red-500', 'border-red-300', 'bg-red-50');
+            }
+            if(!ok2) {
+                a2.el.value = a2.val.split('/')[0];
+                a2.el.classList.add('text-red-500', 'border-red-300', 'bg-red-50');
+            }
+
+            feedbackEl.textContent = "Revisa las correcciones en rojo.";
+            feedbackEl.className = "mt-6 h-6 text-center text-sm font-bold text-red-500";
+            
+            actionBtn.disabled = false; // Ensure button enabled for "Next"
+            actionBtn.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            actionBtn.classList.add('bg-red-500', 'hover:bg-red-600');
+            actionBtn.innerHTML = `<span>Siguiente</span> <i class="ph ph-arrow-right text-xl"></i>`;
+            
+            isWaiting = true;
+        }
+
+        function updateScoreUI() {
+            scoreDisplay.textContent = score.toFixed(2);
+            if (score >= 5) {
+                scoreDisplay.classList.remove('text-red-500');
+                scoreDisplay.classList.add('text-green-500');
+            } else {
+                scoreDisplay.classList.remove('text-green-500');
+                scoreDisplay.classList.add('text-red-500');
+            }
+            const percentage = Math.max(0, Math.min(100, (score / 10) * 100));
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        function showVictory() {
+            questionArea.classList.add('hidden');
+            victoryScreen.classList.remove('hidden');
+            createConfetti();
+        }
+
+        function restartGame() {
+            score = 0;
+            remainingVerbs = [...activeVerbsList]; 
+            updateScoreUI();
+            victoryScreen.classList.add('hidden');
+            questionArea.classList.remove('hidden');
+            generateQuestion();
+        }
+
+        // --- TEACHER TOOLS ---
+        function updateVerbList() {
+            const raw = verbListInput.value;
+            const list = raw.split(',').map(s => s.trim().toLowerCase()).filter(s => s.length > 0);
+            const validList = list.filter(v => verbDictionary[v]);
+            
+            if (validList.length === 0) {
+                alert("Ningún verbo válido detectado.");
+                return;
+            }
+            activeVerbsList = validList;
+            verbListInput.value = activeVerbsList.join(', ');
+            calculateParams();
+            restartGame(); 
+            alert(`Lista actualizada. N=${totalVerbs}, n=${targetThreshold}`);
+        }
+
+        function getFormattedDate() {
+            const now = new Date();
+            return now.toISOString().replace(/[:.]/g, '-');
+        }
+
+        function getBackupObject() {
+            return {
+                app: "IrregularVerbsChallenge_1ESO",
+                date: new Date().toISOString(),
+                verbList: activeVerbsList,
+                score: score
+            };
+        }
+
+        function exportData() {
+            const data = getBackupObject();
+            const json = JSON.stringify(data, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_verbos_${getFormattedDate()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function emailBackup() {
+            const data = getBackupObject();
+            const json = JSON.stringify(data, null, 2);
+            const subject = `Backup Verbos - ${new Date().toLocaleDateString()}`;
+            const body = `Backup data:\n\n${json}`;
+            window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+        }
+
+        function importData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.app === "IrregularVerbsChallenge_1ESO" && Array.isArray(data.verbList)) {
+                        activeVerbsList = data.verbList;
+                        verbListInput.value = activeVerbsList.join(', ');
+                        score = data.score || 0;
+                        calculateParams();
+                        updateScoreUI();
+                        alert("Datos importados.");
+                        restartGame();
+                    } else {
+                        alert("Formato incorrecto.");
+                    }
+                } catch (err) {
+                    alert("Error al leer archivo.");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function createConfetti() {
+            for(let i=0; i<50; i++) {
+                const conf = document.createElement('div');
+                conf.classList.add('confetti');
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.animationDuration = Math.random() * 2 + 2 + 's';
+                conf.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+                document.body.appendChild(conf);
+                setTimeout(() => conf.remove(), 4000);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Enter') {
+                 // Check button disabled state before triggering
+                 if(!actionBtn.disabled) checkAnswer();
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
