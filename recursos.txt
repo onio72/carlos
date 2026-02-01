@@ -27,6 +27,7 @@
 [MATERIA] ingles | 🇬🇧 | Inglés |  | visible=si
 [TEMA] Tema 1 | visible=si
 [ENLACE] Verbos en inglés | Repasa las distintas formas verbales | https://drive.google.com/file/d/1A6UfNRa9j3sBoqI0CH2Qm2T2wHwXbs6x/view?usp=sharing
+[ENLACE] Verbos irregulares | Reto interactivo | https://onio72.github.io/carlos/ingles/irregularverbs/
 [ENLACE] Plurales en inglés | Repasa la formación del plural | https://onio72.github.io/carlos/ingles/t01/plural/index.html
 [ENLACE] Artículos y cuantificadores | Busca el cuantificador adecuado | https://onio72.github.io/carlos/ingles/t01/cuantificadores/index.html
 [ENLACE] Preposiciones | De lugar | https://onio72.github.io/carlos/ingles/t01/preposiciones/index.html
