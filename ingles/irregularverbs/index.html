@@ -204,11 +204,14 @@
             'cost': { past: 'cost', participle: 'cost' },
             'cut': { past: 'cut', participle: 'cut' },
             'do': { past: 'did', participle: 'done' },
+            'dig': { past: 'dug', participle: 'dug' },
             'draw': { past: 'drew', participle: 'drawn' },
+            'dream': { past: 'dreamt/dreamed', participle: 'dreamt/dreamed' },
             'drink': { past: 'drank', participle: 'drunk' },
             'drive': { past: 'drove', participle: 'driven' },
             'eat': { past: 'ate', participle: 'eaten' },
             'fall': { past: 'fell', participle: 'fallen' },
+            'feed': { past: 'fed', participle: 'fed' },
             'feel': { past: 'felt', participle: 'felt' },
             'fight': { past: 'fought', participle: 'fought' },
             'find': { past: 'found', participle: 'found' },
@@ -269,7 +272,7 @@
         };
 
         // --- STATE ---
-        let activeVerbsList = ['be', 'beat', 'become', 'begin', 'bend', 'bet', 'bite', 'bleed', 'blow', 'break', 'bring', 'build', 'burn', 'buy', 'catch'];
+        let activeVerbsList = Object.keys(verbDictionary);
         let remainingVerbs = []; // Deck of cards logic
         let score = 0;
         let totalVerbs = 0; // Was N
