@@ -20,6 +20,7 @@
 [MATERIA] biologia | 🧬 | Biología |  | visible=si
 [TEMA] Tema 5 | visible=si
 [ENLACE] Tabla resumen | ¿Eres capaz de completar la tabla? | https://onio72.github.io/carlos/bg/t05/tablaresumen.html
+[ENLACE] Rocas y minerales | Esquema interactivo de repaso | https://onio72.github.io/carlos/rocasyminerales/
 [TEMA] Tema 6 | visible=si
 [ENLACE] Tabla resumen | Talofitas | https://onio72.github.io/carlos/bg/t06/talofitas/
 [ENLACE] Tabla resumen | Cormofitas | https://onio72.github.io/carlos/bg/t06/cormofitas/
@@ -32,8 +33,9 @@
 [ENLACE] Artículos y cuantificadores | Busca el cuantificador adecuado | https://onio72.github.io/carlos/ingles/t01/cuantificadores/index.html
 [ENLACE] Preposiciones | De lugar | https://onio72.github.io/carlos/ingles/t01/preposiciones/index.html
 
-[MATERIA] frances | 🇫🇷 | Francés |  | visible=no
+[MATERIA] frances | 🇫🇷 | Francés |  | visible=si
 [TEMA] Tema 1 | visible=si
+[ENLACE] Práctica de Francés 1º ESO | La ville, transports et professions | https://onio72.github.io/carlos/frances/
 
 [MATERIA] musica | 🎵 | Música |  | visible=no
 [TEMA] Tema 1 | visible=si
