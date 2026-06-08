@@ -712,7 +712,7 @@
                     <div class="grid-3">
                         <button type="button" onclick="setQuestionLimit(10)" class="btn-limit" id="btn-limit-10">10 Rápidas</button>
                         <button type="button" onclick="setQuestionLimit(20)" class="btn-limit" id="btn-limit-20">20 Estándar</button>
-                        <button type="button" onclick="setQuestionLimit(40)" class="btn-limit active" id="btn-limit-40">40+ Completo</button>
+                        <button type="button" onclick="setQuestionLimit(60)" class="btn-limit active" id="btn-limit-60">60 Completo</button>
                     </div>
                 </div>
 
@@ -1217,6 +1217,175 @@
                 subtext: "Femenino de 'un coiffeur'.",
                 answer: "une coiffeuse",
                 explanation: "Femenino con terminación '-euse': 'une coiffeuse'."
+            },
+            {
+                category: "ville",
+                type: "write",
+                prompt: "¿Cómo se dice 'una farmacia' en francés?",
+                subtext: "Escribe la respuesta con el artículo indeterminado femenino.",
+                answer: "une pharmacie",
+                explanation: "'Une pharmacie' es el establecimiento donde trabaja la farmacéutica o el farmacéutico."
+            },
+            {
+                category: "ville",
+                type: "multiple",
+                prompt: "¿Cuál de estos lugares corresponde a 'un ayuntamiento'?",
+                subtext: "Selecciona el edificio municipal.",
+                options: ["une mairie", "une gare", "un pont", "un rond-point"],
+                answer: "une mairie",
+                explanation: "'Une mairie' es el ayuntamiento."
+            },
+            {
+                category: "ville",
+                type: "write",
+                prompt: "¿Cómo se dice 'encima de la mesa' en francés?",
+                subtext: "Usa la preposición de lugar correcta.",
+                answer: "sur la table",
+                explanation: "'Sur' significa encima de. No se debe confundir con 'sous', que significa debajo de."
+            },
+            {
+                category: "ville",
+                type: "multiple",
+                prompt: "¿Qué significa 'devant le collège'?",
+                subtext: "Traduce la preposición de lugar.",
+                options: ["detrás del instituto", "delante del instituto", "dentro del instituto", "al lado del instituto"],
+                answer: "delante del instituto",
+                explanation: "'Devant' significa delante de."
+            },
+            {
+                category: "ville",
+                type: "write",
+                prompt: "Traduce al francés: 'una calle'",
+                subtext: "Escribe la respuesta con artículo indeterminado.",
+                answer: "une rue",
+                explanation: "'Rue' es femenino en francés: 'une rue'."
+            },
+            {
+                category: "transport",
+                type: "multiple",
+                prompt: "Completa: 'Nous allons à Paris ___ train.'",
+                subtext: "Elige la preposición correcta.",
+                options: ["à", "en", "dans", "sur"],
+                answer: "en",
+                explanation: "Con medios de transporte cerrados como el tren se usa 'en': 'en train'."
+            },
+            {
+                category: "transport",
+                type: "write",
+                prompt: "Completa la frase: 'Je vais au collège ___ bus.'",
+                subtext: "Escribe solo la preposición.",
+                answer: "en",
+                explanation: "El autobús es un transporte cerrado, por eso se usa 'en bus'."
+            },
+            {
+                category: "transport",
+                type: "multiple",
+                prompt: "¿Cómo se dice 'en moto' en francés?",
+                subtext: "Recuerda la regla de los transportes abiertos.",
+                options: ["en moto", "à moto", "dans moto", "par moto"],
+                answer: "à moto",
+                explanation: "Con la moto se usa 'à' porque es un transporte abierto sobre el que nos subimos."
+            },
+            {
+                category: "transport",
+                type: "write",
+                prompt: "Completa: 'Vous allez en vacances ___ avion.'",
+                subtext: "Escribe la preposición correcta.",
+                answer: "en",
+                explanation: "Con el avión se usa 'en': 'en avion'."
+            },
+            {
+                category: "transport",
+                type: "multiple",
+                prompt: "Si vas andando, ¿cuál es la expresión correcta?",
+                subtext: "Es una expresión fija.",
+                options: ["en pied", "à pied", "sur pied", "par pied"],
+                answer: "à pied",
+                explanation: "Ir andando se expresa siempre como 'à pied'."
+            },
+            {
+                category: "verbs",
+                type: "write",
+                prompt: "Conjuga ALLER para nosotros: 'Nous ____ au musée.'",
+                subtext: "Escribe solo el verbo conjugado.",
+                answer: "allons",
+                explanation: "Con 'nous', el verbo ALLER se conjuga 'nous allons'."
+            },
+            {
+                category: "verbs",
+                type: "multiple",
+                prompt: "¿Cuál es la forma correcta de ALLER con 'vous'?",
+                subtext: "Selecciona la conjugación de presente.",
+                options: ["allez", "allons", "vais", "vont"],
+                answer: "allez",
+                explanation: "El presente de ALLER con 'vous' es 'vous allez'."
+            },
+            {
+                category: "verbs",
+                type: "write",
+                prompt: "Conjuga PRENDRE para ellos/ellas: 'Ils ____ le bus.'",
+                subtext: "Cuidado con la doble consonante.",
+                answer: "prennent",
+                explanation: "PRENDRE con 'ils/elles' se escribe 'prennent', con doble n."
+            },
+            {
+                category: "verbs",
+                type: "write",
+                prompt: "Conjuga DESCENDRE para nosotros: 'Nous ____ du train.'",
+                subtext: "Escribe solo la conjugación.",
+                answer: "descendons",
+                explanation: "DESCENDRE con 'nous' toma la terminación '-ons': 'nous descendons'."
+            },
+            {
+                category: "verbs",
+                type: "multiple",
+                prompt: "¿Cuál es la orden formal para decir '¡Continúe todo recto!'?",
+                subtext: "Usa el imperativo con 'vous'.",
+                options: ["Continue tout droit !", "Continuez tout droit !", "Continues tout droit !", "Continuons tout droit !"],
+                answer: "Continuez tout droit !",
+                explanation: "Para la forma formal o plural se usa la terminación '-ez': 'Continuez'."
+            },
+            {
+                category: "professions",
+                type: "write",
+                prompt: "¿Cuál es el femenino de 'un boulanger'?",
+                subtext: "Escribe la respuesta completa con 'une'.",
+                answer: "une boulangère",
+                explanation: "El masculino terminado en '-er' pasa a '-ère': 'un boulanger', 'une boulangère'."
+            },
+            {
+                category: "professions",
+                type: "multiple",
+                prompt: "¿Cuál es el femenino correcto de 'un policier'?",
+                subtext: "Fíjate en el acento grave.",
+                options: ["une policier", "une policière", "une policeuse", "une policiaire"],
+                answer: "une policière",
+                explanation: "Los masculinos en '-ier' pasan a '-ière' en femenino."
+            },
+            {
+                category: "professions",
+                type: "write",
+                prompt: "Traduce al francés: 'una jardinera'",
+                subtext: "Femenino de 'un jardinier'.",
+                answer: "une jardinière",
+                explanation: "'Un jardinier' cambia a 'une jardinière' en femenino."
+            },
+            {
+                category: "professions",
+                type: "multiple",
+                prompt: "¿Cuál es el femenino de 'un serveur'?",
+                subtext: "Selecciona el oficio femenino correcto.",
+                options: ["une serveure", "une serveuse", "une servrice", "une serveur"],
+                answer: "une serveuse",
+                explanation: "El masculino 'serveur' pasa a femenino como 'serveuse'."
+            },
+            {
+                category: "professions",
+                type: "write",
+                prompt: "Traduce al francés: 'un fotógrafo'",
+                subtext: "Es una profesión invariable en la forma.",
+                answer: "un photographe",
+                explanation: "'Photographe' mantiene la misma forma para masculino y femenino: un/une photographe."
             }
         ];
 
@@ -1225,7 +1394,7 @@
         let scoreCorrect = 0;
         let scoreIncorrect = 0;
         let scoreTotal = 0;
-        let questionLimit = 40; // Completo por defecto
+        let questionLimit = 60; // Completo por defecto
         let answerHistory = [];
 
         // Cambiar el límite de preguntas con botones
