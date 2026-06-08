@@ -1419,9 +1419,8 @@
 
             document.getElementById('btn-submit-write').setAttribute('disabled', 'true');
 
-            // MEJORA TÉCNICA CLAVE: .normalize("NFC") elimina fallos fantasma de caracteres en teclados iPhone/Mac (NFD descompuesto)
-            const cleanInput = rawInput.trim().toLowerCase().normalize("NFC").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()¡!?¿]/g, "").replace(/\s+/g, " ");
-            const cleanAnswer = question.answer.trim().toLowerCase().normalize("NFC").replace(/[.,\/#!$%\^&\*;:{}=\-_`~()¡!?¿]/g, "").replace(/\s+/g, " ");
+            const cleanInput = normalizeWrittenAnswer(rawInput);
+            const cleanAnswer = normalizeWrittenAnswer(question.answer);
 
             const inputElement = document.getElementById('write-input');
 
@@ -1444,6 +1443,16 @@
             }
 
             updateScoreboard();
+        }
+
+        function normalizeWrittenAnswer(value) {
+            return value
+                .trim()
+                .toLowerCase()
+                .normalize("NFC")
+                .replace(/[.,\/#!$%\^&\*;:{}=_`~()¡!?¿-]/g, "")
+                .replace(/\s+/g, " ")
+                .trim();
         }
 
         function saveAnswer(question, userAnswer, isCorrect) {
