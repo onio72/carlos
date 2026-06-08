@@ -566,6 +566,84 @@
             padding: 0 0.5rem;
         }
 
+        .results-review {
+            text-align: left;
+            margin-top: 1.75rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1.5rem;
+        }
+
+        .results-review h3 {
+            font-size: 1.15rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        .review-list {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .review-item {
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1rem;
+            background-color: var(--bg);
+        }
+
+        .review-item.correct {
+            border-color: var(--correct-border);
+            background-color: var(--correct-light);
+        }
+
+        .review-item.incorrect {
+            border-color: var(--incorrect-border);
+            background-color: var(--incorrect-light);
+        }
+
+        .review-question {
+            font-size: 0.95rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+        }
+
+        .review-line {
+            font-size: 0.85rem;
+            margin-top: 0.35rem;
+        }
+
+        .review-line strong {
+            color: var(--text-main);
+        }
+
+        .review-status {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0.2rem 0.55rem;
+            font-size: 0.7rem;
+            font-weight: 900;
+            margin-bottom: 0.65rem;
+            text-transform: uppercase;
+        }
+
+        .review-status.correct {
+            background-color: var(--correct);
+            color: white;
+        }
+
+        .review-status.incorrect {
+            background-color: var(--incorrect);
+            color: white;
+        }
+
+        .review-explanation {
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
         /* --- BOTÓN DE SIGUIENTE --- */
         .btn-next {
             width: 100%;
@@ -761,6 +839,11 @@
             </div>
 
             <p id="result-evaluation" class="result-msg">¡Sigue practicando para asegurar la mejor nota!</p>
+
+            <section class="results-review" aria-labelledby="review-title">
+                <h3 id="review-title">Corrección de tus respuestas</h3>
+                <div id="answers-review" class="review-list"></div>
+            </section>
 
             <button type="button" onclick="restartApp()" class="btn-submit" style="background-color: var(--text-main); box-shadow: none;">Volver al inicio</button>
         </div>
@@ -1143,6 +1226,7 @@
         let scoreIncorrect = 0;
         let scoreTotal = 0;
         let questionLimit = 40; // Completo por defecto
+        let answerHistory = [];
 
         // Cambiar el límite de preguntas con botones
         function setQuestionLimit(limit) {
@@ -1187,6 +1271,7 @@
             scoreCorrect = 0;
             scoreIncorrect = 0;
             scoreTotal = 0;
+            answerHistory = [];
 
             updateScoreboard();
 
@@ -1288,6 +1373,7 @@
             if (cleanSelected === cleanAnswer) {
                 scoreCorrect++;
                 scoreTotal += 1;
+                saveAnswer(question, selectedOption, true);
                 clickedButton.style.borderColor = "var(--correct)";
                 clickedButton.style.backgroundColor = "var(--correct-light)";
                 clickedButton.style.color = "var(--correct-dark)";
@@ -1299,6 +1385,7 @@
             } else {
                 scoreIncorrect++;
                 scoreTotal -= 1;
+                saveAnswer(question, selectedOption, false);
                 clickedButton.style.borderColor = "var(--incorrect)";
                 clickedButton.style.backgroundColor = "var(--incorrect-light)";
                 clickedButton.style.color = "var(--incorrect-dark)";
@@ -1328,6 +1415,7 @@
             const rawInput = document.getElementById('write-input').value;
             
             if (rawInput.trim() === "") return;
+            if (document.getElementById('btn-submit-write').hasAttribute('disabled')) return;
 
             document.getElementById('btn-submit-write').setAttribute('disabled', 'true');
 
@@ -1340,6 +1428,7 @@
             if (cleanInput === cleanAnswer) {
                 scoreCorrect++;
                 scoreTotal += 1;
+                saveAnswer(question, rawInput.trim(), true);
                 inputElement.style.borderColor = "var(--correct)";
                 inputElement.style.backgroundColor = "var(--correct-light)";
                 inputElement.style.color = "var(--correct-dark)";
@@ -1347,6 +1436,7 @@
             } else {
                 scoreIncorrect++;
                 scoreTotal -= 1;
+                saveAnswer(question, rawInput.trim(), false);
                 inputElement.style.borderColor = "var(--incorrect)";
                 inputElement.style.backgroundColor = "var(--incorrect-light)";
                 inputElement.style.color = "var(--incorrect-dark)";
@@ -1354,6 +1444,20 @@
             }
 
             updateScoreboard();
+        }
+
+        function saveAnswer(question, userAnswer, isCorrect) {
+            answerHistory[currentQuestionIndex] = {
+                number: currentQuestionIndex + 1,
+                category: question.category,
+                type: question.type,
+                prompt: question.prompt,
+                subtext: question.subtext,
+                userAnswer,
+                correctAnswer: question.answer,
+                explanation: question.explanation,
+                isCorrect
+            };
         }
 
         function showFeedback(isCorrect, explanation, answer) {
@@ -1427,6 +1531,57 @@
                 evaluation.style.color = "var(--incorrect-dark)";
                 evaluation.innerText = "❌ Necesitas estudiar un poco más. Repasa las tablas de verbos de movimiento y los femeninos de profesiones antes de volver a intentarlo.";
             }
+
+            renderAnswersReview();
+        }
+
+        function renderAnswersReview() {
+            const container = document.getElementById('answers-review');
+            container.innerHTML = '';
+
+            answerHistory.forEach(item => {
+                const reviewItem = document.createElement('article');
+                reviewItem.className = `review-item ${item.isCorrect ? 'correct' : 'incorrect'}`;
+
+                const status = document.createElement('span');
+                status.className = `review-status ${item.isCorrect ? 'correct' : 'incorrect'}`;
+                status.innerText = item.isCorrect ? 'Correcta' : 'Incorrecta';
+
+                const question = document.createElement('p');
+                question.className = 'review-question';
+                question.innerText = `${item.number}. ${item.prompt}`;
+
+                const userAnswer = document.createElement('p');
+                userAnswer.className = 'review-line';
+                userAnswer.innerHTML = `<strong>Tu respuesta:</strong> ${escapeHtml(item.userAnswer)}`;
+
+                const correctAnswer = document.createElement('p');
+                correctAnswer.className = 'review-line';
+                correctAnswer.innerHTML = `<strong>Respuesta correcta:</strong> ${escapeHtml(item.correctAnswer)}`;
+
+                reviewItem.appendChild(status);
+                reviewItem.appendChild(question);
+                reviewItem.appendChild(userAnswer);
+                reviewItem.appendChild(correctAnswer);
+
+                if (item.explanation) {
+                    const explanation = document.createElement('p');
+                    explanation.className = 'review-explanation';
+                    explanation.innerText = item.explanation;
+                    reviewItem.appendChild(explanation);
+                }
+
+                container.appendChild(reviewItem);
+            });
+        }
+
+        function escapeHtml(value) {
+            return String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
         }
 
         function restartApp() {
