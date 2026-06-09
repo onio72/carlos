@@ -1749,6 +1749,7 @@
                 .trim()
                 .toLowerCase()
                 .normalize("NFC")
+                .replace(/[\u200B-\u200D\uFEFF]/g, "")
                 .replace(/[.,\/#!$%\^&\*;:{}=_`~()¡!?¿-]/g, "")
                 .replace(/\s+/g, " ")
                 .trim();
